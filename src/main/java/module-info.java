@@ -3,6 +3,8 @@ module org.fran.gestortienda {
     requires javafx.fxml;
     requires java.sql;
     requires javafx.graphics;
+    requires java.logging;
+    requires javafx.base;
 
 
     opens org.fran.gestortienda to javafx.fxml;
