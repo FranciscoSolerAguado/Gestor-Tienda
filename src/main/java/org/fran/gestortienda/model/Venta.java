@@ -1,0 +1,4 @@
+package org.fran.gestortienda.model;
+
+public class Venta {
+}
