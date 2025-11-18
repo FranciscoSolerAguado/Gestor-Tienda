@@ -1,30 +1,30 @@
-package org.fran.gestortienda.model;
+package org.fran.gestortienda.model.entity;
 
 import java.util.Objects;
 
-public class Proveedor {
-    int id_proveedor;
+public class Cliente {
+    int id_cliente;
     String nombre;
     String telefono;
     String correo;
 
-    public Proveedor(){
+    public Cliente() {
 
     }
 
-    public Proveedor(int id_proveedor, String nombre, String telefono, String correo) {
-        this.id_proveedor = id_proveedor;
+    public Cliente(int id_cliente, String nombre, String telefono, String correo) {
+        this.id_cliente = id_cliente;
         this.nombre = nombre;
         this.telefono = telefono;
         this.correo = correo;
     }
 
-    public int getId_proveedor() {
-        return id_proveedor;
+    public int getId_cliente() {
+        return id_cliente;
     }
 
-    public void setId_proveedor(int id_proveedor) {
-        this.id_proveedor = id_proveedor;
+    public void setId_cliente(int id_cliente) {
+        this.id_cliente = id_cliente;
     }
 
     public String getNombre() {
@@ -53,10 +53,10 @@ public class Proveedor {
 
     @Override
     public String toString() {
-        return "Proveedor{" +
-                "id_proveedor=" + id_proveedor +
+        return "Cliente{" +
+                "id_cliente=" + id_cliente +
                 ", nombre='" + nombre + '\'' +
-                ", telefono=" + telefono +
+                ", telefono='" + telefono + '\'' +
                 ", correo='" + correo + '\'' +
                 '}';
     }
@@ -64,12 +64,12 @@ public class Proveedor {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Proveedor proveedor = (Proveedor) o;
-        return id_proveedor == proveedor.id_proveedor;
+        Cliente cliente = (Cliente) o;
+        return id_cliente == cliente.id_cliente;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id_proveedor);
+        return Objects.hashCode(id_cliente);
     }
 }

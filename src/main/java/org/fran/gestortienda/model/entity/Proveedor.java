@@ -1,30 +1,30 @@
-package org.fran.gestortienda.model;
+package org.fran.gestortienda.model.entity;
 
 import java.util.Objects;
 
-public class Cliente {
-    int id_cliente;
+public class Proveedor {
+    int id_proveedor;
     String nombre;
     String telefono;
     String correo;
 
-    public Cliente() {
+    public Proveedor(){
 
     }
 
-    public Cliente(int id_cliente, String nombre, String telefono, String correo) {
-        this.id_cliente = id_cliente;
+    public Proveedor(int id_proveedor, String nombre, String telefono, String correo) {
+        this.id_proveedor = id_proveedor;
         this.nombre = nombre;
         this.telefono = telefono;
         this.correo = correo;
     }
 
-    public int getId_cliente() {
-        return id_cliente;
+    public int getId_proveedor() {
+        return id_proveedor;
     }
 
-    public void setId_cliente(int id_cliente) {
-        this.id_cliente = id_cliente;
+    public void setId_proveedor(int id_proveedor) {
+        this.id_proveedor = id_proveedor;
     }
 
     public String getNombre() {
@@ -53,10 +53,10 @@ public class Cliente {
 
     @Override
     public String toString() {
-        return "Cliente{" +
-                "id_cliente=" + id_cliente +
+        return "Proveedor{" +
+                "id_proveedor=" + id_proveedor +
                 ", nombre='" + nombre + '\'' +
-                ", telefono='" + telefono + '\'' +
+                ", telefono=" + telefono +
                 ", correo='" + correo + '\'' +
                 '}';
     }
@@ -64,12 +64,12 @@ public class Cliente {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Cliente cliente = (Cliente) o;
-        return id_cliente == cliente.id_cliente;
+        Proveedor proveedor = (Proveedor) o;
+        return id_proveedor == proveedor.id_proveedor;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id_cliente);
+        return Objects.hashCode(id_proveedor);
     }
 }

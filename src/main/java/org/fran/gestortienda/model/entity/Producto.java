@@ -1,4 +1,6 @@
-package org.fran.gestortienda.model;
+package org.fran.gestortienda.model.entity;
+
+import org.fran.gestortienda.model.Categoria;
 
 import java.util.Objects;
 

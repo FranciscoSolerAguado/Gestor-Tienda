@@ -1,4 +1,4 @@
-package org.fran.gestortienda.model;
+package org.fran.gestortienda.model.entity;
 
 import java.util.Objects;
 
