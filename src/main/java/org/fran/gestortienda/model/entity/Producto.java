@@ -11,18 +11,29 @@ public class Producto {
     double precio;
     int stock;
     Proveedor proveedor;
+    String imagen;
 
     public Producto() {
 
     }
 
-    public Producto(int id_producto, String nombre, Categoria categoria, double precio, int stock, Proveedor proveedor) {
+    public Producto(int id_producto, String nombre, Categoria categoria, double precio, int stock, Proveedor proveedor, String imagen) {
         this.id_producto = id_producto;
         this.nombre = nombre;
         this.categoria = categoria;
         this.precio = precio;
         this.stock = stock;
         this.proveedor = proveedor;
+        this.imagen = imagen;
+    }
+
+    public Producto(String nombre, Categoria categoria, double precio, int stock, Proveedor proveedor, String imagen) {
+        this.nombre = nombre;
+        this.categoria = categoria;
+        this.precio = precio;
+        this.stock = stock;
+        this.proveedor = proveedor;
+        this.imagen = imagen;
     }
 
     public int getId_producto() {
@@ -73,6 +84,14 @@ public class Producto {
         this.proveedor = proveedor;
     }
 
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
+
     @Override
     public String toString() {
         return "Producto{" +
@@ -82,6 +101,7 @@ public class Producto {
                 ", precio=" + precio +
                 ", stock=" + stock +
                 ", proveedor=" + proveedor +
+                ", imagen='" + imagen + '\'' +
                 '}';
     }
 
