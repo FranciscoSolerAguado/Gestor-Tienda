@@ -19,6 +19,12 @@ public class Proveedor {
         this.correo = correo;
     }
 
+    public Proveedor(String nombre, String telefono, String correo) {
+        this.nombre = nombre;
+        this.telefono = telefono;
+        this.correo = correo;
+    }
+
     public int getId_proveedor() {
         return id_proveedor;
     }
