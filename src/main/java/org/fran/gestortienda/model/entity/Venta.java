@@ -6,17 +6,17 @@ import java.util.Objects;
 public class Venta {
     int id_venta;
     Date fecha;
-    Double decimal;
+    Double total;
     Cliente cliente;
 
     public Venta() {
 
     }
 
-    public Venta(int id_venta, Date fecha, Double decimal, Cliente cliente) {
+    public Venta(int id_venta, Date fecha, Double total, Cliente cliente) {
         this.id_venta = id_venta;
         this.fecha = fecha;
-        this.decimal = decimal;
+        this.total = total;
         this.cliente = cliente;
     }
 
@@ -36,12 +36,12 @@ public class Venta {
         this.fecha = fecha;
     }
 
-    public Double getDecimal() {
-        return decimal;
+    public Double getTotal() {
+        return total;
     }
 
-    public void setDecimal(Double decimal) {
-        this.decimal = decimal;
+    public void setTotal(Double total) {
+        this.total = total;
     }
 
     public Cliente getCliente() {
@@ -57,7 +57,7 @@ public class Venta {
         return "Venta{" +
                 "id_venta=" + id_venta +
                 ", fecha=" + fecha +
-                ", decimal=" + decimal +
+                ", total=" + total +
                 ", cliente=" + cliente +
                 '}';
     }

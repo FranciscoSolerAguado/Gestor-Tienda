@@ -33,7 +33,6 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
     }
 
     public boolean save() throws SQLException {
-        boolean guardado = false;
         Connection conn = MySQLConnection.getConnection();
         // Corregido: La condición debe ser conn != null
         if (conn != null) {
@@ -128,14 +127,20 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
         Connection conn = MySQLConnection.getConnection();
         Producto producto = null;
         if (conn != null) {
-            try (PreparedStatement ps = conn.prepareStatement(GET_BY_ID);
-                 java.sql.ResultSet rs = ps.executeQuery()) {
-                ps.setInt(1, id);
+            try (PreparedStatement ps = conn.prepareStatement(GET_BY_ID)) {
+                
+                ps.setInt(1, id); // Asignar el parámetro ANTES de ejecutar
 
-                while (rs.next()) {
-                    if (rs.getInt("id_producto") == id) {
-                        producto = new Producto(rs.getInt("id_producto"), rs.getString("nombre"), Categoria.valueOf(rs.getString("categoria")), rs.getDouble("precio"), rs.getInt("stock"), null, rs.getString("imagen"));
-                        System.out.println(producto);
+                try (java.sql.ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) { // Si hay un resultado, lo procesamos
+                        producto = new Producto(
+                                rs.getInt("id_producto"),
+                                rs.getString("nombre"),
+                                Categoria.valueOf(rs.getString("categoria").toUpperCase()),
+                                rs.getDouble("precio"),
+                                rs.getInt("stock"),
+                                null,
+                                rs.getString("imagen"));
                     }
                 }
             } catch (SQLException e) {
