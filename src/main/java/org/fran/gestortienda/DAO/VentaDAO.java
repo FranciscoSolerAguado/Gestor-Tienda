@@ -4,14 +4,20 @@ import org.fran.gestortienda.Connection.MySQLConnection;
 import org.fran.gestortienda.model.CRUD;
 import org.fran.gestortienda.model.entity.Venta;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class VentaDAO extends Venta implements CRUD<Venta> {
-    private final static String INSERT = "INSERT INTO venta(fecha, total, id_cliente) VALUES(?, ?, ?)";
 
+    // --- QUERIES ---
+    private final static String INSERT = "INSERT INTO venta(fecha, total, id_cliente) VALUES(?, ?, ?)";
+    private final static String UPDATE = "UPDATE venta SET fecha = ?, total = ?, id_cliente = ? WHERE id_venta = ?";
+    private final static String DELETE = "DELETE FROM venta WHERE id_venta = ?";
+    private final static String GET_ALL = "SELECT id_venta, fecha, total, id_cliente FROM venta";
+    private final static String GET_BY_ID = "SELECT id_venta, fecha, total, id_cliente FROM venta WHERE id_venta = ?";
+
+    // --- CONSTRUCTORES ---
     public VentaDAO(int id_venta, java.util.Date fecha, Double total, org.fran.gestortienda.model.entity.Cliente cliente) {
         super(id_venta, fecha, total, cliente);
     }
@@ -24,14 +30,21 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         super(v.getId_venta(), v.getFecha(), v.getTotal(), v.getCliente());
     }
 
-    @Override
+    // --- MÉTODOS DE INSTANCIA (Acceden a la BD) ---
+
     public boolean save() throws SQLException {
         Connection conn = MySQLConnection.getConnection();
         if (conn != null) {
-            try (java.sql.PreparedStatement ps = conn.prepareStatement(INSERT)) {
+            try (PreparedStatement ps = conn.prepareStatement(INSERT)) {
                 ps.setDate(1, new java.sql.Date(getFecha().getTime()));
                 ps.setDouble(2, getTotal());
-                ps.setInt(3, getCliente().getId_cliente());
+
+                // Manejo de cliente nulo (lazy loading)
+                if (getCliente() != null && getCliente().getId_cliente() > 0) {
+                    ps.setInt(3, getCliente().getId_cliente());
+                } else {
+                    ps.setNull(3, Types.INTEGER);
+                }
 
                 return ps.executeUpdate() > 0;
             }
@@ -40,38 +53,106 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
     }
 
     @Override
-    public boolean add(Venta venta) throws SQLException {
-        VentaDAO ventaDAO = new VentaDAO(venta);
-        return  ventaDAO.save();
-    }
-
-    @Override
     public boolean remove() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean delete(Venta objeto) throws SQLException {
+        Connection conn = MySQLConnection.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(DELETE)) {
+                ps.setInt(1, getId_venta());
+                return ps.executeUpdate() > 0;
+            }
+        }
         return false;
     }
 
     @Override
     public boolean update() throws SQLException {
+        Connection conn = MySQLConnection.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(UPDATE)) {
+                ps.setDate(1, new java.sql.Date(getFecha().getTime()));
+                ps.setDouble(2, getTotal());
+
+                if (getCliente() != null && getCliente().getId_cliente() > 0) {
+                    ps.setInt(3, getCliente().getId_cliente());
+                } else {
+                    ps.setNull(3, Types.INTEGER);
+                }
+
+                ps.setInt(4, getId_venta()); // Cláusula WHERE
+                return ps.executeUpdate() > 0;
+            }
+        }
         return false;
     }
 
+    // --- MÉTODOS DE INTERFAZ (Delegan en los de instancia) ---
+
     @Override
-    public boolean update(Venta objeto) throws SQLException {
-        return false;
+    public boolean add(Venta venta) throws SQLException {
+        VentaDAO ventaDAO = new VentaDAO(venta);
+        return ventaDAO.save();
+    }
+
+    @Override
+    public boolean delete(Venta venta) throws SQLException {
+        if (venta == null || venta.getId_venta() == 0) {
+            return false;
+        }
+        VentaDAO ventaDAO = new VentaDAO(venta);
+        return ventaDAO.remove();
+    }
+
+    @Override
+    public boolean update(Venta venta) throws SQLException {
+        if (venta == null || venta.getId_venta() == 0) {
+            return false;
+        }
+        VentaDAO ventaDAO = new VentaDAO(venta);
+        return ventaDAO.update();
     }
 
     @Override
     public List<Venta> getAll() throws SQLException {
-        return List.of();
+        List<Venta> ventas = new ArrayList<>();
+        Connection conn = MySQLConnection.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(GET_ALL);
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // Consistente con ProductoDAO, se deja el objeto Cliente en null (lazy loading)
+                    Venta venta = new Venta(
+                            rs.getInt("id_venta"),
+                            rs.getDate("fecha"),
+                            rs.getDouble("total"),
+                            null // Cliente se cargará después si es necesario
+                    );
+                    ventas.add(venta);
+                }
+            }
+        }
+        return ventas;
     }
 
     @Override
     public Venta getById(int id) throws SQLException {
-        return null;
+        Venta venta = null;
+        Connection conn = MySQLConnection.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(GET_BY_ID)) {
+                ps.setInt(1, id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        // Consistente con ProductoDAO, se deja el objeto Cliente en null (lazy loading)
+                        venta = new Venta(
+                                rs.getInt("id_venta"),
+                                rs.getDate("fecha"),
+                                rs.getDouble("total"),
+                                null // Cliente se cargará después si es necesario
+                        );
+                    }
+                }
+            }
+        }
+        return venta;
     }
 }
