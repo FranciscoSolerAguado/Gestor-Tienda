@@ -3,7 +3,7 @@ package Producto;
 public class TestDAOProductoGetById {
     public static void main(String[] args) {
         org.fran.gestortienda.DAO.ProductoDAO productoDAO = new org.fran.gestortienda.DAO.ProductoDAO();
-        int idProductoABuscar = 14; // Cambia este ID por el que quieras buscar
+        int idProductoABuscar = 3; // Cambia este ID por el que quieras buscar
 
         try {
             org.fran.gestortienda.model.entity.Producto producto = productoDAO.getById(idProductoABuscar);
