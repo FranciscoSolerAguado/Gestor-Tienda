@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClienteDAO extends Cliente implements CRUD<Cliente> {
-    private final static String INSERT = "INSERT INTO cliente(nombre, apellidos, direccion, telefono, email) VALUES(?, ?, ?, ?, ?)";
-    private final static String UPDATE = "UPDATE cliente SET nombre=?, apellidos=?, direccion=?, telefono=?, email=? WHERE id_cliente=?";
+    private final static String INSERT = "INSERT INTO cliente(nombre, telefono, direccion) VALUES(?, ?, ?)";
+    private final static String UPDATE = "UPDATE cliente SET nombre=?, telefono=?, direccion=? WHERE id_cliente=?";
     private final static String DELETE = "DELETE FROM cliente WHERE id_cliente = ?";
-    private final static String GET_ALL = "SELECT id_cliente, nombre, apellidos, direccion, telefono, email FROM cliente";
-    private final static String GET_BY_ID = "SELECT id_cliente, nombre, apellidos, direccion, telefono, email FROM cliente WHERE id_cliente = ?";
+    private final static String GET_ALL = "SELECT id_cliente, nombre, telefono, direccion FROM cliente";
+    private final static String GET_BY_ID = "SELECT id_cliente, nombre, telefono, direccion FROM cliente WHERE id_cliente = ?";
 
     public ClienteDAO(int id_cliente, String nombre, String telefono, String correo) {
         super(id_cliente, nombre, telefono, correo);
@@ -66,7 +66,7 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
                 ps.setString(1, getNombre());
                 ps.setString(2, getTelefono());
                 ps.setString(3, getCorreo());
-                ps.setInt(6, getId_cliente()); // Cláusula WHERE
+                ps.setInt(4, getId_cliente()); // Cláusula WHERE
                 return ps.executeUpdate() > 0;
             }
         }
@@ -113,7 +113,7 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
                             rs.getInt("id_cliente"),
                             rs.getString("nombre"),
                             rs.getString("telefono"),
-                            rs.getString("email")
+                            rs.getString("direccion")
                     );
                     clientes.add(cliente);
                 }
@@ -135,7 +135,7 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
                                 rs.getInt("id_cliente"),
                                 rs.getString("nombre"),
                                 rs.getString("telefono"),
-                                rs.getString("email")
+                                rs.getString("direccion")
                         );
                     }
                 }

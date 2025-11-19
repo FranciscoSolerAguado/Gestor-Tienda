@@ -1,4 +1,4 @@
-package Detalle_Venta;
+package DAO.Detalle_Venta;
 
 import org.fran.gestortienda.DAO.Detalle_VentaDAO;
 import org.fran.gestortienda.model.entity.Detalle_Venta;
@@ -14,11 +14,11 @@ public class TestDAODetalle_VentaAdd {
     public static void main(String[] args) {
         // Asumimos que ya existe una Venta con id_venta = 1
         Venta ventaExistente = new Venta();
-        ventaExistente.setId_venta(1);
+        ventaExistente.setId_venta(3);
 
         // Asumimos que ya existe un Producto con id_producto = 1
         Producto productoExistente = new Producto();
-        productoExistente.setId_producto(1);
+        productoExistente.setId_producto(9);
 
         Detalle_Venta nuevoDetalle = new Detalle_Venta(
                 0, // El ID se autoincrementará

@@ -1,4 +1,4 @@
-package Proveedor;
+package DAO.Proveedor;
 
 import org.fran.gestortienda.DAO.ProveedorDAO;
 import org.fran.gestortienda.model.entity.Proveedor;
@@ -9,7 +9,7 @@ public class TestDAOProveedorAdd {
 
         Proveedor nuevoProveedor = new org.fran.gestortienda.model.entity.Proveedor(
                 0, // El ID se autoincrementará en la base de datos
-                "Proveedor Ejemplo S.A.",
+                "Borrar.",
                 "987654321",
                 "contacto@ejemplo.com"
         );

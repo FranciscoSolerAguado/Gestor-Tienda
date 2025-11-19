@@ -1,4 +1,4 @@
-package Producto;
+package DAO.Producto;
 
 public class TestDAOProductoGetById {
     public static void main(String[] args) {

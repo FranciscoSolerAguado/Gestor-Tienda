@@ -1,4 +1,4 @@
-package Venta;
+package DAO.Venta;
 
 import org.fran.gestortienda.DAO.VentaDAO;
 import org.fran.gestortienda.model.entity.Cliente;
@@ -9,7 +9,7 @@ public class TestDAOVentaAdd {
         VentaDAO ventaDAO = new VentaDAO();
 
         Cliente clienteExistente = new Cliente();
-        clienteExistente.setId_cliente(1); // <-- ¡Este es el paso clave!
+        clienteExistente.setId_cliente(2); // <-- ¡Este es el paso clave!
 
         Venta nuevaVenta = new Venta(
                 0, // El ID se autoincrementará

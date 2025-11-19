@@ -1,4 +1,4 @@
-package Producto;
+package DAO.Producto;
 
 import org.fran.gestortienda.DAO.ProductoDAO;
 import org.fran.gestortienda.model.Categoria;

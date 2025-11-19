@@ -1,4 +1,4 @@
-package Cliente;
+package DAO.Cliente;
 
 import org.fran.gestortienda.DAO.ClienteDAO;
 import org.fran.gestortienda.model.entity.Cliente;

@@ -1,8 +1,8 @@
-package Producto;
+package DAO.Producto;
 
 import org.fran.gestortienda.DAO.ProductoDAO;
 
-public class TestDAOProductoDelete {
+public class TestDAOProductoRemove {
     public static void main(String[] args) {
         ProductoDAO pdao = new ProductoDAO();
         pdao.setId_producto(15);
