@@ -27,7 +27,7 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
     }
 
     public ClienteDAO(Cliente c) {
-        super(c.getId_cliente(), c.getNombre(), c.getTelefono(), c.getCorreo());
+        super(c.getId_cliente(), c.getNombre(), c.getTelefono(), c.getDireccion());
     }
 
 
@@ -38,7 +38,7 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
             try (java.sql.PreparedStatement ps = conn.prepareStatement(INSERT)) {
                 ps.setString(1, getNombre());
                 ps.setString(2, getTelefono());
-                ps.setString(3, getCorreo());
+                ps.setString(3, getDireccion());
                 return ps.executeUpdate() > 0;
             }
         }
@@ -65,7 +65,7 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
             try (PreparedStatement ps = conn.prepareStatement(UPDATE)) {
                 ps.setString(1, getNombre());
                 ps.setString(2, getTelefono());
-                ps.setString(3, getCorreo());
+                ps.setString(3, getDireccion());
                 ps.setInt(4, getId_cliente()); // Cláusula WHERE
                 return ps.executeUpdate() > 0;
             }

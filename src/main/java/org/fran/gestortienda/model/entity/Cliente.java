@@ -6,17 +6,17 @@ public class Cliente {
     int id_cliente;
     String nombre;
     String telefono;
-    String correo;
+    String direccion;
 
     public Cliente() {
 
     }
 
-    public Cliente(int id_cliente, String nombre, String telefono, String correo) {
+    public Cliente(int id_cliente, String nombre, String telefono, String direccion) {
         this.id_cliente = id_cliente;
         this.nombre = nombre;
         this.telefono = telefono;
-        this.correo = correo;
+        this.direccion = direccion;
     }
 
     public int getId_cliente() {
@@ -43,12 +43,12 @@ public class Cliente {
         this.telefono = telefono;
     }
 
-    public String getCorreo() {
-        return correo;
+    public String getDireccion() {
+        return direccion;
     }
 
-    public void setCorreo(String correo) {
-        this.correo = correo;
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class Cliente {
                 "id_cliente=" + id_cliente +
                 ", nombre='" + nombre + '\'' +
                 ", telefono='" + telefono + '\'' +
-                ", correo='" + correo + '\'' +
+                ", correo='" + direccion + '\'' +
                 '}';
     }
 
