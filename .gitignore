@@ -6,6 +6,10 @@ target/
 
 objetivos.md
 
+### Application ###
+/data/
+*.log
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
