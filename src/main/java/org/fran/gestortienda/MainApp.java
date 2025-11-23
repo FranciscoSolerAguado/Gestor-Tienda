@@ -5,7 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.fran.gestortienda.DatabaseManager.DatabaseH2Manager;
+import org.fran.gestortienda.DatabaseManager.DatabaseManager;
 
 import java.io.IOException;
 
@@ -13,8 +13,8 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws IOException {
 
-        DatabaseH2Manager databaseH2Manager = new DatabaseH2Manager();
-        databaseH2Manager.crearTablas();
+        DatabaseManager databaseManager = new DatabaseManager();
+        databaseManager.crearTablas();
 
         FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/org/fran/gestortienda/ui/inicio.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
