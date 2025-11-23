@@ -5,6 +5,7 @@ module org.fran.gestortienda {
     requires javafx.graphics;
     requires java.logging;
     requires javafx.base;
+    requires org.fran.gestortienda;
 
 
     opens org.fran.gestortienda to javafx.fxml;

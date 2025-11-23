@@ -1,6 +1,6 @@
 package org.fran.gestortienda.DAO;
 
-import org.fran.gestortienda.Connection.MySQLConnection;
+import org.fran.gestortienda.Connection.ConnectionFactory;
 import org.fran.gestortienda.model.CRUD;
 import org.fran.gestortienda.model.entity.Venta;
 
@@ -10,14 +10,14 @@ import java.util.List;
 
 public class VentaDAO extends Venta implements CRUD<Venta> {
 
-    // --- QUERIES ---
+
     private final static String INSERT = "INSERT INTO venta(fecha, total, id_cliente) VALUES(?, ?, ?)";
     private final static String UPDATE = "UPDATE venta SET fecha = ?, total = ?, id_cliente = ? WHERE id_venta = ?";
     private final static String DELETE = "DELETE FROM venta WHERE id_venta = ?";
     private final static String GET_ALL = "SELECT id_venta, fecha, total, id_cliente FROM venta";
     private final static String GET_BY_ID = "SELECT id_venta, fecha, total, id_cliente FROM venta WHERE id_venta = ?";
 
-    // --- CONSTRUCTORES ---
+
     public VentaDAO(int id_venta, java.util.Date fecha, Double total, org.fran.gestortienda.model.entity.Cliente cliente) {
         super(id_venta, fecha, total, cliente);
     }
@@ -30,10 +30,10 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         super(v.getId_venta(), v.getFecha(), v.getTotal(), v.getCliente());
     }
 
-    // --- MÉTODOS DE INSTANCIA (Acceden a la BD) ---
+
 
     public boolean save() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(INSERT)) {
                 ps.setDate(1, new java.sql.Date(getFecha().getTime()));
@@ -54,7 +54,7 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
 
     @Override
     public boolean remove() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(DELETE)) {
                 ps.setInt(1, getId_venta());
@@ -66,7 +66,7 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
 
     @Override
     public boolean update() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(UPDATE)) {
                 ps.setDate(1, new java.sql.Date(getFecha().getTime()));
@@ -85,7 +85,7 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         return false;
     }
 
-    // --- MÉTODOS DE INTERFAZ (Delegan en los de instancia) ---
+
 
     @Override
     public boolean add(Venta venta) throws SQLException {
@@ -114,7 +114,7 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
     @Override
     public List<Venta> getAll() throws SQLException {
         List<Venta> ventas = new ArrayList<>();
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(GET_ALL);
                  ResultSet rs = ps.executeQuery()) {
@@ -136,7 +136,7 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
     @Override
     public Venta getById(int id) throws SQLException {
         Venta venta = null;
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(GET_BY_ID)) {
                 ps.setInt(1, id);

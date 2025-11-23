@@ -1,6 +1,6 @@
 package org.fran.gestortienda.DAO;
 
-import org.fran.gestortienda.Connection.MySQLConnection;
+import org.fran.gestortienda.Connection.ConnectionFactory;
 import org.fran.gestortienda.model.CRUD;
 import org.fran.gestortienda.model.entity.Detalle_Venta;
 import org.fran.gestortienda.model.entity.Producto;
@@ -39,7 +39,7 @@ public class Detalle_VentaDAO extends Detalle_Venta implements CRUD<Detalle_Vent
 
     @Override
     public boolean save() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(INSERT)) {
                 // Se asume que getVenta() y getProducto() devuelven objetos con IDs válidos
@@ -58,7 +58,7 @@ public class Detalle_VentaDAO extends Detalle_Venta implements CRUD<Detalle_Vent
 
     @Override
     public boolean remove() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(DELETE)) {
                 ps.setInt(1, getId_detalle());
@@ -70,7 +70,7 @@ public class Detalle_VentaDAO extends Detalle_Venta implements CRUD<Detalle_Vent
 
     @Override
     public boolean update() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(UPDATE)) {
                 ps.setInt(1, getVenta().getId_venta());
@@ -116,7 +116,7 @@ public class Detalle_VentaDAO extends Detalle_Venta implements CRUD<Detalle_Vent
     @Override
     public List<Detalle_Venta> getAll() throws SQLException {
         List<Detalle_Venta> detalles = new ArrayList<>();
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(GET_ALL);
                  ResultSet rs = ps.executeQuery()) {
@@ -147,7 +147,7 @@ public class Detalle_VentaDAO extends Detalle_Venta implements CRUD<Detalle_Vent
     @Override
     public Detalle_Venta getById(int id) throws SQLException {
         Detalle_Venta dv = null;
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(GET_BY_ID)) {
                 ps.setInt(1, id);

@@ -1,6 +1,6 @@
 package org.fran.gestortienda.DAO;
 
-import org.fran.gestortienda.Connection.MySQLConnection;
+import org.fran.gestortienda.Connection.ConnectionFactory;
 import org.fran.gestortienda.model.CRUD;
 import org.fran.gestortienda.model.entity.Cliente;
 
@@ -33,9 +33,9 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
 
     @Override
     public boolean save() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
-            try (java.sql.PreparedStatement ps = conn.prepareStatement(INSERT)) {
+            try (PreparedStatement ps = conn.prepareStatement(INSERT)) {
                 ps.setString(1, getNombre());
                 ps.setString(2, getTelefono());
                 ps.setString(3, getDireccion());
@@ -48,7 +48,7 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
 
     @Override
     public boolean remove() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(DELETE)) {
                 ps.setInt(1, getId_cliente());
@@ -60,7 +60,7 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
 
     @Override
     public boolean update() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(UPDATE)) {
                 ps.setString(1, getNombre());
@@ -104,7 +104,7 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
     @Override
     public List<Cliente> getAll() throws SQLException {
         List<Cliente> clientes = new ArrayList<>();
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(GET_ALL);
                  ResultSet rs = ps.executeQuery()) {
@@ -125,7 +125,7 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
     @Override
     public Cliente getById(int id) throws SQLException {
         Cliente cliente = null;
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(GET_BY_ID)) {
                 ps.setInt(1, id);

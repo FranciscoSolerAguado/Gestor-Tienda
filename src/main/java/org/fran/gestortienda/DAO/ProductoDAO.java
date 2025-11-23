@@ -1,11 +1,9 @@
 package org.fran.gestortienda.DAO;
 
-import org.fran.gestortienda.Connection.MySQLConnection;
+import org.fran.gestortienda.Connection.ConnectionFactory;
 import org.fran.gestortienda.model.CRUD;
 import org.fran.gestortienda.model.Categoria;
 import org.fran.gestortienda.model.entity.Producto;
-import org.fran.gestortienda.model.entity.Proveedor;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -33,7 +31,7 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
     }
 
     public boolean save() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         // Corregido: La condición debe ser conn != null
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(INSERT)) {
@@ -53,7 +51,7 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
 
     @Override
     public boolean remove() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(DELETE)) {
                 ps.setInt(1, getId_producto());
@@ -68,7 +66,7 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
     @Override
     public boolean update() throws SQLException {
         boolean actualizado = false;
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(UPDATE)) {
                 // Establecer los valores para los campos a actualizar
@@ -93,7 +91,7 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
     @Override
     public List<Producto> getAll() throws SQLException {
         List<Producto> productos = new ArrayList<>();
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(GET_ALL);
                  java.sql.ResultSet rs = ps.executeQuery()) {
@@ -124,7 +122,7 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
 
     @Override
     public Producto getById(int id) throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         Producto producto = null;
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(GET_BY_ID)) {

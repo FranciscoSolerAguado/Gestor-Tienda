@@ -1,6 +1,6 @@
 package org.fran.gestortienda.DAO;
 
-import org.fran.gestortienda.Connection.MySQLConnection;
+import org.fran.gestortienda.Connection.ConnectionFactory;
 import org.fran.gestortienda.model.CRUD;
 import org.fran.gestortienda.model.entity.Proveedor;
 
@@ -13,14 +13,14 @@ import java.util.List;
 
 public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
 
-    // --- QUERIES ---
+
     private final static String INSERT = "INSERT INTO proveedor(nombre, telefono, correo) VALUES(?, ?, ?)";
     private final static String UPDATE = "UPDATE proveedor SET nombre = ?, telefono = ?, correo = ? WHERE id_proveedor = ?";
     private final static String DELETE = "DELETE FROM proveedor WHERE id_proveedor = ?";
     private final static String GET_ALL = "SELECT id_proveedor, nombre, telefono, correo FROM proveedor";
     private final static String GET_BY_ID = "SELECT id_proveedor, nombre, telefono, correo FROM proveedor WHERE id_proveedor = ?";
 
-    // --- CONSTRUCTORES ---
+
     public ProveedorDAO(int id_proveedor, String nombre, String telefono, String correo) {
         super(id_proveedor, nombre, telefono, correo);
     }
@@ -33,11 +33,11 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
         super(p.getId_proveedor(), p.getNombre(), p.getTelefono(), p.getCorreo());
     }
 
-    // --- MÉTODOS DE INSTANCIA (Acceden a la BD) ---
+
 
     @Override
     public boolean save() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(INSERT)) {
                 ps.setString(1, getNombre());
@@ -51,7 +51,7 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
 
     @Override
     public boolean remove() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(DELETE)) {
                 ps.setInt(1, getId_proveedor());
@@ -63,7 +63,7 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
 
     @Override
     public boolean update() throws SQLException {
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(UPDATE)) {
                 ps.setString(1, getNombre());
@@ -75,8 +75,6 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
         }
         return false;
     }
-
-    // --- MÉTODOS DE INTERFAZ (Delegan en los de instancia) ---
 
     @Override
     public boolean add(Proveedor proveedor) throws SQLException {
@@ -105,7 +103,7 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
     @Override
     public List<Proveedor> getAll() throws SQLException {
         List<Proveedor> proveedores = new ArrayList<>();
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(GET_ALL);
                  ResultSet rs = ps.executeQuery()) {
@@ -126,7 +124,7 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
     @Override
     public Proveedor getById(int id) throws SQLException {
         Proveedor proveedor = null;
-        Connection conn = MySQLConnection.getConnection();
+        Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(GET_BY_ID)) {
                 ps.setInt(1, id);
