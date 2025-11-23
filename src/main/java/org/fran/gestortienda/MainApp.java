@@ -13,8 +13,12 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws IOException {
 
-        DatabaseManager databaseManager = new DatabaseManager();
-        databaseManager.crearTablas();
+        // Asegura que la estructura de la BBDD existe
+        DatabaseManager.crearTablas();
+
+        // Inserta los datos iniciales solo si es necesario
+        DatabaseManager.seedData();
+
 
         FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/org/fran/gestortienda/ui/inicio.fxml"));
         Scene scene = new Scene(fxmlLoader.load());

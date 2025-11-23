@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-11-2025 a las 10:17:56
+-- Tiempo de generación: 23-11-2025 a las 10:37:11
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -33,6 +33,13 @@ CREATE TABLE `cliente` (
   `telefono` varchar(15) DEFAULT NULL,
   `direccion` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `cliente`
+--
+
+INSERT INTO `cliente` (`id_cliente`, `nombre`, `telefono`, `direccion`) VALUES
+(0000000002, 'Juan Pérez Actualizado', '666555444', 'juan.actualizado@example.com');
 
 -- --------------------------------------------------------
 
@@ -67,6 +74,17 @@ CREATE TABLE `producto` (
   `id_proveedor` int(10) UNSIGNED ZEROFILL NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `producto`
+--
+
+INSERT INTO `producto` (`id_producto`, `nombre`, `categoria`, `precio`, `stock`, `imagen`, `id_proveedor`) VALUES
+(0000000009, 'Coca Cola 500ml', 'Bebidas', 1.20, 80, 'org/fran/gestortienda/img/coca_cola_500ml.jpg', 0000000001),
+(0000000010, 'Papitas BBQ', 'Snacks', 0.90, 120, 'org/fran/gestortienda/img/papitas_bbq.png', 0000000002),
+(0000000011, 'Auriculares Bluetooth X10', 'Electronica', 15.99, 40, 'org/fran/gestortienda/img/auriculares_x10.jpg', 0000000003),
+(0000000012, 'Desinfectante Floral 1L', 'Limpieza', 2.50, 35, 'org/fran/gestortienda/img/desinfectante_floral.jpg', 0000000004),
+(0000000014, 'Fanta Naranja (Actualizado)', 'Bebidas', 2.50, 100, 'org/fran/gestortienda/img/fanta_naranja_updated.jpg', 0000000001);
+
 -- --------------------------------------------------------
 
 --
@@ -80,6 +98,16 @@ CREATE TABLE `proveedor` (
   `correo` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `proveedor`
+--
+
+INSERT INTO `proveedor` (`id_proveedor`, `nombre`, `telefono`, `correo`) VALUES
+(0000000001, 'Distribuciones Bebidas SL', '600123123', 'contacto@bebidas.com'),
+(0000000002, 'Snacks Factory', '600456456', 'ventas@snacksfactory.com'),
+(0000000003, 'ElectroTech Import', '600789789', 'info@electrotech.com'),
+(0000000004, 'CleanHouse Proveedores', '600111222', 'soporte@cleanhouse.com');
+
 -- --------------------------------------------------------
 
 --
@@ -92,6 +120,13 @@ CREATE TABLE `venta` (
   `total` decimal(10,2) NOT NULL,
   `id_cliente` int(10) UNSIGNED ZEROFILL NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `venta`
+--
+
+INSERT INTO `venta` (`id_venta`, `fecha`, `total`, `id_cliente`) VALUES
+(0000000003, '2025-11-19', 200.50, 0000000002);
 
 --
 -- Índices para tablas volcadas
@@ -139,31 +174,31 @@ ALTER TABLE `venta`
 -- AUTO_INCREMENT de la tabla `cliente`
 --
 ALTER TABLE `cliente`
-  MODIFY `id_cliente` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `id_cliente` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_venta`
 --
 ALTER TABLE `detalle_venta`
-  MODIFY `id_detalle` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `id_detalle` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `producto`
 --
 ALTER TABLE `producto`
-  MODIFY `id_producto` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `id_producto` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedor`
 --
 ALTER TABLE `proveedor`
-  MODIFY `id_proveedor` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `id_proveedor` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `venta`
 --
 ALTER TABLE `venta`
-  MODIFY `id_venta` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `id_venta` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Restricciones para tablas volcadas
