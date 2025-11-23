@@ -1,0 +1,43 @@
+/* src/main/resources/css/pixel-styles.css */
+
+/* Fuente y base */
+.root {
+    -fx-font-family: "Segoe UI", "Roboto", Arial, sans-serif;
+}
+
+/* Botón que imita exactamente la tarjeta: tamaño, radio, borde y sombra */
+.pixel-button {
+    -fx-background-color: rgba(199,166,140,1.0); /* tono marrón parecido */
+    -fx-background-radius: 28px;
+    -fx-border-radius: 28px;
+    -fx-border-color: rgba(0,0,0,0.95);
+    -fx-border-width: 2.6px;
+    -fx-font-size: 40px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 0 0 92; /* deja espacio para icono a la izquierda (coincide con imagen) */
+
+    /* Sombra gruesa hacia abajo a la derecha (imitando el relieve oscuro) */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.95), 14, 0.0, 10, 10);
+}
+
+/* Hover ligero (sutileza como en diseño real) */
+.pixel-button:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.006;
+    -fx-scale-y: 1.006;
+}
+
+/* Si quieres distinción por botón (p. ej. para iconos por CSS), aquí tienes las IDs */
+#btnVentas { -fx-padding: 0 0 0 120; }       /* ajusta si deseas el icono más adentro */
+#btnClientes { -fx-padding: 0 0 0 120; }
+#btnProveedores { -fx-padding: 0 0 0 120; }
+#btnProductos { -fx-padding: 0 0 0 120; }
+
+/* Título app (si quieres añadir) */
+.label.app-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #4a3f36;
+}

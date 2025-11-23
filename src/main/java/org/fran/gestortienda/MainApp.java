@@ -20,9 +20,9 @@ public class MainApp extends Application {
         DatabaseManager.seedData();
 
 
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/org/fran/gestortienda/ui/inicio.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/org/fran/gestortienda/ui/main.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Chat-OFFline");
+        stage.setTitle("Gestor-Tienda");
         stage.setScene(scene);
         stage.initStyle(StageStyle.UNDECORATED); //necesario para poder usar el boton de maximizar o ventana
         stage.show();
