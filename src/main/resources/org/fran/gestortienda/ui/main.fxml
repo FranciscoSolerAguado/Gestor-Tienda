@@ -11,6 +11,11 @@
 
     <!-- Fondo: imagen EXACTA (ruta absoluta al archivo que subiste) -->
     <children>
+        <ImageView fitWidth="1365.0" fitHeight="768.0" pickOnBounds="true" preserveRatio="false">
+            <image>
+                <Image url="@../img/777e33f6-a5ba-4349-93d5-051108267369.png" />
+            </image>
+        </ImageView>
 
         <!-- Panel transparente para colocar los botones exactamente donde aparecen en la imagen -->
         <Pane prefWidth="1365.0" prefHeight="768.0">
