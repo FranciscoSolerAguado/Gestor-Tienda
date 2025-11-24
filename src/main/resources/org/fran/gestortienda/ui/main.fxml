@@ -74,9 +74,35 @@
     </HBox>
 
 
-    <HBox alignment="CENTER" spacing="120">
-    <children>
-    <!-- Botón Proveedores -->
-    <Button fx:id="btnProveedores" text="Proveedores" prefWidth="520" prefHeight="150" styleClass="menu-button">
-    <graphic>
+        <HBox alignment="CENTER" spacing="120">
+            <children>
+                <!-- Botón Proveedores -->
+                <Button fx:id="btnProveedores" text="Proveedores" prefWidth="520" prefHeight="150" styleClass="menu-button">
+                    <graphic>
+                        <ImageView fitHeight="80" fitWidth="80">
+                            <image>
+                                <Image url="file:/mnt/data/icon-placeholder.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+
+
+                <!-- Botón Productos -->
+                <Button fx:id="btnProductos" text="Productos" prefWidth="520" prefHeight="150" styleClass="menu-button">
+                    <graphic>
+                        <ImageView fitHeight="80" fitWidth="80">
+                            <image>
+                                <Image url="file:/mnt/data/icon-placeholder.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </children>
+        </HBox>
+    </children>
+    </VBox>
+    </center>
+
+
 </BorderPane>
