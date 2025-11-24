@@ -1,49 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.fran.gestortienda.controller.MainController"
-            prefWidth="1365.0" prefHeight="768.0"
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.fran.gestortienda.controller.MainController"
+            prefWidth="1365" prefHeight="768"
             stylesheets="@../css/styles.css">
 
-    <!-- Fondo: imagen EXACTA (ruta absoluta al archivo que subiste) -->
+
+    <!-- ░░ BARRA SUPERIOR PERSONALIZADA ░░ -->
+    <top>
+        <HBox prefHeight="70" styleClass="top-bar">
+            <children>
+                <ImageView fitHeight="32" fitWidth="32">
+                    <image>
+                        <!-- Ícono de prueba -->
+                        <Image url="file:/mnt/data/icon-placeholder.png" />
+                    </image>
+                </ImageView>
+                <Label text="Gestor Tienda" styleClass="title-label" />
+                <Pane HBox.hgrow="ALWAYS" />
+
+
+                <!-- Botones ventana (prueba) -->
+                <HBox spacing="12" alignment="CENTER_RIGHT" padding="10">
+                    <children>
+                        <Button text="_" styleClass="window-btn" />
+                        <Button text="□" styleClass="window-btn" />
+                        <Button text="X" styleClass="window-btn-close" />
+                    </children>
+                </HBox>
+            </children>
+        </HBox>
+    </top>
+
+
+    <!-- ░░ BARRA DERECHA ░░ -->
+    <right>
+        <Pane prefWidth="120" styleClass="right-bar" />
+    </right>
+
+
+    <!-- ░░ CUERPO CENTRAL ░░ -->
+    <center>
+    <VBox alignment="CENTER" spacing="60">
     <children>
-        <ImageView fitWidth="1365.0" fitHeight="768.0" pickOnBounds="true" preserveRatio="false">
-            <image>
-                <Image url="@../img/777e33f6-a5ba-4349-93d5-051108267369.png" />
-            </image>
-        </ImageView>
+    <HBox alignment="CENTER" spacing="120">
+        <children>
+            <!-- Botón Ventas -->
+            <Button fx:id="btnVentas" text="Ventas" prefWidth="520" prefHeight="150" styleClass="menu-button">
+                <graphic>
+                    <ImageView fitHeight="80" fitWidth="80">
+                        <image>
+                            <Image url="file:/mnt/data/icon-placeholder.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
 
-        <!-- Panel transparente para colocar los botones exactamente donde aparecen en la imagen -->
-        <Pane prefWidth="1365.0" prefHeight="768.0">
-
-            <!-- Botón Ventas (coincide con la posición y tamaño de la imagen) -->
-            <Button fx:id="btnVentas" text="Ventas"
-                    layoutX="120.0" layoutY="96.0"
-                    prefWidth="520.0" prefHeight="150.0"
-                    styleClass="pixel-button" />
 
             <!-- Botón Clientes -->
-            <Button fx:id="btnClientes" text="Clientes"
-                    layoutX="725.0" layoutY="96.0"
-                    prefWidth="520.0" prefHeight="150.0"
-                    styleClass="pixel-button" />
+            <Button fx:id="btnClientes" text="Clientes" prefWidth="520" prefHeight="150" styleClass="menu-button">
+                <graphic>
+                    <ImageView fitHeight="80" fitWidth="80">
+                        <image>
+                            <Image url="file:/mnt/data/icon-placeholder.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+        </children>
+    </HBox>
 
-            <!-- Botón Proveedores -->
-            <Button fx:id="btnProveedores" text="Proveedores"
-                    layoutX="120.0" layoutY="366.0"
-                    prefWidth="520.0" prefHeight="150.0"
-                    styleClass="pixel-button" />
 
-            <!-- Botón Productos -->
-            <Button fx:id="btnProductos" text="Productos"
-                    layoutX="725.0" layoutY="366.0"
-                    prefWidth="520.0" prefHeight="150.0"
-                    styleClass="pixel-button" />
-
-        </Pane>
-    </children>
-</AnchorPane>
+    <HBox alignment="CENTER" spacing="120">
+    <children>
+    <!-- Botón Proveedores -->
+    <Button fx:id="btnProveedores" text="Proveedores" prefWidth="520" prefHeight="150" styleClass="menu-button">
+    <graphic>
+</BorderPane>
