@@ -1,7 +1,7 @@
 /* ------------------------------ */
 /* BARRA SUPERIOR */
 /* ------------------------------ */
-.top-bar {
+.topBar {
     -fx-background-color: #b89d7d;
     -fx-padding: 12 20;
     -fx-alignment: CENTER_LEFT;
@@ -10,31 +10,31 @@
 
 
 .title-label {
-    -fx-font-size: 26px;
-    -fx-font-weight: bold;
+    -fx-font-size: 15px;
     -fx-text-fill: white;
 }
 
 
 .window-btn {
     -fx-background-color: transparent;
-    -fx-text-fill: black;
-    -fx-font-size: 20px;
-    -fx-background-radius: 4;
-    -fx-padding: 6 12;
+    -fx-text-fill: white;
+    -fx-font-size: 16;
 }
 
 
 .window-btn:hover {
-    -fx-background-color: rgba(255,255,255,0.3);
+    -fx-background-color: rgba(255, 255, 255, 0.3);
 }
 
+.window-btn-close{
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+}
 
 .window-btn-close:hover {
     -fx-background-color: #d9534f;
-    -fx-text-fill: white;
 }
-
 
 /* ------------------------------ */
 /* BARRA DERECHA */
@@ -48,17 +48,17 @@
 /* BOTONES MENU */
 /* ------------------------------ */
 .menu-button {
-    -fx-background-color: #b89d7d;
+    -fx-background-color: #b29e84;
     -fx-background-radius: 30;
     -fx-border-color: black;
     -fx-border-width: 3;
     -fx-border-radius: 30;
-    -fx-font-size: 40px;
+    -fx-font-size: 37px;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-alignment: CENTER_LEFT;
     -fx-padding: 0 0 0 40;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0.0, 6, 6);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 10, 0.0, 6, 6);
 }
 
 

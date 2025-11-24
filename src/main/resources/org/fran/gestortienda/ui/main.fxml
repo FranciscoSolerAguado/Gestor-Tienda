@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.fran.gestortienda.controller.MainController"
-            prefWidth="1365" prefHeight="768"
-            stylesheets="@../css/styles.css">
+<BorderPane prefHeight="768" prefWidth="1365" stylesheets="@../css/main.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.fran.gestortienda.controller.MainController">
 
     <!-- Barra superior -->
     <top>
@@ -16,14 +15,16 @@
             </padding>
 
             <children>
-                <ImageView fitHeight="32" fitWidth="32">
+                <ImageView fitHeight="24.0" fitWidth="24.0" opacity="0.5" preserveRatio="true">
                     <image>
-                        <!-- Ícono de prueba -->
-                        <Image url="@../img/icono-gestor-tienda.png"/>
+                        <Image url="@../img/icono-gestor-tienda.png" />
                     </image>
+                    <HBox.margin>
+                        <Insets bottom="10.0" />
+                    </HBox.margin>
                 </ImageView>
 
-                <Label opacity="0.5" style="-fx-text-fill: white; -fx-font-family: 'Work Sans'; -fx-font-size: 14px;" text="Chat-OFFLine">
+                <Label opacity="0.5" style="-fx-text-fill: white; -fx-font-family: 'Work Sans'; -fx-font-size: 14px;" text="Gestor-Tienda">
                     <padding>
                         <Insets bottom="10.0" />
                     </padding>
@@ -31,19 +32,19 @@
 
                 <Region HBox.hgrow="ALWAYS" />
 
-                <Button mnemonicParsing="false" onAction="#handleMinimize" opacity="0.5" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16;" text="—">
+                <Button mnemonicParsing="false" onAction="#handleMinimize" opacity="0.5" styleClass="window-btn" text="—">
                     <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" />
                     </padding>
                 </Button>
 
-                <Button mnemonicParsing="false" onAction="#handleToggleMaximize" opacity="0.5" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16;" text="❐">
+                <Button mnemonicParsing="false" onAction="#handleToggleMaximize" opacity="0.5" styleClass="window-btn" text="❐">
                     <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" />
                     </padding>
                 </Button>
 
-                <Button mnemonicParsing="false" onAction="#handleClose" opacity="0.5" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16;" text="✕">
+                <Button mnemonicParsing="false" onAction="#handleClose" opacity="0.5" styleClass="window-btn-close" text="✕">
                     <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" />
                     </padding>
@@ -55,7 +56,7 @@
 
     <!-- ░░ BARRA DERECHA ░░ -->
     <right>
-        <Pane prefWidth="120" styleClass="right-bar"/>
+        <Pane prefWidth="180" styleClass="right-bar" />
     </right>
 
 
@@ -66,12 +67,11 @@
                 <HBox alignment="CENTER" spacing="120">
                     <children>
                         <!-- Botón Ventas -->
-                        <Button fx:id="btnVentas" text="Ventas" prefWidth="520" prefHeight="150"
-                                styleClass="menu-button">
+                        <Button fx:id="btnVentas" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Ventas">
                             <graphic>
-                                <ImageView fitHeight="80" fitWidth="80">
+                                <ImageView fitHeight="80" fitWidth="80" preserveRatio="true">
                                     <image>
-                                        <Image url="@../img/icono-ventas.png"/>
+                                        <Image url="@../img/icono-ventas.png" />
                                     </image>
                                 </ImageView>
                             </graphic>
@@ -79,12 +79,11 @@
 
 
                         <!-- Botón Clientes -->
-                        <Button fx:id="btnClientes" text="Clientes" prefWidth="520" prefHeight="150"
-                                styleClass="menu-button">
+                        <Button fx:id="btnClientes" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Clientes">
                             <graphic>
-                                <ImageView fitHeight="80" fitWidth="80">
+                                <ImageView fitHeight="80" fitWidth="80" preserveRatio="true">
                                     <image>
-                                        <Image url="@../img/icono-clientes.png"/>
+                                        <Image url="@../img/icono-clientes.png" />
                                     </image>
                                 </ImageView>
                             </graphic>
@@ -96,12 +95,11 @@
                 <HBox alignment="CENTER" spacing="120">
                     <children>
                         <!-- Botón Proveedores -->
-                        <Button fx:id="btnProveedores" text="Proveedores" prefWidth="520" prefHeight="150"
-                                styleClass="menu-button">
+                        <Button fx:id="btnProveedores" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Proveedores">
                             <graphic>
-                                <ImageView fitHeight="80" fitWidth="80">
+                                <ImageView fitHeight="80" fitWidth="80" preserveRatio="true">
                                     <image>
-                                        <Image url="@../img/icono-proveedores.png"/>
+                                        <Image url="@../img/icono-proveedores.png" />
                                     </image>
                                 </ImageView>
                             </graphic>
@@ -109,12 +107,11 @@
 
 
                         <!-- Botón Productos -->
-                        <Button fx:id="btnProductos" text="Productos" prefWidth="520" prefHeight="150"
-                                styleClass="menu-button">
+                        <Button fx:id="btnProductos" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Productos">
                             <graphic>
-                                <ImageView fitHeight="80" fitWidth="80">
+                                <ImageView fitHeight="80" fitWidth="80" preserveRatio="true">
                                     <image>
-                                        <Image url="@../img/icono-productos.png"/>
+                                        <Image url="@../img/icono-productos.png" />
                                     </image>
                                 </ImageView>
                             </graphic>
@@ -124,6 +121,4 @@
             </children>
         </VBox>
     </center>
-
-
 </BorderPane>
