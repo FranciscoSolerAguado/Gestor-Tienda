@@ -8,5 +8,6 @@ module org.fran.gestortienda {
 
 
     opens org.fran.gestortienda to javafx.fxml;
+    opens org.fran.gestortienda.controller to javafx.fxml;
     exports org.fran.gestortienda;
 }
