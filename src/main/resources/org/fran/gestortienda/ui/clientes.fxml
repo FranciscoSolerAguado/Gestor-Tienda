@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.fran.gestortienda.controller.ClientesController">
+
+    <children>
+
+        <!-- CONTENEDOR PRINCIPAL -->
+        <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER"
+                    AnchorPane.topAnchor="0"
+                    AnchorPane.bottomAnchor="0"
+                    AnchorPane.leftAnchor="0"
+                    AnchorPane.rightAnchor="0"
+                    style="-fx-background: transparent;">
+
+            <content>
+                <TilePane fx:id="contenedorClientes"
+                          hgap="25" vgap="25"
+                          prefColumns="4"
+                          alignment="TOP_CENTER">
+                    <padding>
+                        <Insets top="25" right="25" bottom="25" left="25"/>
+                    </padding>
+
+                    <!-- TARJETA DE EJEMPLO (se generarán desde BD luego) -->
+                    <VBox alignment="TOP_CENTER" spacing="10" styleClass="cliente-card" prefWidth="230"
+                          prefHeight="230">
+                        <Label text="Id" styleClass="cliente-id"/>
+
+                        <ImageView fitWidth="90" fitHeight="90" preserveRatio="true">
+                            <image>
+                                <Image url="@../img/icono-clientes.png"/>
+                            </image>
+                        </ImageView>
+
+                        <Label text="Nombre" styleClass="cliente-text"/>
+                        <Label text="Telefono" styleClass="cliente-text"/>
+                        <Label text="Direccion" styleClass="cliente-text"/>
+                    </VBox>
+
+                    <VBox alignment="TOP_CENTER" spacing="10" styleClass="cliente-card" prefWidth="230"
+                          prefHeight="230">
+                        <Label text="Id" styleClass="cliente-id"/>
+                        <ImageView fitWidth="90" fitHeight="90" preserveRatio="true">
+                            <image>
+                                <Image url="@../img/icono-clientes.png"/>
+                            </image>
+                        </ImageView>
+                        <Label text="Nombre" styleClass="cliente-text"/>
+                        <Label text="Telefono" styleClass="cliente-text"/>
+                        <Label text="Direccion" styleClass="cliente-text"/>
+                    </VBox>
+
+                </TilePane>
+            </content>
+        </ScrollPane>
+
+    </children>
+</AnchorPane>
