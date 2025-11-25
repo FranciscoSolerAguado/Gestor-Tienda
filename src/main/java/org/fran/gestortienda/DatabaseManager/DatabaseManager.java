@@ -69,50 +69,64 @@ public class DatabaseManager {
     }
 
     public static void seedData() {
+        String checkSql = "SELECT COUNT(*) FROM proveedor";
+        boolean databaseIsEmpty = false;
+
+        // --- PASO 1: Comprobar si la base de datos está vacía ---
         try (Connection conn = ConnectionFactory.getConnection();
-             Statement st = conn.createStatement()) {
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(checkSql)) {
 
-            // 1. Comprobar si la base de datos ya tiene datos
-            ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM proveedor");
-            if (rs.next() && rs.getInt(1) > 0) {
-                System.out.println("La base de datos ya contiene datos. No se insertarán datos iniciales.");
-                return; // No hacer nada más
+            if (rs.next() && rs.getInt(1) == 0) {
+                databaseIsEmpty = true;
             }
-
-            System.out.println("Base de datos vacía. Insertando datos iniciales...");
-
-            // 2. Si está vacía, insertar los datos iniciales (versión limpia y compatible)
-            String sql = """
-                INSERT INTO proveedor (id_proveedor, nombre, telefono, correo) VALUES
-                    (1, 'Distribuciones Bebidas SL', '600123123', 'contacto@bebidas.com'),
-                    (2, 'Snacks Factory', '600456456', 'ventas@snacksfactory.com'),
-                    (3, 'ElectroTech Import', '600789789', 'info@electrotech.com'),
-                    (4, 'CleanHouse Proveedores', '600111222', 'soporte@cleanhouse.com');
-
-                INSERT INTO producto (id_producto, nombre, categoria, precio, stock, imagen, id_proveedor) VALUES
-                    (9, 'Coca Cola 500ml', 'Bebidas', 1.20, 80, 'org/fran/gestortienda/img/coca_cola_500ml.jpg', 1),
-                    (10, 'Papitas BBQ', 'Snacks', 0.90, 120, 'org/fran/gestortienda/img/papitas_bbq.png', 2),
-                    (11, 'Auriculares Bluetooth X10', 'Electronica', 15.99, 40, 'org/fran/gestortienda/img/auriculares_x10.jpg', 3),
-                    (12, 'Desinfectante Floral 1L', 'Limpieza', 2.50, 35, 'org/fran/gestortienda/img/desinfectante_floral.jpg', 4);
-
-                INSERT INTO cliente (id_cliente, nombre, telefono, direccion) VALUES
-                    (2, 'Juan Pérez', '666555444', 'Calle Falsa 123');
-
-                INSERT INTO venta (id_venta, fecha, total, id_cliente) VALUES
-                    (3, '2025-11-19', 200.50, 2);
-            """;
-
-            String[] queries = sql.split(";");
-            for (String query : queries) {
-                if (!query.trim().isEmpty()) {
-                    st.execute(query);
-                }
-            }
-            System.out.println("Datos iniciales insertados correctamente.");
 
         } catch (Exception e) {
-            System.err.println("Error al insertar los datos iniciales.");
+            System.err.println("Error al comprobar los datos existentes.");
             e.printStackTrace();
+            return; // Salir si no se puede comprobar
+        }
+
+        // --- PASO 2: Si está vacía, insertar los datos ---
+        if (databaseIsEmpty) {
+            System.out.println("Base de datos vacía. Insertando datos iniciales...");
+            String insertSql = """
+            INSERT INTO proveedor (id_proveedor, nombre, telefono, correo) VALUES
+                (1, 'Distribuciones Bebidas SL', '600123123', 'contacto@bebidas.com'),
+                (2, 'Snacks Factory', '600456456', 'ventas@snacksfactory.com'),
+                (3, 'ElectroTech Import', '600789789', 'info@electrotech.com'),
+                (4, 'CleanHouse Proveedores', '600111222', 'soporte@cleanhouse.com');
+
+            INSERT INTO producto (id_producto, nombre, categoria, precio, stock, imagen, id_proveedor) VALUES
+                (9, 'Coca Cola 500ml', 'Bebidas', 1.20, 80, 'org/fran/gestortienda/img/coca_cola_500ml.jpg', 1),
+                (10, 'Papitas BBQ', 'Snacks', 0.90, 120, 'org/fran/gestortienda/img/papitas_bbq.png', 2),
+                (11, 'Auriculares Bluetooth X10', 'Electronica', 15.99, 40, 'org/fran/gestortienda/img/auriculares_x10.jpg', 3),
+                (12, 'Desinfectante Floral 1L', 'Limpieza', 2.50, 35, 'org/fran/gestortienda/img/desinfectante_floral.jpg', 4);
+
+            INSERT INTO cliente (id_cliente, nombre, telefono, direccion) VALUES
+                (2, 'Juan Pérez', '666555444', 'Calle Falsa 123');
+
+            INSERT INTO venta (id_venta, fecha, total, id_cliente) VALUES
+                (3, '2025-11-19', 200.50, 2);
+        """;
+
+            try (Connection conn = ConnectionFactory.getConnection();
+                 Statement st = conn.createStatement()) {
+
+                String[] queries = insertSql.split(";");
+                for (String query : queries) {
+                    if (!query.trim().isEmpty()) {
+                        st.execute(query);
+                    }
+                }
+                System.out.println("Datos iniciales insertados correctamente.");
+
+            } catch (Exception e) {
+                System.err.println("Error al insertar los datos iniciales.");
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("La base de datos ya contiene datos. No se insertarán datos iniciales.");
         }
     }
 }

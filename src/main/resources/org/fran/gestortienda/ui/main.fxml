@@ -79,7 +79,7 @@
 
 
                         <!-- Botón Clientes -->
-                        <Button fx:id="btnClientes" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Clientes">
+                        <Button fx:id="btnClientes" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Clientes" onAction="#handleClientesClick">
                             <graphic>
                                 <ImageView fitHeight="80" fitWidth="80" preserveRatio="true">
                                     <image>

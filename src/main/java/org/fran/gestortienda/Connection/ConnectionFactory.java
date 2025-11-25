@@ -7,10 +7,12 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class ConnectionFactory {
-    private static Connection conn;
-    private static Properties props = new Properties();
+    // Ya no se necesita una variable estática para la conexión.
+    // private static Connection conn;
 
-    // Bloque estático para cargar las propiedades una sola vez
+    private static final Properties props = new Properties();
+
+    // El bloque estático para cargar las propiedades es correcto y se mantiene.
     static {
         try (InputStream input = ConnectionFactory.class.getClassLoader().getResourceAsStream("config.properties")) {
             if (input == null) {
@@ -19,38 +21,37 @@ public class ConnectionFactory {
                 props.load(input);
             }
         } catch (Exception e) {
+            System.err.println("Error al cargar el archivo de configuración.");
             e.printStackTrace();
         }
     }
 
-    private ConnectionFactory() {
-        // Constructor privado para el patrón Singleton
-    }
+    // El constructor privado ya no es necesario, pero no molesta.
+    private ConnectionFactory() {}
 
-    public static Connection getConnection() {
-        if (conn == null) {
-            try {
-                // Lee el interruptor para decidir qué base de datos usar
-                String dbType = props.getProperty("db.active", "h2"); // Usa h2 por defecto si no se especifica
-                System.out.println("Intentando conectar a la base de datos: " + dbType);
+    /**
+     * Crea y devuelve una NUEVA conexión a la base de datos cada vez que se llama.
+     * La conexión debe ser cerrada por quien la solicita (usando try-with-resources).
+     * @return una nueva conexión a la base de datos.
+     * @throws SQLException si ocurre un error al conectar.
+     */
+    public static Connection getConnection() throws SQLException {
+        // La lógica para decidir la base de datos se mantiene.
+        String dbType = props.getProperty("db.active", "h2");
+        System.out.println("Intentando conectar a la base de datos: " + dbType);
 
-                String url = props.getProperty("db." + dbType + ".url");
-                String user = props.getProperty("db." + dbType + ".user");
-                String pass = props.getProperty("db." + dbType + ".password");
+        String url = props.getProperty("db." + dbType + ".url");
+        String user = props.getProperty("db." + dbType + ".user");
+        String pass = props.getProperty("db." + dbType + ".password");
 
-                if (url == null) {
-                    throw new SQLException("No se encontró la URL para la base de datos: " + dbType);
-                }
-
-                conn = DriverManager.getConnection(url, user, pass);
-                System.out.println("Conexión a " + dbType.toUpperCase() + " establecida.");
-
-            } catch (SQLException e) {
-                System.err.println("Error al conectar a la base de datos.");
-                e.printStackTrace();
-            }
+        if (url == null) {
+            throw new SQLException("No se encontró la URL para la base de datos: " + dbType);
         }
-        return conn;
+
+        // La línea clave: siempre crea y devuelve una nueva conexión.
+        Connection newConnection = DriverManager.getConnection(url, user, pass);
+        System.out.println("Conexión a " + dbType.toUpperCase() + " establecida.");
+        return newConnection;
     }
 }
 
