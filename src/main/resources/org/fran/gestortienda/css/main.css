@@ -67,3 +67,86 @@
     -fx-scale-x: 1.02;
     -fx-scale-y: 1.02;
 }
+
+/* ---------------------------- */
+/*      PANEL LATERAL DERECHO   */
+/* ---------------------------- */
+
+.right-panel {
+    -fx-background-color: #c5c5c5;
+    -fx-padding: 25 15;
+    -fx-alignment: TOP_CENTER;
+}
+
+.buscador-box {
+    -fx-background-color: #b29e84;
+    -fx-background-radius: 10;
+    -fx-padding: 5 10;
+    -fx-pref-width: 180;
+}
+
+.buscador-input {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: white;
+}
+
+.buscador-icon {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+}
+
+/* BOTONES PEQUEÑOS */
+
+.btn-add {
+    -fx-background-color: #b29e84;
+    -fx-background-radius: 15;
+    -fx-padding: 10;
+}
+
+.btn-delete {
+    -fx-background-color: #d9534f;
+    -fx-background-radius: 15;
+    -fx-padding: 10;
+}
+
+
+/* BOTONES DERECHOS*/
+.side-menu-button {
+    -fx-background-color: #b29e84;
+    -fx-background-radius: 30;
+    -fx-border-color: black;
+    -fx-border-width: 3;
+    -fx-border-radius: 30;
+    -fx-font-size: 22px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 0 0 20;
+    -fx-pref-width: 200;
+    -fx-pref-height: 65;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 10, 0.0, 6, 6);
+}
+
+.side-menu-button:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.side-menu-button-active {
+    -fx-background-color: #998771;
+    -fx-background-radius: 30;
+    -fx-border-color: black;
+    -fx-border-width: 3;
+    -fx-border-radius: 30;
+    -fx-font-size: 22px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 0 0 20;
+    -fx-pref-width: 200;
+    -fx-pref-height: 65;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 10, 0.0, 6, 6);
+}
+

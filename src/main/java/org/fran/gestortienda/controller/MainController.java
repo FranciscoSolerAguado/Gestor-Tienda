@@ -8,6 +8,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox; // Importamos VBox
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.fran.gestortienda.MainApp;
@@ -20,35 +21,50 @@ import java.util.logging.Logger;
 public class MainController {
     private static final Logger LOGGER = LoggerUtil.getLogger();
 
-    // 1. Este fx:id ahora se inyectará correctamente desde el BorderPane raíz
     @FXML
     private BorderPane mainPane;
 
     @FXML
     private HBox topBar;
 
+    // 2. INYECTAMOS EL PANEL DERECHO
+    @FXML
+    private VBox rightPanel;
 
     @FXML
     public void initialize() {
         LOGGER.info("MainController inicializado.");
+        // 3. OCULTAMOS EL PANEL DERECHO AL INICIAR
+        if (rightPanel != null) {
+            rightPanel.setVisible(false);
+            rightPanel.setManaged(false); // También evita que ocupe espacio
+        }
     }
 
-    /**
-     * Maneja el evento de clic en el botón "Clientes".
-     * Este método es llamado por el onAction del FXML.
-     */
     @FXML
     void handleClientesClick(ActionEvent event) {
         LOGGER.info("Botón Clientes presionado. Cargando vista de clientes...");
         loadView("/org/fran/gestortienda/ui/clientes.fxml");
     }
 
-    // Puedes añadir más métodos para los otros botones aquí
-    // @FXML void handleProductosClick(ActionEvent event) { ... }
+    @FXML
+    void handleProveedoresClick(ActionEvent event) {
+        LOGGER.info("Botón Proveedores presionado. Cargando vista de proveedores...");
+        // loadView("/org/fran/gestortienda/ui/proveedores.fxml");
+    }
 
-    /**
-     * Método reutilizable para cargar una vista FXML en el centro del BorderPane.
-     */
+    @FXML
+    void handleProductosClick(ActionEvent event) {
+        LOGGER.info("Botón Productos presionado. Cargando vista de productos...");
+        // loadView("/org/fran/gestortienda/ui/productos.fxml");
+    }
+
+    @FXML
+    void handleVentasClick(ActionEvent event) {
+        LOGGER.info("Botón Ventas presionado. Cargando vista de ventas...");
+        // loadView("/org/fran/gestortienda/ui/ventas.fxml");
+    }
+
     private void loadView(String fxmlPath) {
         try {
             URL viewUrl = MainApp.class.getResource(fxmlPath);
@@ -58,10 +74,14 @@ public class MainController {
             }
 
             Parent view = FXMLLoader.load(viewUrl);
-
-            // 3. Ahora mainPane no será null y esto funcionará.
             mainPane.setCenter(view);
             LOGGER.info("Vista '" + fxmlPath + "' cargada en el panel central.");
+
+            // 4. MOSTRAMOS EL PANEL DERECHO CUANDO SE CARGA UNA VISTA
+            if (rightPanel != null) {
+                rightPanel.setVisible(true);
+                rightPanel.setManaged(true);
+            }
 
         } catch (IOException e) {
             LOGGER.severe("Error de E/S al cargar la vista FXML: " + fxmlPath);
@@ -69,24 +89,17 @@ public class MainController {
         }
     }
 
-    /**
-     * Metodo que maneja el minimizado de la pantalla
-     */
+    // --- Tus métodos para controlar la ventana (sin cambios) ---
+
     @FXML
     private void handleMinimize() {
-        LOGGER.info("Minimizando la pantalla...");
         Stage stage = (Stage) topBar.getScene().getWindow();
         stage.setIconified(true);
     }
 
     private boolean isMaximized = false;
-
-    /**
-     * Metodo que maneja el maximizado de la pantalla
-     */
     @FXML
     private void handleToggleMaximize() {
-        LOGGER.info("Maximización de la pantalla...");
         Stage stage = (Stage) topBar.getScene().getWindow();
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 
@@ -105,12 +118,8 @@ public class MainController {
         }
     }
 
-    /**
-     * Metodo que maneja el cierre de la pantalla
-     */
     @FXML
     private void handleClose() {
-        LOGGER.info("Cerrando la pantalla...");
         Platform.exit();
     }
 }

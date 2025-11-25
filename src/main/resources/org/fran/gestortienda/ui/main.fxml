@@ -56,7 +56,80 @@
 
     <!-- ░░ BARRA DERECHA ░░ -->
     <right>
-        <Pane prefWidth="180" styleClass="right-bar" />
+        <!-- 1. AÑADIMOS UN fx:id PARA PODER CONTROLAR ESTE PANEL -->
+        <VBox fx:id="rightPanel" styleClass="right-panel"
+              prefWidth="230"
+              alignment="TOP_CENTER"
+              spacing="25">
+            <padding>
+                <Insets top="20.0" />
+            </padding>
+
+            <!-- BUSCADOR -->
+            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="buscador-box">
+                <TextField fx:id="searchField" promptText="Buscar..." styleClass="buscador-input"/>
+                <Label text="🔎" styleClass="buscador-icon"/>
+            </HBox>
+
+            <!-- BOTONES MINI -->
+            <HBox spacing="20" alignment="CENTER">
+                <Button fx:id="btnAdd" styleClass="btn-add">
+                    <graphic>
+                        <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
+                            <image><Image url="@../img/icono-add.png"/></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+
+                <Button fx:id="btnDelete" styleClass="btn-delete">
+                    <graphic>
+                        <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
+                            <image><Image url="@../img/icono-delete.png"/></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </HBox>
+
+            <!-- MENÚ LATERAL -->
+            <VBox spacing="18" alignment="TOP_CENTER" style="-fx-padding: 20 0;">
+                <Button onAction="#handleProveedoresClick" styleClass="side-menu-button">
+                    <graphic>
+                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                            <image><Image url="@../img/icono-proveedores.png"/></image>
+                        </ImageView>
+                    </graphic>
+                    Proveedores
+                </Button>
+
+                <Button onAction="#handleProductosClick" styleClass="side-menu-button">
+                    <graphic>
+                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                            <image><Image url="@../img/icono-productos.png"/></image>
+                        </ImageView>
+                    </graphic>
+                    Productos
+                </Button>
+
+                <Button onAction="#handleClientesClick" styleClass="side-menu-button-active">
+                    <graphic>
+                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                            <image><Image url="@../img/icono-clientes-pulsado.png"/></image>
+                        </ImageView>
+                    </graphic>
+                    Clientes
+                </Button>
+
+                <Button onAction="#handleVentasClick" styleClass="side-menu-button">
+                    <graphic>
+                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                            <image><Image url="@../img/icono-ventas.png"/></image>
+                        </ImageView>
+                    </graphic>
+                    Ventas
+                </Button>
+            </VBox>
+
+        </VBox>
     </right>
 
 
@@ -67,7 +140,7 @@
                 <HBox alignment="CENTER" spacing="120">
                     <children>
                         <!-- Botón Ventas -->
-                        <Button fx:id="btnVentas" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Ventas">
+                        <Button fx:id="btnVentas" onAction="#handleVentasClick" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Ventas">
                             <graphic>
                                 <ImageView fitHeight="80" fitWidth="80" preserveRatio="true">
                                     <image>
@@ -79,7 +152,7 @@
 
 
                         <!-- Botón Clientes -->
-                        <Button fx:id="btnClientes" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Clientes" onAction="#handleClientesClick">
+                        <Button fx:id="btnClientes" onAction="#handleClientesClick" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Clientes">
                             <graphic>
                                 <ImageView fitHeight="80" fitWidth="80" preserveRatio="true">
                                     <image>
@@ -95,7 +168,7 @@
                 <HBox alignment="CENTER" spacing="120">
                     <children>
                         <!-- Botón Proveedores -->
-                        <Button fx:id="btnProveedores" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Proveedores">
+                        <Button fx:id="btnProveedores" onAction="#handleProveedoresClick" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Proveedores">
                             <graphic>
                                 <ImageView fitHeight="80" fitWidth="80" preserveRatio="true">
                                     <image>
@@ -107,7 +180,7 @@
 
 
                         <!-- Botón Productos -->
-                        <Button fx:id="btnProductos" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Productos">
+                        <Button fx:id="btnProductos" onAction="#handleProductosClick" prefHeight="130" prefWidth="460" styleClass="menu-button" text="Productos">
                             <graphic>
                                 <ImageView fitHeight="80" fitWidth="80" preserveRatio="true">
                                     <image>
