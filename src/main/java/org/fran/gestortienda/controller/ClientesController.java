@@ -10,105 +10,93 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import org.fran.gestortienda.DAO.ClienteDAO;
 import org.fran.gestortienda.model.entity.Cliente;
+import org.fran.gestortienda.utils.LoggerUtil;
 
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
-/**
- * Controlador para la vista de clientes (clientes.fxml).
- * Se encarga de la lógica de la interfaz de usuario para la gestión de clientes.
- */
 public class ClientesController implements Initializable {
 
-    @FXML
-    private TilePane contenedorClientes; // Contenedor para las tarjetas de clientes
+    private static final Logger LOGGER = LoggerUtil.getLogger();
 
-    /**
-     * Este método se llama automáticamente después de que el FXML ha sido cargado.
-     * Carga los datos de los clientes desde la base de datos y los muestra en la interfaz.
-     */
+    @FXML
+    private TilePane contenedorClientes;
+
+    private final ClienteDAO clienteDAO = new ClienteDAO();
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        System.out.println("ClientesController inicializado. Cargando clientes desde la BD...");
+        LOGGER.info("Inicializando ClientesController y cargando clientes...");
         cargarClientes();
     }
 
     /**
-     * Obtiene los clientes de la base de datos usando ClienteDAO y los muestra en el TilePane.
+     * Obtiene los clientes de la base de datos y los muestra en la vista.
      */
     private void cargarClientes() {
-        // 1. Limpiar las tarjetas de ejemplo que puedan existir en el FXML.
-        contenedorClientes.getChildren().clear();
-
-        // 2. Instanciar el DAO para acceder a los datos.
-        ClienteDAO clienteDAO = new ClienteDAO();
-
         try {
-            // 3. Obtener la lista de todos los clientes.
-            List<Cliente> listaClientes = clienteDAO.getAll();
+            // 1. Limpiar el contenido de ejemplo que pueda haber en el FXML
+            contenedorClientes.getChildren().clear();
 
-            // 4. Recorrer la lista y crear una tarjeta por cada cliente.
-            for (Cliente cliente : listaClientes) {
-                VBox tarjeta = crearTarjetaCliente(cliente);
-                contenedorClientes.getChildren().add(tarjeta);
+            // 2. Obtener la lista de clientes desde el DAO
+            List<Cliente> clientes = clienteDAO.getAll();
+
+            if (clientes.isEmpty()) {
+                LOGGER.info("No se encontraron clientes en la base de datos.");
+                // Opcional: Mostrar un mensaje en la UI
+                contenedorClientes.getChildren().add(new Label("No hay clientes para mostrar."));
+                return;
             }
-            System.out.println("Se han cargado " + listaClientes.size() + " clientes.");
+
+            // 3. Recorrer la lista y crear una tarjeta por cada cliente
+            for (Cliente cliente : clientes) {
+                VBox tarjetaCliente = crearTarjeta(cliente);
+                contenedorClientes.getChildren().add(tarjetaCliente);
+            }
+
+            LOGGER.info("Se cargaron " + clientes.size() + " clientes.");
 
         } catch (SQLException e) {
-            System.err.println("Error al cargar los clientes desde la base de datos.");
+            LOGGER.severe("Error de SQL al cargar los clientes: " + e.getMessage());
             e.printStackTrace();
-            // Opcional: Mostrar un mensaje de error en la interfaz.
+            // Opcional: Mostrar una alerta al usuario
         }
     }
 
     /**
-     * Crea un VBox que representa la tarjeta de un cliente con su información.
+     * Crea un VBox (tarjeta) para un cliente específico.
+     *
      * @param cliente El objeto Cliente con los datos a mostrar.
-     * @return Un VBox estilizado que representa la tarjeta del cliente.
+     * @return Un VBox configurado como una tarjeta de cliente.
      */
-    private VBox crearTarjetaCliente(Cliente cliente) {
-        // Contenedor principal de la tarjeta
-        VBox tarjeta = new VBox();
-        tarjeta.setAlignment(Pos.TOP_CENTER);
-        tarjeta.setSpacing(10);
-        tarjeta.getStyleClass().add("cliente-card");
-        tarjeta.setPrefSize(230, 230);
-
-        // Etiqueta para el ID
-        Label idLabel = new Label("ID: " + cliente.getId_cliente());
+    private VBox crearTarjeta(Cliente cliente) {
+        // Crear los componentes de la tarjeta
+        Label idLabel = new Label("#" + cliente.getId_cliente());
         idLabel.getStyleClass().add("cliente-id");
 
-        // Imagen del cliente (usando un ícono por defecto)
-        ImageView imageView = new ImageView();
+        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/icono-clientes.png")));
         imageView.setFitWidth(90);
         imageView.setFitHeight(90);
         imageView.setPreserveRatio(true);
-        try {
-            // Carga la imagen desde los recursos
-            Image image = new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/icono-clientes.png"));
-            imageView.setImage(image);
-        } catch (Exception e) {
-            System.err.println("No se pudo cargar la imagen del cliente: " + e.getMessage());
-        }
 
-
-        // Etiqueta para el Nombre
         Label nombreLabel = new Label(cliente.getNombre());
         nombreLabel.getStyleClass().add("cliente-text");
 
-        // Etiqueta para el Teléfono
-        Label telefonoLabel = new Label(cliente.getTelefono());
+        Label telefonoLabel = new Label("Tel: " + cliente.getTelefono());
         telefonoLabel.getStyleClass().add("cliente-text");
 
-        // Etiqueta para la Dirección
         Label direccionLabel = new Label(cliente.getDireccion());
         direccionLabel.getStyleClass().add("cliente-text");
-        direccionLabel.setWrapText(true); // Permite que el texto se ajuste si es muy largo
+        direccionLabel.setWrapText(true); // Para que el texto se ajuste si es muy largo
 
-        // Añadir todos los elementos a la tarjeta
-        tarjeta.getChildren().addAll(idLabel, imageView, nombreLabel, telefonoLabel, direccionLabel);
+        // Crear el contenedor VBox para la tarjeta
+        VBox tarjeta = new VBox(10, idLabel, imageView, nombreLabel, telefonoLabel, direccionLabel);
+        tarjeta.setAlignment(Pos.TOP_CENTER);
+        tarjeta.getStyleClass().add("cliente-card");
+        tarjeta.setPrefSize(230, 230);
 
         return tarjeta;
     }

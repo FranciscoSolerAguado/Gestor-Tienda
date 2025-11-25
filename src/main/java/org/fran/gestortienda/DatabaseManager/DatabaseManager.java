@@ -82,9 +82,9 @@ public class DatabaseManager {
             }
 
         } catch (Exception e) {
-            System.err.println("Error al comprobar los datos existentes.");
-            e.printStackTrace();
-            return; // Salir si no se puede comprobar
+            System.err.println("Tablas no existen todavía. Será necesario crearlas.");
+            DatabaseManager.crearTablas();
+            databaseIsEmpty = true;  // forzar inserción
         }
 
         // --- PASO 2: Si está vacía, insertar los datos ---
