@@ -19,6 +19,12 @@ public class Cliente {
         this.direccion = direccion;
     }
 
+    public Cliente(String nombre, String telefono, String direccion) {
+        this.nombre = nombre;
+        this.telefono = telefono;
+        this.direccion = direccion;
+    }
+
     public int getId_cliente() {
         return id_cliente;
     }

@@ -1,0 +1,85 @@
+/* ---------------------------- */
+/*      ESTILOS DIÁLOGO AÑADIR  */
+/* ---------------------------- */
+
+/* Panel principal del diálogo */
+.dialog-pane {
+    -fx-background-color: #c5c5c5; /* Mismo color que el right-panel */
+    -fx-border-color: #b29e84;
+    -fx-border-width: 2;
+}
+
+/* Encabezado del diálogo */
+.dialog-header {
+    -fx-background-color: #b29e84;
+    -fx-padding: 15;
+    -fx-alignment: CENTER;
+}
+
+.dialog-header-title {
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* Etiquetas del formulario */
+.form-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+    -fx-font-weight: bold;
+    -fx-padding: 5 0 0 0; /* Alinear verticalmente con el campo de texto */
+}
+
+/* Campos de entrada del formulario */
+.form-input {
+    -fx-background-color: white;
+    -fx-border-color: #b29e84;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+    -fx-prompt-text-fill: #999999;
+}
+
+.form-input:focused {
+    -fx-border-color: #998771;
+    -fx-border-width: 2;
+}
+
+/* Contenedor de los botones de acción */
+.action-buttons-pane {
+    -fx-padding: 15;
+    -fx-alignment: CENTER_RIGHT;
+    -fx-spacing: 15;
+}
+
+/* Botón de Guardar */
+.btn-save {
+    -fx-background-color: #b29e84;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 20;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+
+.btn-save:hover {
+    -fx-background-color: #998771;
+}
+
+/* Botón de Cancelar */
+.btn-cancel {
+    -fx-background-color: #d9534f;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 20;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+
+.btn-cancel:hover {
+    -fx-background-color: #c9302c;
+}

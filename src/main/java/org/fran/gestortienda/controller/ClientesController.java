@@ -44,7 +44,7 @@ public class ClientesController implements Initializable {
     /**
      * Obtiene los clientes de la base de datos y los muestra en la vista.
      */
-    private void cargarClientes() {
+    void cargarClientes() {
         try {
             // 1. Limpiar el contenido de ejemplo que pueda haber en el FXML
             contenedorClientes.getChildren().clear();

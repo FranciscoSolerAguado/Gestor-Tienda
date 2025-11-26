@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefWidth="450" styleClass="dialog-pane" stylesheets="@../css/add_clientes.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.fran.gestortienda.controller.AddClienteController">
+
+    <!-- ENCABEZADO -->
+    <top>
+        <HBox styleClass="dialog-header">
+            <children>
+                <Label styleClass="dialog-header-title" text="Añadir Nuevo Cliente" />
+            </children>
+        </HBox>
+    </top>
+
+    <!-- FORMULARIO CENTRAL -->
+    <center>
+        <GridPane hgap="15" vgap="20">
+            <padding>
+                <Insets bottom="25" left="30" right="30" top="25" />
+            </padding>
+            <columnConstraints>
+                <ColumnConstraints prefWidth="100" />
+                <ColumnConstraints hgrow="ALWAYS" />
+            </columnConstraints>
+
+            <!-- Fila Nombre -->
+            <Label prefWidth="28.0" styleClass="form-label" text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <TextField fx:id="nombreField" promptText="Nombre del cliente" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+            <!-- Fila Teléfono -->
+            <Label styleClass="form-label" text="Teléfono:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <TextField fx:id="telefonoField" promptText="Número de teléfono" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+            <!-- Fila Dirección -->
+            <Label styleClass="form-label" text="Dirección:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <TextArea fx:id="direccionArea" prefHeight="100" promptText="Dirección completa" styleClass="form-input" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+         <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+         </rowConstraints>
+        </GridPane>
+    </center>
+
+    <!-- BOTONES DE ACCIÓN -->
+    <bottom>
+        <HBox styleClass="action-buttons-pane">
+            <children>
+                <Button fx:id="saveButton" onAction="#handleSave" styleClass="btn-save" text="Guardar" />
+                <Button fx:id="cancelButton" onAction="#handleCancel" styleClass="btn-cancel" text="Cancelar" />
+            </children>
+        </HBox>
+    </bottom>
+
+</BorderPane>

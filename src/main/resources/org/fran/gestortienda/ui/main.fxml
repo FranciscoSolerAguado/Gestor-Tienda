@@ -73,7 +73,7 @@
 
             <!-- BOTONES MINI -->
             <HBox spacing="20" alignment="CENTER">
-                <Button fx:id="btnAdd" styleClass="btn-add">
+                <Button fx:id="btnAdd" onAction="#handleAddClick" styleClass="btn-add">
                     <graphic>
                         <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
                             <image><Image url="@../img/icono-add.png"/></image>

@@ -6,16 +6,26 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.fran.gestortienda.DAO.ClienteDAO;
 import org.fran.gestortienda.MainApp;
+import org.fran.gestortienda.model.entity.Cliente;
 import org.fran.gestortienda.utils.LoggerUtil;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public class MainController {
@@ -78,17 +88,17 @@ public class MainController {
                 return;
             }
 
-            // 1. CREAR UNA INSTANCIA DEL CARGADOR
+            // CREAR UNA INSTANCIA DEL CARGADOR
             FXMLLoader loader = new FXMLLoader(viewUrl);
 
-            // 2. CARGAR LA VISTA USANDO LA INSTANCIA
+            // CARGAR LA VISTA USANDO LA INSTANCIA
             Parent view = loader.load();
 
-            // 3. OBTENER Y GUARDAR EL CONTROLADOR
+            // OBTENER Y GUARDAR EL CONTROLADOR
             activeController = loader.getController();
             LOGGER.info("Controlador activo establecido en: " + (activeController != null ? activeController.getClass().getName() : "null"));
 
-            // 4. ESTABLECER LA VISTA EN EL CENTRO
+            // ESTABLECER LA VISTA EN EL CENTRO
             mainPane.setCenter(view);
             LOGGER.info("Vista '" + fxmlPath + "' cargada en el panel central.");
 
@@ -117,7 +127,76 @@ public class MainController {
         }
     }
 
-    // --- Métodos de Control de Ventana (sin cambios) ---
+
+    /**
+     * Maneja el clic en el botón de añadir (+).
+     * Abre un diálogo para crear un nuevo registro según la vista activa.
+     */
+    @FXML
+    private void handleAddClick() {
+        LOGGER.info("Se ha hecho clic en el botón Añadir (+).");
+        LOGGER.info("Comprobando el controlador activo...");
+
+        if (activeController == null) {
+            LOGGER.warning("El controlador activo es NULL. No se puede abrir el diálogo. ¿Has cargado una vista (Clientes, Productos, etc.) primero?");
+            return;
+        }
+
+        LOGGER.info("El controlador activo es de tipo: " + activeController.getClass().getName());
+
+        if (activeController instanceof ClientesController) {
+            LOGGER.info("El controlador es de tipo ClientesController. Abriendo diálogo de nuevo cliente...");
+            abrirDialogoNuevoCliente();
+        } else {
+            LOGGER.warning("El botón de añadir no tiene una acción definida para el controlador actual: " + activeController.getClass().getName());
+            // Aquí podrías añadir lógica para otros tipos de controladores
+            // if (activeController instanceof ProductosController) { ... }
+        }
+    }
+
+
+    /**
+     * Abre, gestiona y procesa el diálogo para añadir un nuevo cliente.
+     * VERSIÓN MEJORADA: Usa un Stage modal personalizado.
+     */
+    private void abrirDialogoNuevoCliente() {
+        try {
+            // 1. Cargar el FXML del diálogo
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/org/fran/gestortienda/ui/add_cliente.fxml"));
+            Parent view = loader.load();
+
+            // 2. Crear un nuevo Stage (ventana) para el diálogo
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Añadir Nuevo Cliente");
+            dialogStage.initModality(Modality.WINDOW_MODAL); // Bloquea la ventana principal
+            dialogStage.initOwner(mainPane.getScene().getWindow()); // Asocia el diálogo a la ventana principal
+            dialogStage.setResizable(false);
+
+            Scene scene = new Scene(view);
+            dialogStage.setScene(scene);
+
+            // 3. Pasar el Stage al controlador del diálogo para que pueda cerrarse
+            AddClienteController dialogController = loader.getController();
+            dialogController.setDialogStage(dialogStage);
+
+            // 4. Mostrar el diálogo y esperar a que se cierre
+            dialogStage.showAndWait();
+
+            // 5. Procesar el resultado (solo si se guardó)
+            if (dialogController.isGuardado()) {
+                Cliente nuevoCliente = dialogController.getNuevoCliente();
+                if (nuevoCliente != null) {
+                    new ClienteDAO().add(nuevoCliente);
+                    LOGGER.info("Nuevo cliente guardado: " + nuevoCliente.getNombre());
+                    ((ClientesController) activeController).cargarClientes(); // Refrescar la vista
+                }
+            }
+
+        } catch (IOException | SQLException e) {
+            LOGGER.severe("Error al abrir o procesar el diálogo de nuevo cliente.");
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     private void handleMinimize() {
@@ -126,6 +205,7 @@ public class MainController {
     }
 
     private boolean isMaximized = false;
+
     @FXML
     private void handleToggleMaximize() {
         Stage stage = (Stage) topBar.getScene().getWindow();
