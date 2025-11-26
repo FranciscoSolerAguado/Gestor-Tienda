@@ -83,6 +83,7 @@
     -fx-background-radius: 10;
     -fx-padding: 5 10;
     -fx-pref-width: 180;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 1, 0.0, 4, 4);
 }
 
 .buscador-input {
@@ -96,36 +97,56 @@
     -fx-font-size: 16px;
 }
 
+.buscador-icon:hover {
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+
 /* BOTONES PEQUEÑOS */
 
 .btn-add {
     -fx-background-color: #b29e84;
     -fx-background-radius: 15;
     -fx-padding: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 1, 0.0, 3, 3);
+}
+
+.btn-add:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 .btn-delete {
     -fx-background-color: #d9534f;
     -fx-background-radius: 15;
     -fx-padding: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 1, 0.0, 3, 3);
+}
+
+.btn-delete:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
 }
 
 
 /* BOTONES DERECHOS*/
 .side-menu-button {
     -fx-background-color: #b29e84;
-    -fx-background-radius: 30;
+    -fx-background-radius: 17;
     -fx-border-color: black;
-    -fx-border-width: 3;
-    -fx-border-radius: 30;
-    -fx-font-size: 22px;
+    -fx-border-width: 1;
+    -fx-border-radius: 17;
+    -fx-font-size: 18px;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-alignment: CENTER_LEFT;
     -fx-padding: 0 0 0 20;
-    -fx-pref-width: 200;
-    -fx-pref-height: 65;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 10, 0.0, 6, 6);
+    -fx-pref-width: 190;
+    -fx-pref-height: 60;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 1, 0.0, 4, 4);
 }
 
 .side-menu-button:hover {
@@ -136,17 +157,17 @@
 
 .side-menu-button-active {
     -fx-background-color: #998771;
-    -fx-background-radius: 30;
+    -fx-background-radius: 17;
     -fx-border-color: black;
-    -fx-border-width: 3;
-    -fx-border-radius: 30;
-    -fx-font-size: 22px;
+    -fx-border-width: 1;
+    -fx-border-radius: 17;
+    -fx-font-size: 18px;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-alignment: CENTER_LEFT;
     -fx-padding: 0 0 0 20;
-    -fx-pref-width: 200;
-    -fx-pref-height: 65;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 10, 0.0, 6, 6);
+    -fx-pref-width: 190;
+    -fx-pref-height: 60;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 1, 0.0, 4, 4);
 }
 
