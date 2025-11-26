@@ -4,37 +4,28 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17.0.12"
-            xmlns:fx="http://javafx.com/fxml/1"
-            stylesheets="@../css/clientes.css"
-            fx:controller="org.fran.gestortienda.controller.ClientesController">
+<BorderPane stylesheets="@../css/clientes.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.fran.gestortienda.controller.ClientesController">
 
     <!-- ░░ CUERPO PRINCIPAL (IZQUIERDA) ░░ -->
     <center>
-        <ScrollPane fitToWidth="true" fitToHeight="true"
-                    hbarPolicy="NEVER"
-                    styleClass="clientes-scroll">
+        <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" styleClass="clientes-scroll">
 
             <content>
-                <TilePane fx:id="contenedorClientes"
-                          hgap="35" vgap="35"
-                          prefColumns="4"
-                          alignment="TOP_CENTER"
-                          styleClass="clientes-grid">
+                <TilePane fx:id="contenedorClientes" alignment="TOP_CENTER" hgap="35" prefColumns="4" styleClass="clientes-grid" vgap="35">
 
-                    <!-- ► EJEMPLO (estos serán generados desde BD) -->
-                    <VBox styleClass="cliente-card" alignment="TOP_CENTER" spacing="12">
-                        <Label text="Id" styleClass="cliente-id"/>
+                    <!-- (estos serán generados desde BD) -->
+                    <VBox alignment="TOP_CENTER" spacing="12" styleClass="cliente-card">
+                        <Label styleClass="cliente-id" text="Id" />
 
-                        <ImageView fitWidth="90" fitHeight="90" preserveRatio="true">
+                        <ImageView fitHeight="90" fitWidth="90" preserveRatio="true">
                             <image>
-                                <Image url="@../img/icono-clientes.png"/>
+                                <Image url="@../img/icono-clientes2.png" />
                             </image>
                         </ImageView>
 
-                        <Label text="Nombre" styleClass="cliente-text"/>
-                        <Label text="Telefono" styleClass="cliente-text"/>
-                        <Label text="Direccion" styleClass="cliente-text"/>
+                        <Label styleClass="cliente-text" text="Nombre" />
+                        <Label styleClass="cliente-text" text="Telefono" />
+                        <Label styleClass="cliente-text" text="Direccion" />
                     </VBox>
 
                 </TilePane>

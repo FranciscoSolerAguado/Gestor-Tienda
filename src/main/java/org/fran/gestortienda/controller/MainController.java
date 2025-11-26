@@ -8,7 +8,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox; // Importamos VBox
+import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.fran.gestortienda.MainApp;
@@ -23,23 +23,24 @@ public class MainController {
 
     @FXML
     private BorderPane mainPane;
-
     @FXML
     private HBox topBar;
-
-    // 2. INYECTAMOS EL PANEL DERECHO
     @FXML
     private VBox rightPanel;
+
+    // Guardamos una referencia al controlador de la vista activa
+    private Object activeController;
 
     @FXML
     public void initialize() {
         LOGGER.info("MainController inicializado.");
-        // 3. OCULTAMOS EL PANEL DERECHO AL INICIAR
         if (rightPanel != null) {
             rightPanel.setVisible(false);
-            rightPanel.setManaged(false); // También evita que ocupe espacio
+            rightPanel.setManaged(false);
         }
     }
+
+    // --- Métodos de Navegación ---
 
     @FXML
     void handleClientesClick(ActionEvent event) {
@@ -65,6 +66,10 @@ public class MainController {
         // loadView("/org/fran/gestortienda/ui/ventas.fxml");
     }
 
+    /**
+     * Método reutilizable para cargar una vista FXML en el centro del BorderPane.
+     * VERSIÓN CORREGIDA: Ahora instancia FXMLLoader para obtener el controlador.
+     */
     private void loadView(String fxmlPath) {
         try {
             URL viewUrl = MainApp.class.getResource(fxmlPath);
@@ -73,11 +78,20 @@ public class MainController {
                 return;
             }
 
-            Parent view = FXMLLoader.load(viewUrl);
+            // 1. CREAR UNA INSTANCIA DEL CARGADOR
+            FXMLLoader loader = new FXMLLoader(viewUrl);
+
+            // 2. CARGAR LA VISTA USANDO LA INSTANCIA
+            Parent view = loader.load();
+
+            // 3. OBTENER Y GUARDAR EL CONTROLADOR
+            activeController = loader.getController();
+            LOGGER.info("Controlador activo establecido en: " + (activeController != null ? activeController.getClass().getName() : "null"));
+
+            // 4. ESTABLECER LA VISTA EN EL CENTRO
             mainPane.setCenter(view);
             LOGGER.info("Vista '" + fxmlPath + "' cargada en el panel central.");
 
-            // 4. MOSTRAMOS EL PANEL DERECHO CUANDO SE CARGA UNA VISTA
             if (rightPanel != null) {
                 rightPanel.setVisible(true);
                 rightPanel.setManaged(true);
@@ -89,7 +103,21 @@ public class MainController {
         }
     }
 
-    // --- Tus métodos para controlar la ventana (sin cambios) ---
+    // --- Métodos de Acción de la Barra Derecha ---
+
+    @FXML
+    private void handleDeleteClick() {
+        LOGGER.info("Botón de borrado presionado.");
+        if (activeController instanceof ClientesController) {
+            ((ClientesController) activeController).borrarSeleccionados();
+        } else {
+            // Este log nos dirá por qué falla si el 'if' es falso
+            LOGGER.warning("El controlador activo no es una instancia de ClientesController. Es: " +
+                    (activeController != null ? activeController.getClass().getName() : "null"));
+        }
+    }
+
+    // --- Métodos de Control de Ventana (sin cambios) ---
 
     @FXML
     private void handleMinimize() {

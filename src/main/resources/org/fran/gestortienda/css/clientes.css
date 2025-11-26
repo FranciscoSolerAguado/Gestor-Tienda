@@ -7,6 +7,7 @@
 }
 
 .clientes-grid {
+    -fx-background-color: #e4e4e4;
     -fx-padding: 30 40;
 }
 
