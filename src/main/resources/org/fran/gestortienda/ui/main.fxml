@@ -62,18 +62,40 @@
                 <Insets top="20.0" />
             </padding>
 
-            <!-- BUSCADOR -->
-            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="buscador-box">
-                <TextField fx:id="searchField" promptText="Buscar..." styleClass="buscador-input" />
-                <Label styleClass="buscador-icon" text="🔎" />
+            <!-- BUSCADOR COMPACTO -->
+            <HBox alignment="CENTER_LEFT" spacing="3" styleClass="buscador-box">
+
+                <TextField fx:id="searchField" onAction="#handleSearch" prefHeight="26" promptText="Buscar..." styleClass="buscador-input" HBox.hgrow="ALWAYS" />
+
+                <StackPane alignment="CENTER" prefHeight="26" prefWidth="26">
+                    <MenuButton prefHeight="26" prefWidth="26" styleClass="icon-menu-button">
+                        <graphic>
+                            <ImageView fitHeight="14" fitWidth="14" preserveRatio="true">
+                                <image>
+                                    <Image url="@../img/icono-filtro.png" />
+                                </image>
+                            </ImageView>
+                        </graphic>
+
+                        <items>
+                            <MenuItem onAction="#handleFiltroPorNombre" text="Por Nombre" />
+                            <MenuItem onAction="#handleFiltroPorID" text="Por ID" />
+                            <MenuItem onAction="#handleFiltroPorDireccion" text="Por Dirección" />
+                        </items>
+                    </MenuButton>
+                </StackPane>
+
             </HBox>
+
 
             <!-- BOTONES MINI -->
             <HBox alignment="CENTER" spacing="20">
                 <Button fx:id="btnAdd" onAction="#handleAddClick" styleClass="btn-add">
                     <graphic>
                         <ImageView fitHeight="22" fitWidth="22" preserveRatio="true">
-                            <image><Image url="@../img/icono-add.png" /></image>
+                            <image>
+                                <Image url="@../img/icono-add.png" />
+                            </image>
                         </ImageView>
                     </graphic>
                 </Button>
@@ -81,7 +103,9 @@
                 <Button fx:id="btnDelete" onAction="#handleDeleteClick" styleClass="btn-delete">
                     <graphic>
                         <ImageView fitHeight="22" fitWidth="22" preserveRatio="true">
-                            <image><Image url="@../img/icono-delete.png" /></image>
+                            <image>
+                                <Image url="@../img/icono-delete.png" />
+                            </image>
                         </ImageView>
                     </graphic>
                 </Button>
@@ -92,7 +116,9 @@
                 <Button onAction="#handleProveedoresClick" styleClass="side-menu-button">
                     <graphic>
                         <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                            <image><Image url="@../img/icono-proveedores.png" /></image>
+                            <image>
+                                <Image url="@../img/icono-proveedores.png" />
+                            </image>
                         </ImageView>
                     </graphic>
                     Proveedores
@@ -101,7 +127,9 @@
                 <Button onAction="#handleProductosClick" styleClass="side-menu-button">
                     <graphic>
                         <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                            <image><Image url="@../img/icono-productos.png" /></image>
+                            <image>
+                                <Image url="@../img/icono-productos.png" />
+                            </image>
                         </ImageView>
                     </graphic>
                     Productos
@@ -110,7 +138,9 @@
                 <Button onAction="#handleClientesClick" styleClass="side-menu-button-active">
                     <graphic>
                         <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                            <image><Image url="@../img/icono-clientes-pulsado.png" /></image>
+                            <image>
+                                <Image url="@../img/icono-clientes-pulsado.png" />
+                            </image>
                         </ImageView>
                     </graphic>
                     Clientes
@@ -119,14 +149,16 @@
                 <Button onAction="#handleVentasClick" styleClass="side-menu-button">
                     <graphic>
                         <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                            <image><Image url="@../img/icono-ventas.png" /></image>
+                            <image>
+                                <Image url="@../img/icono-ventas.png" />
+                            </image>
                         </ImageView>
                     </graphic>
                     Ventas
                 </Button>
-            <VBox.margin>
-               <Insets top="199.0" />
-            </VBox.margin>
+                <VBox.margin>
+                    <Insets top="199.0" />
+                </VBox.margin>
             </VBox>
 
         </VBox>

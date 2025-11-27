@@ -25,8 +25,6 @@ public class ClientesController implements Initializable {
 
     private static final Logger LOGGER = LoggerUtil.getLogger();
 
-    private Object activeController;
-
 
     @FXML
     private TilePane contenedorClientes;
@@ -71,6 +69,60 @@ public class ClientesController implements Initializable {
             LOGGER.severe("Error de SQL al cargar los clientes: " + e.getMessage());
             e.printStackTrace();
             // Opcional: Mostrar una alerta al usuario
+        }
+    }
+
+    /**
+     * 3. MÉTODO PÚBLICO PARA FILTRAR
+     * Filtra los clientes según el modo y el texto de búsqueda.
+     */
+    public void filtrarClientes(String modo, String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
+            cargarClientes();
+            return;
+        }
+
+        LOGGER.info("Filtrando clientes por '" + modo + "' con el texto: '" + texto + "'");
+        List<Cliente> clientesFiltrados = new ArrayList<>();
+        try {
+            switch (modo.toLowerCase()) {
+                case "id":
+                    try {
+                        int id = Integer.parseInt(texto);
+                        Cliente cliente = clienteDAO.getById(id);
+                        if (cliente != null) {
+                            clientesFiltrados.add(cliente);
+                        }
+                    } catch (NumberFormatException e) {
+                        LOGGER.warning("El texto de búsqueda por ID no es un número válido: " + texto);
+                    }
+                    break;
+                case "nombre":
+                    clientesFiltrados = clienteDAO.findByNombre(texto);
+                    break;
+                case "direccion":
+                    clientesFiltrados = clienteDAO.findByDireccion(texto);
+                    break;
+            }
+            actualizarVista(clientesFiltrados);
+        } catch (SQLException e) {
+            LOGGER.severe("Error de SQL al filtrar clientes: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Método ayudante que limpia y repuebla el TilePane con una lista de clientes.
+     */
+    private void actualizarVista(List<Cliente> clientes) {
+        contenedorClientes.getChildren().clear();
+        if (clientes.isEmpty()) {
+            contenedorClientes.getChildren().add(new Label("No se encontraron clientes."));
+        } else {
+            for (Cliente cliente : clientes) {
+                VBox tarjetaCliente = crearTarjeta(cliente);
+                contenedorClientes.getChildren().add(tarjetaCliente);
+            }
         }
     }
 

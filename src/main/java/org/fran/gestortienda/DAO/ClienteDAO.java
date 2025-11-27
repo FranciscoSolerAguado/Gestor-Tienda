@@ -143,4 +143,63 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
         }
         return cliente;
     }
+
+    // --- COPIA Y PEGA ESTOS MÉTODOS DENTRO DE TU CLASE ClienteDAO ---
+
+    private final static String GET_BY_NOMBRE = "SELECT id_cliente, nombre, telefono, direccion FROM cliente WHERE nombre LIKE ?";
+    private final static String GET_BY_DIRECCION = "SELECT id_cliente, nombre, telefono, direccion FROM cliente WHERE direccion LIKE ?";
+
+    /**
+     * Busca clientes cuyo nombre contenga el texto proporcionado.
+     * @param nombre El texto a buscar en el nombre.
+     * @return Una lista de clientes que coinciden.
+     * @throws SQLException Si ocurre un error de SQL.
+     */
+    public List<Cliente> findByNombre(String nombre) throws SQLException {
+        List<Cliente> clientes = new ArrayList<>();
+        Connection conn = ConnectionFactory.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(GET_BY_NOMBRE)) {
+                ps.setString(1, "%" + nombre + "%"); // El '%' actúa como comodín
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        clientes.add(new Cliente(
+                                rs.getInt("id_cliente"),
+                                rs.getString("nombre"),
+                                rs.getString("telefono"),
+                                rs.getString("direccion")
+                        ));
+                    }
+                }
+            }
+        }
+        return clientes;
+    }
+
+    /**
+     * Busca clientes cuya dirección contenga el texto proporcionado.
+     * @param direccion El texto a buscar en la dirección.
+     * @return Una lista de clientes que coinciden.
+     * @throws SQLException Si ocurre un error de SQL.
+     */
+    public List<Cliente> findByDireccion(String direccion) throws SQLException {
+        List<Cliente> clientes = new ArrayList<>();
+        Connection conn = ConnectionFactory.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(GET_BY_DIRECCION)) {
+                ps.setString(1, "%" + direccion + "%");
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        clientes.add(new Cliente(
+                                rs.getInt("id_cliente"),
+                                rs.getString("nombre"),
+                                rs.getString("telefono"),
+                                rs.getString("direccion")
+                        ));
+                    }
+                }
+            }
+        }
+        return clientes;
+    }
 }

@@ -7,10 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -25,7 +22,6 @@ import org.fran.gestortienda.utils.LoggerUtil;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 public class MainController {
@@ -37,6 +33,11 @@ public class MainController {
     private HBox topBar;
     @FXML
     private VBox rightPanel;
+    @FXML
+    private String modoBusqueda = "Nombre";
+    @FXML
+    private TextField searchField;
+
 
     // Guardamos una referencia al controlador de la vista activa
     private Object activeController;
@@ -195,6 +196,43 @@ public class MainController {
         } catch (IOException | SQLException e) {
             LOGGER.severe("Error al abrir o procesar el diálogo de nuevo cliente.");
             e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleFiltroPorNombre() {
+        modoBusqueda = "Nombre";
+        searchField.setPromptText("Buscar por Nombre...");
+        LOGGER.info("Modo de búsqueda cambiado a: Nombre");
+    }
+
+    @FXML
+    private void handleFiltroPorID() {
+        modoBusqueda = "ID";
+        searchField.setPromptText("Buscar por ID...");
+        LOGGER.info("Modo de búsqueda cambiado a: ID");
+    }
+
+    @FXML
+    private void handleFiltroPorDireccion() {
+        modoBusqueda = "Direccion";
+        searchField.setPromptText("Buscar por Dirección...");
+        LOGGER.info("Modo de búsqueda cambiado a: Dirección");
+    }
+
+    /**
+     * 5. Se ejecuta al pulsar Enter en el campo de búsqueda.
+     */
+    @FXML
+    private void handleSearch() {
+        String textoBusqueda = searchField.getText();
+        LOGGER.info("Búsqueda iniciada con el texto: '" + textoBusqueda + "' en modo: " + modoBusqueda);
+
+        if (activeController instanceof ClientesController) {
+            ((ClientesController) activeController).filtrarClientes(modoBusqueda, textoBusqueda);
+        } else {
+            LOGGER.warning("La búsqueda no está implementada para el controlador actual: " +
+                    (activeController != null ? activeController.getClass().getName() : "null"));
         }
     }
 

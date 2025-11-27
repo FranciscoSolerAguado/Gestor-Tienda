@@ -72,6 +72,8 @@
 /*      PANEL LATERAL DERECHO   */
 /* ---------------------------- */
 
+
+
 .right-panel {
     -fx-background-color: #c5c5c5;
     -fx-padding: 25 15;
@@ -82,7 +84,6 @@
     -fx-background-color: #b29e84;
     -fx-background-radius: 10;
     -fx-padding: 5 10;
-    -fx-pref-width: 180;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 1, 0.0, 4, 4);
 }
 
@@ -92,14 +93,24 @@
     -fx-prompt-text-fill: white;
 }
 
-.buscador-icon {
-    -fx-text-fill: white;
-    -fx-font-size: 16px;
+/* ---------------------------------- */
+/* BOTÓN DE MENÚ TIPO ICONO (FILTRO)  */
+/* ---------------------------------- */
+
+.icon-menu-button {
+    /* Hacemos que el botón sea completamente transparente y sin tamaño propio */
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
 }
 
-.buscador-icon:hover {
-    -fx-scale-x: 1.02;
-    -fx-scale-y: 1.02;
+
+.icon-menu-button .arrow-button .arrow {
+    -fx-padding: 0;
+    -fx-shape: "";
 }
 
 
