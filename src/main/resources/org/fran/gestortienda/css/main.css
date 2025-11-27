@@ -85,6 +85,7 @@
     -fx-background-radius: 10;
     -fx-padding: 5 10;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 1, 0.0, 4, 4);
+    -fx-max-width: max-content; /* <-- AÑADE ESTA LÍNEA */
 }
 
 .buscador-input {
@@ -105,12 +106,49 @@
     -fx-background-radius: 0;
     -fx-border-width: 0;
     -fx-cursor: hand;
+    -fx-effect: null; /* <-- 1. AÑADIMOS ESTA LÍNEA PARA ELIMINAR LA SOMBRA */
 }
 
+.icon-menu-button:hover {
+    /* El efecto hover ahora se puede aplicar al StackPane si se desea,
+       o mantenerlo aquí para que solo el área del botón reaccione. */
+}
+
+/* Ocultar la flecha (esto se mantiene igual) */
+.icon-menu-button .arrow-button {
+    -fx-padding: 0;
+}
 
 .icon-menu-button .arrow-button .arrow {
     -fx-padding: 0;
     -fx-shape: "";
+}
+
+/* ---------------------------------- */
+/* ESTILOS DESPLEGABLE DEL FILTRO     */
+/* ---------------------------------- */
+
+/* Estilo para el panel del menú desplegable */
+.icon-menu-button .context-menu {
+    -fx-pref-width: 150px; /* Ancho más pequeño */
+    -fx-min-width: 150px;
+    -fx-background-color: #b29e84; /* Mismo color que el buscador */
+    -fx-background-insets: 0;
+    -fx-background-radius: 10;
+    -fx-padding: 5;
+}
+
+/* Estilo para el texto de cada opción del menú */
+.icon-menu-button .menu-item .label {
+    -fx-font-size: 13px; /* Texto más pequeño */
+    -fx-text-fill: white;
+    -fx-font-weight: normal;
+}
+
+/* Estilo para la opción del menú cuando pasas el ratón por encima */
+.icon-menu-button .menu-item:focused {
+    -fx-background-color: #998771; /* Un tono más oscuro */
+    -fx-background-radius: 8;
 }
 
 
