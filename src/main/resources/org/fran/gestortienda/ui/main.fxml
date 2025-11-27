@@ -57,45 +57,42 @@
     <!-- ░░ BARRA DERECHA ░░ -->
     <right>
         <!-- 1. AÑADIMOS UN fx:id PARA PODER CONTROLAR ESTE PANEL -->
-        <VBox fx:id="rightPanel" styleClass="right-panel"
-              prefWidth="230"
-              alignment="TOP_CENTER"
-              spacing="25">
+        <VBox fx:id="rightPanel" alignment="CENTER" prefWidth="230" spacing="25" styleClass="right-panel">
             <padding>
                 <Insets top="20.0" />
             </padding>
 
             <!-- BUSCADOR -->
             <HBox alignment="CENTER_LEFT" spacing="10" styleClass="buscador-box">
-                <TextField fx:id="searchField" promptText="Buscar..." styleClass="buscador-input"/>
-                <Label text="🔎" styleClass="buscador-icon"/>
+                <TextField fx:id="searchField" promptText="Buscar..." styleClass="buscador-input" />
+                <Label styleClass="buscador-icon" text="🔎" />
             </HBox>
 
             <!-- BOTONES MINI -->
-            <HBox spacing="20" alignment="CENTER">
+            <HBox alignment="CENTER" spacing="20">
                 <Button fx:id="btnAdd" onAction="#handleAddClick" styleClass="btn-add">
                     <graphic>
-                        <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
-                            <image><Image url="@../img/icono-add.png"/></image>
+                        <ImageView fitHeight="22" fitWidth="22" preserveRatio="true">
+                            <image><Image url="@../img/icono-add.png" /></image>
                         </ImageView>
                     </graphic>
                 </Button>
 
                 <Button fx:id="btnDelete" onAction="#handleDeleteClick" styleClass="btn-delete">
                     <graphic>
-                        <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
-                            <image><Image url="@../img/icono-delete.png"/></image>
+                        <ImageView fitHeight="22" fitWidth="22" preserveRatio="true">
+                            <image><Image url="@../img/icono-delete.png" /></image>
                         </ImageView>
                     </graphic>
                 </Button>
             </HBox>
 
             <!-- MENÚ LATERAL -->
-            <VBox spacing="18" alignment="TOP_CENTER" style="-fx-padding: 20 0;">
+            <VBox alignment="TOP_CENTER" spacing="18" style="-fx-padding: 20 0;">
                 <Button onAction="#handleProveedoresClick" styleClass="side-menu-button">
                     <graphic>
                         <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                            <image><Image url="@../img/icono-proveedores.png"/></image>
+                            <image><Image url="@../img/icono-proveedores.png" /></image>
                         </ImageView>
                     </graphic>
                     Proveedores
@@ -104,7 +101,7 @@
                 <Button onAction="#handleProductosClick" styleClass="side-menu-button">
                     <graphic>
                         <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                            <image><Image url="@../img/icono-productos.png"/></image>
+                            <image><Image url="@../img/icono-productos.png" /></image>
                         </ImageView>
                     </graphic>
                     Productos
@@ -113,7 +110,7 @@
                 <Button onAction="#handleClientesClick" styleClass="side-menu-button-active">
                     <graphic>
                         <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                            <image><Image url="@../img/icono-clientes-pulsado.png"/></image>
+                            <image><Image url="@../img/icono-clientes-pulsado.png" /></image>
                         </ImageView>
                     </graphic>
                     Clientes
@@ -122,11 +119,14 @@
                 <Button onAction="#handleVentasClick" styleClass="side-menu-button">
                     <graphic>
                         <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                            <image><Image url="@../img/icono-ventas.png"/></image>
+                            <image><Image url="@../img/icono-ventas.png" /></image>
                         </ImageView>
                     </graphic>
                     Ventas
                 </Button>
+            <VBox.margin>
+               <Insets top="199.0" />
+            </VBox.margin>
             </VBox>
 
         </VBox>
