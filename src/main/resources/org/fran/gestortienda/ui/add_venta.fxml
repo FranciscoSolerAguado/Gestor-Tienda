@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<BorderPane prefHeight="600" prefWidth="900"
+            styleClass="dialog-pane"
+            stylesheets="@../css/add_formulario.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.fran.gestortienda.controller.AddVentaController">
+
+    <!-- ENCABEZADO -->
+    <top>
+        <HBox styleClass="dialog-header">
+            <children>
+                <Label styleClass="dialog-header-title" text="Registrar Nueva Venta"/>
+            </children>
+        </HBox>
+    </top>
+
+    <!-- CUERPO CENTRAL -->
+    <center>
+        <VBox spacing="25">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+
+            <!-- FORMULARIO SUPERIOR -->
+            <GridPane hgap="20" vgap="18">
+                <columnConstraints>
+                    <ColumnConstraints prefWidth="120"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <!-- Fecha -->
+                <Label text="Fecha:" styleClass="form-label" GridPane.rowIndex="0"/>
+                <DatePicker fx:id="fechaPicker" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                <!-- Cliente -->
+                <Label text="Cliente:" styleClass="form-label" GridPane.rowIndex="1"/>
+                <ComboBox fx:id="clienteCombo" promptText="Seleccionar cliente"
+                          styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                <!-- Total (se calcula automáticamente) -->
+                <Label text="Total:" styleClass="form-label" GridPane.rowIndex="2"/>
+                <TextField fx:id="totalField" editable="false"
+                           styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            </GridPane>
+
+            <!-- TABLA DETALLE VENTA -->
+            <Label text="Productos de la Venta:" styleClass="form-label"/>
+
+            <TableView fx:id="tablaDetalles" prefHeight="260">
+                <columns>
+
+                    <TableColumn fx:id="colProducto" text="Producto" prefWidth="200"/>
+                    <TableColumn fx:id="colCantidad" text="Cantidad" prefWidth="90"/>
+                    <TableColumn fx:id="colPrecio" text="Precio Unit." prefWidth="110"/>
+                    <TableColumn fx:id="colDescuento" text="Desc." prefWidth="90"/>
+                    <TableColumn fx:id="colIVA" text="IVA" prefWidth="90"/>
+                    <TableColumn fx:id="colSubtotal" text="Subtotal" prefWidth="120"/>
+
+                </columns>
+            </TableView>
+
+            <!-- BOTÓN AÑADIR PRODUCTO -->
+            <HBox alignment="CENTER_RIGHT">
+                <Button fx:id="btnAddProducto" text="Añadir Producto"
+                        onAction="#handleAddProducto"
+                        styleClass="btn-save"/>
+            </HBox>
+
+        </VBox>
+    </center>
+
+    <!-- BOTONES FINAL -->
+    <bottom>
+        <HBox spacing="15" alignment="CENTER_RIGHT" styleClass="action-buttons-pane">
+            <children>
+                <Button fx:id="saveButton" onAction="#handleSave" styleClass="btn-save" text="Guardar"/>
+                <Button fx:id="cancelButton" onAction="#handleCancel" styleClass="btn-cancel" text="Cancelar"/>
+            </children>
+        </HBox>
+    </bottom>
+
+</BorderPane>
+

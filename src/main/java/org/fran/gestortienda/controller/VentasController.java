@@ -238,20 +238,6 @@ public class VentasController implements Initializable {
         }
     }
 
-
-    private void mostrarVentas(List<Venta> ventas) throws SQLException {
-        contenedorVentas.getChildren().clear();
-
-        if (ventas.isEmpty()) {
-            contenedorVentas.getChildren().add(new Label("No se encontraron ventas."));
-            return;
-        }
-
-        for (Venta venta : ventas) {
-            contenedorVentas.getChildren().add(crearTarjeta(venta));
-        }
-    }
-
     /**
      * MÉTODO PÚBLICO PARA FILTRAR
      * Filtra las ventas según el modo y el texto de búsqueda.

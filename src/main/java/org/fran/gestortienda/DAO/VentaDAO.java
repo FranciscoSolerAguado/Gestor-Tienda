@@ -35,6 +35,7 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
 
 
 
+    @Override
     public boolean save() throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
@@ -53,6 +54,42 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
             }
         }
         return false;
+    }
+
+    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE VentaDAO ---
+
+    /**
+     * Guarda una nueva venta en la base de datos y devuelve el objeto
+     * con el ID generado.
+     *
+     * @param venta El objeto Venta a guardar (sin ID).
+     * @return El objeto Venta con su ID actualizado desde la base de datos, o null si falla.
+     * @throws SQLException Si ocurre un error de SQL.
+     */
+    public Venta addVenta(Venta venta) throws SQLException {
+        Connection conn = ConnectionFactory.getConnection();
+        if (conn != null) {
+            // Usamos Statement.RETURN_GENERATED_KEYS para poder recuperar el ID
+            try (PreparedStatement ps = conn.prepareStatement(INSERT, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+                ps.setObject(1, venta.getFecha());
+                ps.setDouble(2, venta.getTotal());
+                ps.setInt(3, venta.getCliente().getId_cliente());
+
+                int affectedRows = ps.executeUpdate();
+
+                if (affectedRows > 0) {
+                    // Recuperamos las claves generadas
+                    try (java.sql.ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            // Asignamos el nuevo ID al objeto venta
+                            venta.setId_venta(generatedKeys.getInt(1));
+                            return venta; // Devolvemos el objeto completo y actualizado
+                        }
+                    }
+                }
+            }
+        }
+        return null; // Devolvemos null si algo falló
     }
 
     @Override

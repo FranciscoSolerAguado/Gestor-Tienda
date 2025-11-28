@@ -195,7 +195,7 @@ public class MainController {
     }
 
 
-// --- REEMPLAZA handleAddClick Y AÑADE EL NUEVO MÉTODO ---
+
 
     /**
      * Maneja el clic en el botón de añadir (+).
@@ -212,7 +212,10 @@ public class MainController {
             // --- LÓGICA AÑADIDA ---
             LOGGER.info("Controlador activo es ProveedoresController. Abriendo diálogo de nuevo proveedor...");
             abrirDialogoNuevoProveedor();
-        } else {
+        } else if (activeController instanceof VentasController) {
+            LOGGER.info("Controlador activo es VentasController. Abriendo dialogo de nueva venta");
+            abrirDialogoNuevaVenta();
+        }else {
             LOGGER.warning("El botón de añadir no tiene una acción definida para el controlador actual.");
         }
     }
@@ -222,7 +225,7 @@ public class MainController {
      * VERSIÓN MEJORADA: Ahora también cambia el icono.
      */
     private void actualizarEstadoMenu(String vistaActiva) {
-        // 1. Reseteamos todos los botones a su estado normal
+
         resetButtonState(sideBtnClientes, "/org/fran/gestortienda/img/icono-clientes.png");
         resetButtonState(sideBtnProveedores, "/org/fran/gestortienda/img/icono-proveedores.png");
         resetButtonState(sideBtnProductos, "/org/fran/gestortienda/img/icono-productos.png");
@@ -230,7 +233,7 @@ public class MainController {
 
         if (vistaActiva == null) return;
 
-        // 2. Aplicamos el estado activo solo al botón correspondiente
+
         switch (vistaActiva) {
             case "clientes":
                 setButtonActive(sideBtnClientes, "/org/fran/gestortienda/img/icono-clientes-pulsado.png");
@@ -266,6 +269,35 @@ public class MainController {
         }
         ((ImageView) button.getGraphic()).setImage(new Image(getClass().getResourceAsStream(imagePath)));
     }
+
+    private void abrirDialogoNuevaVenta() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/fran/gestortienda/ui/add_venta.fxml"));
+            Parent root = loader.load();
+
+            AddVentaController controller = loader.getController();
+
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.setTitle("Registrar nueva venta");
+            dialog.setScene(new Scene(root));
+            dialog.setResizable(false);
+
+            controller.setDialogStage(dialog);
+            dialog.showAndWait();
+
+            if (controller.isGuardado()) {
+                if (activeController instanceof VentasController ventasController) {
+                    ventasController.cargarVentas();
+                }
+            }
+
+        } catch (Exception e) {
+            LOGGER.severe("Error al abrir diálogo de nueva venta: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * Abre, gestiona y procesa el diálogo para añadir un nuevo PROVEEDOR.

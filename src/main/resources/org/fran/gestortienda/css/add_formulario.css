@@ -14,7 +14,7 @@
     -fx-background-color: #b29e84;
     -fx-padding: 15;
     -fx-alignment: CENTER;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 1, 0.0, 0, 4);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 1, 0.0, 3, 3);
 }
 
 .dialog-header-title {
@@ -41,7 +41,7 @@
     -fx-font-size: 14px;
     -fx-text-fill: #333333;
     -fx-prompt-text-fill: #999999;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 1, 0.0, 4, 4);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 1, 0.0, 3, 3);
 }
 
 .form-input:focused {
@@ -61,7 +61,7 @@
     -fx-background-color: #b29e84;
     -fx-background-radius: 15;
     -fx-padding: 10;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 1, 0.0, 3, 3);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 1, 0.0, 3, 3);
     -fx-font-weight: bold;
 }
 
@@ -74,7 +74,7 @@
     -fx-background-color: #d9534f;
     -fx-background-radius: 15;
     -fx-padding: 10;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 1, 0.0, 3, 3);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 1, 0.0, 3, 3);
     -fx-font-weight: bold;
 }
 
