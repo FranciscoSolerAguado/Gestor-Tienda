@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
@@ -27,6 +28,9 @@
                         <Label styleClass="proveedores-text" text="Telefono" />
                         <Label styleClass="proveedores-text" text="Direccion" />
                     </VBox>
+               <padding>
+                  <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+               </padding>
 
                 </TilePane>
             </content>

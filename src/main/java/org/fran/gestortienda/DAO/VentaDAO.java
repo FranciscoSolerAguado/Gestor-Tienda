@@ -16,6 +16,9 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
     private final static String DELETE = "DELETE FROM venta WHERE id_venta = ?";
     private final static String GET_ALL = "SELECT id_venta, fecha, total, id_cliente FROM venta";
     private final static String GET_BY_ID = "SELECT id_venta, fecha, total, id_cliente FROM venta WHERE id_venta = ?";
+    private final static String GET_BY_FECHA = "SELECT id_venta, fecha, total, id_cliente FROM venta WHERE fecha = ?";
+    private static final String GET_BY_CLIENTE = "SELECT id_venta, fecha, total, id_cliente FROM venta WHERE id_cliente = ?";
+    private static final String GET_BY_TOTAL = "SELECT id_venta, fecha, total, id_cliente FROM venta WHERE total = ?";
 
 
     public VentaDAO(int id_venta, java.util.Date fecha, Double total, org.fran.gestortienda.model.entity.Cliente cliente) {
@@ -155,4 +158,100 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         }
         return venta;
     }
+
+    public List<Venta> buscarPorID(int id) throws SQLException {
+        List<Venta> ventas = new ArrayList<>();
+
+        String sql = "SELECT id_venta, fecha, total, id_cliente FROM venta WHERE id_venta = ?";
+
+        Connection conn = ConnectionFactory.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, id);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        ventas.add(new Venta(
+                                rs.getInt("id_venta"),
+                                rs.getDate("fecha"),
+                                rs.getDouble("total"),
+                                null
+                        ));
+                    }
+                }
+            }
+        }
+        return ventas;
+    }
+
+
+    public List<Venta> findByFecha(Date fecha) throws SQLException {
+        List<Venta> ventas = new ArrayList<>();
+
+        Connection conn = ConnectionFactory.getConnection();
+
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(GET_BY_FECHA)) {
+                ps.setDate(1, new java.sql.Date(fecha.getTime()));
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        ventas.add(new Venta(
+                                rs.getInt("id_venta"),
+                                rs.getDate("fecha"),
+                                rs.getDouble("total"),
+                                null
+                        ));
+                    }
+                }
+            }
+        }
+
+        return ventas;
+    }
+
+    public List<Venta> findByCliente(int idCliente) throws SQLException {
+        List<Venta> ventas = new ArrayList<>();
+
+        Connection conn = ConnectionFactory.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(GET_BY_CLIENTE)) {
+                ps.setInt(1, idCliente);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        ventas.add(new Venta(
+                                rs.getInt("id_venta"),
+                                rs.getDate("fecha"),
+                                rs.getDouble("total"),
+                                null
+                        ));
+                    }
+                }
+            }
+        }
+        return ventas;
+    }
+
+    public List<Venta> findByTotal(double total) throws SQLException {
+        List<Venta> lista = new ArrayList<>();
+        Connection conn = ConnectionFactory.getConnection();
+
+        try (PreparedStatement ps = conn.prepareStatement(GET_BY_TOTAL)) {
+            ps.setDouble(1, total);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                lista.add(new Venta(
+                        rs.getInt("id_venta"),
+                        rs.getDate("fecha"),
+                        rs.getDouble("total"),
+                        null
+                ));
+            }
+        }
+
+        return lista;
+    }
+
 }

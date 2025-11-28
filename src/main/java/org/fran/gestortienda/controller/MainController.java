@@ -93,9 +93,9 @@ public class MainController {
 
     @FXML
     void handleVentasClick(ActionEvent event) {
-        LOGGER.info("Botón Ventas presionado. Cargando vista de ventas...");
-        // loadView("/org/fran/gestortienda/ui/ventas.fxml");
+        loadView("/org/fran/gestortienda/ui/ventas.fxml", "ventas");
     }
+
 
     private void loadView(String fxmlPath, String viewName) {
         try {
@@ -136,6 +136,7 @@ public class MainController {
             ((ClientesController) activeController).borrarSeleccionados();
         } else if (activeController instanceof ProveedoresController) {
             ((ProveedoresController) activeController).borrarSeleccionados();
+
         } else {
             // Este log nos dirá por qué falla si el 'if' es falso
             LOGGER.warning("El controlador activo no es una instancia de ClientesController. Es: " +
@@ -398,7 +399,9 @@ public class MainController {
         } else if (activeController instanceof ProveedoresController) {
             ((ProveedoresController) activeController).filtrarProveedores(modoBusqueda, textoBusqueda);
 
-        } else {
+        } else if (activeController instanceof VentasController)
+            ((VentasController) activeController).filtrarVentas(modoBusqueda, textoBusqueda);
+        else {
             LOGGER.warning("La búsqueda no está implementada para el controlador actual: " +
                     (activeController != null ? activeController.getClass().getName() : "null"));
         }

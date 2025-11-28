@@ -1,0 +1,48 @@
+/* Scroll */
+.ventas-scroll {
+    -fx-background-color: transparent;
+}
+
+/* Grid */
+.ventas-grid {
+    -fx-background-color: #e4e4e4;
+    -fx-padding: 30 40;
+}
+
+/* Tarjeta */
+.venta-card {
+    -fx-background-color: #e4e4e4;
+    -fx-pref-width: 240;
+    -fx-pref-height: 260;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-padding: 15;
+}
+
+/* Texto */
+.venta-text {
+    -fx-text-fill: #a38a6b;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.venta-id {
+    -fx-text-fill: #a38a6b;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* Botón inferior de detalles */
+.venta-detalles-btn {
+    -fx-background-color: #b29e84;
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 5 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 1, 0.0, 3, 3);
+}
+
+.venta-detalles-btn:hover {
+    -fx-background-color: #998771;
+    -fx-cursor: hand;
+}

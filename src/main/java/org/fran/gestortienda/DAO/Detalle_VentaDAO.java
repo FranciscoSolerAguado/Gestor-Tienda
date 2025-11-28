@@ -21,6 +21,7 @@ public class Detalle_VentaDAO extends Detalle_Venta implements CRUD<Detalle_Vent
     private final static String DELETE = "DELETE FROM detalle_venta WHERE id_detalle = ?";
     private final static String GET_ALL = "SELECT id_detalle, id_venta, id_producto, cantidad, descuento, precio_unitario, iva, subtotal FROM detalle_venta";
     private final static String GET_BY_ID = "SELECT id_detalle, id_venta, id_producto, cantidad, descuento, precio_unitario, iva, subtotal FROM detalle_venta WHERE id_detalle = ?";
+    private final static String GET_BY_VENTA = "SELECT * FROM detalle_venta WHERE id_venta = ?";
 
     // --- CONSTRUCTORES ---
     public Detalle_VentaDAO(int id_detalle, Venta venta, Producto producto, int cantidad, double descuento, double precio_unitario, double iva, double subtotal) {
@@ -175,4 +176,36 @@ public class Detalle_VentaDAO extends Detalle_Venta implements CRUD<Detalle_Vent
         }
         return dv;
     }
+
+    public List<Detalle_Venta> getByVenta(int idVenta) throws SQLException {
+        List<Detalle_Venta> lista = new ArrayList<>();
+
+        Connection conn = ConnectionFactory.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(GET_BY_VENTA)) {
+                ps.setInt(1, idVenta);
+                ResultSet rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    Detalle_Venta dv = new Detalle_Venta();
+                    dv.setId_detalle(rs.getInt("id_detalle"));
+                    dv.setCantidad(rs.getInt("cantidad"));
+                    dv.setDescuento(rs.getDouble("descuento"));
+                    dv.setPrecio_unitario(rs.getDouble("precio_unitario"));
+                    dv.setIva(rs.getDouble("iva"));
+                    dv.setSubtotal(rs.getDouble("subtotal"));
+
+                    // Producto con solo ID
+                    Producto p = new Producto();
+                    p.setId_producto(rs.getInt("id_producto"));
+                    dv.setProducto(p);
+
+                    lista.add(dv);
+                }
+            }
+        }
+        return lista;
+    }
+
+
 }
