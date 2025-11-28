@@ -105,13 +105,9 @@
     -fx-background-radius: 0;
     -fx-border-width: 0;
     -fx-cursor: hand;
-    -fx-effect: null; /* <-- 1. AÑADIMOS ESTA LÍNEA PARA ELIMINAR LA SOMBRA */
+    -fx-effect: null;
 }
 
-.icon-menu-button:hover {
-    /* El efecto hover ahora se puede aplicar al StackPane si se desea,
-       o mantenerlo aquí para que solo el área del botón reaccione. */
-}
 
 /* Ocultar la flecha (esto se mantiene igual) */
 .icon-menu-button .arrow-button {
@@ -218,4 +214,3 @@
     -fx-pref-height: 60;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 1, 0.0, 3, 3);
 }
-
