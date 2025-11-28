@@ -184,7 +184,17 @@ public class MainController {
             filterMenuButton.getItems().addAll(porNombre, porTelefono, porCorreo);
             setModoBusqueda("Nombre", "Buscar por Nombre...");
 
-        } else {
+        } else if (controller instanceof VentasController) {
+            // --- LÓGICA AÑADIDA PARA VENTAS ---
+            MenuItem porFecha = new MenuItem("Por Fecha");
+            porFecha.setOnAction(e -> setModoBusqueda("Fecha", "Buscar por Fecha (AAAA-MM-DD)..."));
+
+            MenuItem porCliente = new MenuItem("Por ID Cliente");
+            porCliente.setOnAction(e -> setModoBusqueda("Cliente", "Buscar por ID de Cliente..."));
+
+            filterMenuButton.getItems().addAll(porFecha, porCliente);
+            setModoBusqueda("Fecha", "Buscar por Fecha (AAAA-MM-DD)..."); // Modo por defecto
+        }else{
             // Estado por defecto
             MenuItem defaultItem = new MenuItem("Sin filtro");
             defaultItem.setDisable(true);
@@ -193,8 +203,6 @@ public class MainController {
             filterMenuButton.setDisable(true);
         }
     }
-
-
 
 
     /**
@@ -209,13 +217,12 @@ public class MainController {
             LOGGER.info("Controlador activo es ClientesController. Abriendo diálogo de nuevo cliente...");
             abrirDialogoNuevoCliente();
         } else if (activeController instanceof ProveedoresController) {
-            // --- LÓGICA AÑADIDA ---
             LOGGER.info("Controlador activo es ProveedoresController. Abriendo diálogo de nuevo proveedor...");
             abrirDialogoNuevoProveedor();
         } else if (activeController instanceof VentasController) {
             LOGGER.info("Controlador activo es VentasController. Abriendo dialogo de nueva venta");
             abrirDialogoNuevaVenta();
-        }else {
+        } else {
             LOGGER.warning("El botón de añadir no tiene una acción definida para el controlador actual.");
         }
     }

@@ -155,6 +155,10 @@ public class VentasController implements Initializable {
 
         return tarjeta;
     }
+
+
+
+
     private void mostrarDetallesVenta(Venta venta) {
         try {
             // ===============================
@@ -229,7 +233,7 @@ public class VentasController implements Initializable {
 
             javafx.stage.Stage popup = new javafx.stage.Stage();
             popup.setTitle("Detalles de la venta");
-            popup.setScene(new javafx.scene.Scene(root, 500, 450));
+            popup.setScene(new javafx.scene.Scene(root, 800, 450));
             popup.setResizable(false);
             popup.show();
 
