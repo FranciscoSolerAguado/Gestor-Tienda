@@ -7,9 +7,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -43,6 +46,14 @@ public class MainController {
     private TextField searchField;
     @FXML
     private MenuButton filterMenuButton;
+    @FXML
+    private Button sideBtnProveedores;
+    @FXML
+    private Button sideBtnProductos;
+    @FXML
+    private Button sideBtnClientes;
+    @FXML
+    private Button sideBtnVentas;
 
 
     // Guardamos una referencia al controlador de la vista activa
@@ -64,14 +75,14 @@ public class MainController {
     @FXML
     void handleClientesClick(ActionEvent event) {
         LOGGER.info("Botón Clientes presionado. Cargando vista de clientes...");
-        loadView("/org/fran/gestortienda/ui/clientes.fxml");
+        loadView("/org/fran/gestortienda/ui/clientes.fxml", "clientes");
     }
 
 
     @FXML
     void handleProveedoresClick(ActionEvent event) {
         LOGGER.info("Botón Proveedores presionado. Cargando vista de proveedores...");
-        loadView("/org/fran/gestortienda/ui/proveedores.fxml");
+        loadView("/org/fran/gestortienda/ui/proveedores.fxml", "proveedores");
     }
 
     @FXML
@@ -86,7 +97,7 @@ public class MainController {
         // loadView("/org/fran/gestortienda/ui/ventas.fxml");
     }
 
-    private void loadView(String fxmlPath) {
+    private void loadView(String fxmlPath, String viewName) {
         try {
             // LOG DE DEPURACIÓN: Comprobamos el estado del panel antes de hacer nada.
             LOGGER.info("--- Iniciando loadView para: " + fxmlPath + " ---");
@@ -99,7 +110,7 @@ public class MainController {
 
             mainPane.setCenter(view);
             LOGGER.info("Vista '" + fxmlPath + "' cargada en el panel central.");
-
+            actualizarEstadoMenu(viewName);
             // LOG DE DEPURACIÓN: Comprobamos el panel justo antes de mostrarlo.
             if (rightPanel != null) {
                 LOGGER.info("Haciendo visible el rightPanel. Su visibilidad actual es: " + rightPanel.isVisible());
@@ -158,6 +169,7 @@ public class MainController {
             filterMenuButton.getItems().addAll(porNombre, porId, porDireccion);
             setModoBusqueda("Nombre", "Buscar por Nombre...");
 
+
         } else if (controller instanceof ProveedoresController) {
             // ESTA ES LA LÓGICA QUE DEBE FUNCIONAR
             MenuItem porNombre = new MenuItem("Por Nombre");
@@ -200,6 +212,56 @@ public class MainController {
         } else {
             LOGGER.warning("El botón de añadir no tiene una acción definida para el controlador actual.");
         }
+    }
+
+    /**
+     * Actualiza el estilo y la imagen de los botones del menú lateral.
+     * VERSIÓN MEJORADA: Ahora también cambia el icono.
+     */
+    private void actualizarEstadoMenu(String vistaActiva) {
+        // 1. Reseteamos todos los botones a su estado normal
+        resetButtonState(sideBtnClientes, "/org/fran/gestortienda/img/icono-clientes.png");
+        resetButtonState(sideBtnProveedores, "/org/fran/gestortienda/img/icono-proveedores.png");
+        resetButtonState(sideBtnProductos, "/org/fran/gestortienda/img/icono-productos.png");
+        resetButtonState(sideBtnVentas, "/org/fran/gestortienda/img/icono-ventas.png");
+
+        if (vistaActiva == null) return;
+
+        // 2. Aplicamos el estado activo solo al botón correspondiente
+        switch (vistaActiva) {
+            case "clientes":
+                setButtonActive(sideBtnClientes, "/org/fran/gestortienda/img/icono-clientes-pulsado.png");
+                break;
+            case "proveedores":
+                setButtonActive(sideBtnProveedores, "/org/fran/gestortienda/img/icono-proveedores-pulsado.png");
+                break;
+            case "productos":
+                setButtonActive(sideBtnProductos, "/org/fran/gestortienda/img/icono-productos-pulsado.png");
+                break;
+            case "ventas":
+                setButtonActive(sideBtnVentas, "/org/fran/gestortienda/img/icono-ventas-pulsado.png");
+                break;
+        }
+    }
+
+    /**
+     * Método ayudante para poner un botón en estado "activo".
+     */
+    private void setButtonActive(Button button, String imagePath) {
+        button.getStyleClass().remove("side-menu-button");
+        button.getStyleClass().add("side-menu-button-active");
+        ((ImageView) button.getGraphic()).setImage(new Image(getClass().getResourceAsStream(imagePath)));
+    }
+
+    /**
+     * Método ayudante para resetear un botón a su estado normal.
+     */
+    private void resetButtonState(Button button, String imagePath) {
+        button.getStyleClass().remove("side-menu-button-active");
+        if (!button.getStyleClass().contains("side-menu-button")) {
+            button.getStyleClass().add("side-menu-button");
+        }
+        ((ImageView) button.getGraphic()).setImage(new Image(getClass().getResourceAsStream(imagePath)));
     }
 
     /**
