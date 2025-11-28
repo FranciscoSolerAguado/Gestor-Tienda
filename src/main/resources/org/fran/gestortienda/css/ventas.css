@@ -5,7 +5,7 @@
 
 /* Grid */
 .ventas-grid {
-    -fx-background-color: #e4e4e4;
+    -fx-background-color: transparent;
     -fx-padding: 30 40;
 }
 

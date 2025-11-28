@@ -2,7 +2,6 @@
 /* BARRA SUPERIOR */
 /* ------------------------------ */
 .topBar {
-    -fx-background-color: #b89d7d;
     -fx-padding: 12 20;
     -fx-alignment: CENTER_LEFT;
     -fx-spacing: 15;
