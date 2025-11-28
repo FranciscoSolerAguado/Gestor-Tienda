@@ -2,9 +2,9 @@ package org.fran.gestortienda.controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -19,12 +19,14 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 public class VentasController implements Initializable {
 
     private static final Logger LOGGER = LoggerUtil.getLogger();
+    private final List<Venta> ventasSeleccionadas = new ArrayList<>();
     private String modoFiltro = "NINGUNO";
 
 
@@ -76,27 +78,45 @@ public class VentasController implements Initializable {
     }
 
     private VBox crearTarjeta(Venta venta) {
-        // --- Cargar cliente si es necesario ---
+
         String nombreCliente = "Sin cliente";
 
-        if (venta.getCliente() == null || venta.getCliente().getId_cliente() == 0) {
-            try {
+        // --- Cargar cliente si es necesario ---
+        try {
+            if (venta.getCliente() != null && venta.getCliente().getId_cliente() > 0) {
                 ClienteDAO clienteDAO = new ClienteDAO();
                 var cliente = clienteDAO.getById(venta.getCliente().getId_cliente());
                 if (cliente != null) {
                     venta.setCliente(cliente);
                     nombreCliente = cliente.getNombre();
                 }
-            } catch (Exception e) {
-                nombreCliente = "Sin cliente";
             }
-        } else {
-            nombreCliente = venta.getCliente().getNombre();
+        } catch (Exception e) {
+            nombreCliente = "Sin cliente";
         }
 
-        // --- ID ---
+        // --- Contenedor superior estilo clientes (ID + CheckBox) ---
+        StackPane topPane = new StackPane();
+        topPane.setPadding(new Insets(0, 10, 0, 15));
+
         Label idLabel = new Label("#" + venta.getId_venta());
         idLabel.getStyleClass().add("venta-id");
+        StackPane.setAlignment(idLabel, Pos.CENTER_LEFT);
+
+        CheckBox checkBox = new CheckBox();
+        StackPane.setAlignment(checkBox, Pos.CENTER_RIGHT);
+
+        // ✔ Lógica de selección
+        checkBox.setOnAction(e -> {
+            if (checkBox.isSelected()) {
+                ventasSeleccionadas.add(venta);
+            } else {
+                ventasSeleccionadas.remove(venta);
+            }
+            LOGGER.info("Ventas seleccionadas: " + ventasSeleccionadas.size());
+        });
+
+        topPane.getChildren().addAll(idLabel, checkBox);
 
         // --- Imagen ---
         ImageView imageView = new ImageView(
@@ -118,16 +138,17 @@ public class VentasController implements Initializable {
 
         // --- Cliente ---
         Label clienteLabel = new Label("Cliente: " + nombreCliente);
-        clienteLabel.getStyleClass().add("venta-text");
         clienteLabel.setWrapText(true);
+        clienteLabel.getStyleClass().add("venta-text");
 
         // --- Botón Detalles ---
         Button detallesBtn = new Button("Detalles");
         detallesBtn.getStyleClass().add("venta-detalles-btn");
         detallesBtn.setOnAction(e -> mostrarDetallesVenta(venta));
 
-        // --- Tarjeta principal ---
-        VBox tarjeta = new VBox(12, idLabel, imageView, fechaLabel, totalLabel, clienteLabel, detallesBtn);
+
+        // --- Tarjeta completa ---
+        VBox tarjeta = new VBox(12, topPane, imageView, fechaLabel, totalLabel, clienteLabel, detallesBtn);
         tarjeta.setAlignment(Pos.TOP_CENTER);
         tarjeta.getStyleClass().add("venta-card");
         tarjeta.setPrefSize(230, 290);
@@ -293,6 +314,60 @@ public class VentasController implements Initializable {
             LOGGER.severe("Error de SQL al filtrar ventas: " + e.getMessage());
         }
     }
+
+    public void borrarSeleccionados() {
+
+        if (ventasSeleccionadas.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Borrado");
+            alert.setHeaderText(null);
+            alert.setContentText("No has seleccionado ninguna venta para borrar.");
+            alert.showAndWait();
+            return;
+        }
+
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirmar Borrado");
+        confirmAlert.setHeaderText("Vas a borrar " + ventasSeleccionadas.size() + " venta(s).");
+        confirmAlert.setContentText("¿Estás seguro? Esta acción no se puede deshacer.");
+
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+        if (!result.isPresent() || result.get() != ButtonType.OK) {
+            LOGGER.info("Borrado cancelado por el usuario.");
+            return;
+        }
+
+        int borradas = 0;
+        int fallidas = 0;
+
+        for (Venta venta : ventasSeleccionadas) {
+            try {
+                if (ventaDAO.delete(venta)) {
+                    borradas++;
+                }
+            } catch (java.sql.SQLIntegrityConstraintViolationException e) {
+                // No puede borrarse porque tiene detalles asociados
+                fallidas++;
+                LOGGER.warning("Venta ID " + venta.getId_venta() + " no se pudo borrar porque tiene detalles asociados.");
+            } catch (SQLException e) {
+                fallidas++;
+                LOGGER.severe("Error al borrar venta ID " + venta.getId_venta() + ": " + e.getMessage());
+            }
+        }
+
+        ventasSeleccionadas.clear();
+        cargarVentas();
+
+        Alert resumen = new Alert(Alert.AlertType.INFORMATION);
+        resumen.setTitle("Resultado del borrado");
+        resumen.setHeaderText(borradas + " ventas borradas.");
+        if (fallidas > 0) {
+            resumen.setContentText(fallidas + " ventas no se pudieron borrar porque tienen detalles asociados.");
+        }
+        resumen.showAndWait();
+    }
+
+
     /**
      * Método ayudante que limpia y repuebla el TilePane con una lista de ventas.
      */

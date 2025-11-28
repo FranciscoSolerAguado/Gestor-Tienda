@@ -137,6 +137,8 @@ public class MainController {
         } else if (activeController instanceof ProveedoresController) {
             ((ProveedoresController) activeController).borrarSeleccionados();
 
+        } else if (activeController instanceof VentasController) {
+            ((VentasController) activeController).borrarSeleccionados();
         } else {
             // Este log nos dirá por qué falla si el 'if' es falso
             LOGGER.warning("El controlador activo no es una instancia de ClientesController. Es: " +
