@@ -2,16 +2,16 @@
 /*        GRID TARJETAS         */
 /* ---------------------------- */
 
-.clientes-scroll {
+.proveedor-scroll {
     -fx-background-color: transparent;
 }
 
-.clientes-grid {
+.proveedor-grid {
     -fx-background-color: #e4e4e4;
     -fx-padding: 30 40;
 }
 
-.cliente-card {
+.proveedor-card {
     -fx-background-color: #e4e4e4;
     -fx-pref-width: 240;
     -fx-pref-height: 240;
@@ -20,13 +20,13 @@
     -fx-padding: 15;
 }
 
-.cliente-id {
+.proveedor-id {
     -fx-text-fill: #a38a6b;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
 }
 
-.cliente-text {
+.proveedor-text {
     -fx-text-fill: #a38a6b;
     -fx-font-size: 18px;
     -fx-font-weight: bold;

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.TilePane?>
+
+<!-- 1. CAMBIAMOS LA HOJA DE ESTILOS A proveedores.css -->
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.fran.gestortienda.controller.ProveedoresController"
+            stylesheets="@../css/proveedores.css">
+    <children>
+        <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER"
+                    AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                    AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+                    styleClass="proveedores-scroll">
+            <content>
+                <TilePane fx:id="contenedorProveedores"
+                          hgap="35" vgap="35"
+                          prefColumns="4"
+                          alignment="TOP_CENTER"
+                          styleClass="proveedores-grid">
+                    <padding>
+                        <Insets top="25" right="25" bottom="25" left="25"/>
+                    </padding>
+                </TilePane>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

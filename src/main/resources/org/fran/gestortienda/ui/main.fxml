@@ -69,7 +69,8 @@
 
                         <StackPane alignment="CENTER" minHeight="30" prefHeight="30" maxHeight="30" minWidth="30" prefWidth="30" maxWidth="30">
                             <children>
-                                <MenuButton styleClass="icon-menu-button">
+                                <!-- 2. Reemplazamos el Label por un MenuButton para el desplegable -->
+                                <MenuButton fx:id="filterMenuButton" styleClass="icon-menu-button">
                                     <graphic>
                                         <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
                                             <image>
@@ -77,10 +78,8 @@
                                             </image>
                                         </ImageView>
                                     </graphic>
+                                    <!-- 3. DEJAMOS LOS ITEMS VACÍOS PARA QUE EL CÓDIGO JAVA LOS RELLENE -->
                                     <items>
-                                        <MenuItem text="Por Nombre" onAction="#handleFiltroPorNombre"/>
-                                        <MenuItem text="Por ID" onAction="#handleFiltroPorID"/>
-                                        <MenuItem text="Por Dirección" onAction="#handleFiltroPorDireccion"/>
                                     </items>
                                 </MenuButton>
                             </children>

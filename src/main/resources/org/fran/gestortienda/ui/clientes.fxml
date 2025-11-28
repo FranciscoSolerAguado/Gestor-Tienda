@@ -8,14 +8,14 @@
 
     <!-- ░░ CUERPO PRINCIPAL (IZQUIERDA) ░░ -->
     <center>
-        <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" styleClass="clientes-scroll">
+        <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" styleClass="proveedores-scroll">
 
             <content>
-                <TilePane fx:id="contenedorClientes" alignment="TOP_CENTER" hgap="35" prefColumns="4" styleClass="clientes-grid" vgap="35">
+                <TilePane fx:id="contenedorClientes" alignment="TOP_CENTER" hgap="35" prefColumns="4" styleClass="proveedores-grid" vgap="35">
 
                     <!-- (estos serán generados desde BD) -->
-                    <VBox alignment="TOP_CENTER" spacing="12" styleClass="cliente-card">
-                        <Label styleClass="cliente-id" text="Id" />
+                    <VBox alignment="TOP_CENTER" spacing="12" styleClass="proveedores-card">
+                        <Label styleClass="proveedores-id" text="Id" />
 
                         <ImageView fitHeight="90" fitWidth="90" preserveRatio="true">
                             <image>
@@ -23,9 +23,9 @@
                             </image>
                         </ImageView>
 
-                        <Label styleClass="cliente-text" text="Nombre" />
-                        <Label styleClass="cliente-text" text="Telefono" />
-                        <Label styleClass="cliente-text" text="Direccion" />
+                        <Label styleClass="proveedores-text" text="Nombre" />
+                        <Label styleClass="proveedores-text" text="Telefono" />
+                        <Label styleClass="proveedores-text" text="Direccion" />
                     </VBox>
 
                 </TilePane>

@@ -19,6 +19,8 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
     private final static String DELETE = "DELETE FROM proveedor WHERE id_proveedor = ?";
     private final static String GET_ALL = "SELECT id_proveedor, nombre, telefono, correo FROM proveedor";
     private final static String GET_BY_ID = "SELECT id_proveedor, nombre, telefono, correo FROM proveedor WHERE id_proveedor = ?";
+    private final static String GET_BY_NOMBRE = "SELECT id_proveedor, nombre, telefono, correo FROM proveedor WHERE nombre LIKE ?";
+    private final static String GET_BY_CORREO = "SELECT id_proveedor, nombre, telefono, correo FROM proveedor WHERE correo LIKE ?";
 
 
     public ProveedorDAO(int id_proveedor, String nombre, String telefono, String correo) {
@@ -141,5 +143,52 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
             }
         }
         return proveedor;
+    }
+    /**
+     * Busca proveedores cuyo nombre contenga el texto proporcionado.
+     */
+    public List<Proveedor> findByNombre(String nombre) throws SQLException {
+        List<Proveedor> proveedores = new ArrayList<>();
+        Connection conn = ConnectionFactory.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(GET_BY_NOMBRE)) {
+                ps.setString(1, "%" + nombre + "%");
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        proveedores.add(new Proveedor(
+                                rs.getInt("id_proveedor"),
+                                rs.getString("nombre"),
+                                rs.getString("telefono"),
+                                rs.getString("correo")
+                        ));
+                    }
+                }
+            }
+        }
+        return proveedores;
+    }
+
+    /**
+     * Busca proveedores cuyo correo contenga el texto proporcionado.
+     */
+    public List<Proveedor> findByCorreo(String correo) throws SQLException {
+        List<Proveedor> proveedores = new ArrayList<>();
+        Connection conn = ConnectionFactory.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(GET_BY_CORREO)) {
+                ps.setString(1, "%" + correo + "%");
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        proveedores.add(new Proveedor(
+                                rs.getInt("id_proveedor"),
+                                rs.getString("nombre"),
+                                rs.getString("telefono"),
+                                rs.getString("correo")
+                        ));
+                    }
+                }
+            }
+        }
+        return proveedores;
     }
 }

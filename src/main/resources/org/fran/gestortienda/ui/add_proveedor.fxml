@@ -4,39 +4,39 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="386.0" prefWidth="718.0" styleClass="dialog-pane" stylesheets="@../css/add_formulario.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.fran.gestortienda.controller.AddClienteController">
+<BorderPane prefHeight="386.0" prefWidth="718" styleClass="dialog-pane" stylesheets="@../css/add_formulario.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.fran.gestortienda.controller.AddProveedorController"> <!-- Reutilizamos el CSS -->
 
     <!-- ENCABEZADO -->
     <top>
         <HBox styleClass="dialog-header">
             <children>
-                <Label styleClass="dialog-header-title" text="Añadir Nuevo Cliente" />
+                <Label styleClass="dialog-header-title" text="Añadir Nuevo Proveedor" />
             </children>
         </HBox>
     </top>
 
     <!-- FORMULARIO CENTRAL -->
     <center>
-        <GridPane hgap="15" vgap="20">
+        <GridPane hgap="15" prefWidth="636.0" vgap="20">
             <padding>
                 <Insets bottom="25" left="30" right="30" top="25" />
             </padding>
             <columnConstraints>
-                <ColumnConstraints prefWidth="100.0" />
+                <ColumnConstraints prefWidth="100" />
                 <ColumnConstraints hgrow="ALWAYS" />
             </columnConstraints>
 
             <!-- Fila Nombre -->
             <Label styleClass="form-label" text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <TextField fx:id="nombreField" promptText="Nombre del cliente" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+            <TextField fx:id="nombreField" promptText="Nombre del proveedor" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
             <!-- Fila Teléfono -->
             <Label styleClass="form-label" text="Teléfono:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
             <TextField fx:id="telefonoField" promptText="Número de teléfono" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-            <!-- Fila Dirección -->
-            <Label styleClass="form-label" text="Dirección:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <TextArea fx:id="direccionArea" prefHeight="100" promptText="Dirección completa" styleClass="form-input" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <!-- Fila Correo -->
+            <Label styleClass="form-label" text="Correo:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <TextField fx:id="correoField" promptText="Correo electrónico" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="2" />
          <rowConstraints>
             <RowConstraints />
             <RowConstraints />
