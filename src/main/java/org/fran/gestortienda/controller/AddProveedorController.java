@@ -18,6 +18,9 @@ public class AddProveedorController {
     @FXML
     private Button saveButton;
 
+    // --- AÑADE ESTE CAMPO A TU CLASE AddProveedorController ---
+    private Proveedor proveedorAEditar = null;
+
     private Stage dialogStage;
     private Proveedor nuevoProveedor = null;
     private boolean guardado = false;
@@ -34,6 +37,24 @@ public class AddProveedorController {
         return nuevoProveedor;
     }
 
+    // --- AÑADE ESTE MÉTODO A TU CLASE AddProveedorController ---
+
+    /**
+     * Pone el controlador en "modo edición" y rellena el formulario
+     * con los datos de un proveedor existente.
+     * @param proveedor El proveedor a editar.
+     */
+    public void setProveedorParaEditar(Proveedor proveedor) {
+        this.proveedorAEditar = proveedor;
+
+        // Rellenar los campos del formulario
+        nombreField.setText(proveedor.getNombre());
+        telefonoField.setText(proveedor.getTelefono());
+        correoField.setText(proveedor.getCorreo());
+    }
+
+    // --- REEMPLAZA TU MÉTODO handleSave CON ESTE ---
+
     @FXML
     private void handleSave() {
         String nombre = nombreField.getText().trim();
@@ -46,11 +67,24 @@ public class AddProveedorController {
             return;
         }
 
-        nuevoProveedor = new Proveedor(
-                nombre,
-                telefonoField.getText().trim(),
-                correoField.getText().trim()
-        );
+        // Si estamos en modo edición, actualizamos el objeto existente
+        if (proveedorAEditar != null) {
+            proveedorAEditar.setNombre(nombre);
+            proveedorAEditar.setTelefono(telefonoField.getText().trim());
+            proveedorAEditar.setCorreo(correoField.getText().trim());
+
+            // Guardamos el objeto actualizado en una variable local
+            nuevoProveedor = proveedorAEditar;
+
+        } else {
+            // Si no, creamos uno nuevo
+            nuevoProveedor = new Proveedor(
+                    nombre,
+                    telefonoField.getText().trim(),
+                    correoField.getText().trim()
+            );
+        }
+
         guardado = true;
         dialogStage.close();
     }

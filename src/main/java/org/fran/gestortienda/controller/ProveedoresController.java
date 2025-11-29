@@ -1,21 +1,25 @@
 package org.fran.gestortienda.controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.fran.gestortienda.DAO.ProveedorDAO;
 import org.fran.gestortienda.model.entity.Proveedor;
 import org.fran.gestortienda.utils.LoggerUtil;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
@@ -60,54 +64,99 @@ public class ProveedoresController implements Initializable {
         }
     }
 
+// --- REEMPLAZA TU MÉTODO crearTarjeta CON ESTE ---
+
     private VBox crearTarjeta(Proveedor proveedor) {
-        // --- Contenedor para la parte superior (ID y CheckBox) ---
         StackPane topPane = new StackPane();
         topPane.setPadding(new javafx.geometry.Insets(0, 10, 0, 15));
 
         Label idLabel = new Label("#" + proveedor.getId_proveedor());
-        idLabel.getStyleClass().add("proveedor-id"); // Reutilizamos estilo
+        // --- CORRECCIÓN DE ESTILO ---
+        idLabel.getStyleClass().add("proveedor-id");
         StackPane.setAlignment(idLabel, Pos.CENTER_LEFT);
 
-        // 2. Creamos el CheckBox
         CheckBox checkBox = new CheckBox();
         StackPane.setAlignment(checkBox, Pos.CENTER_RIGHT);
-
-        // 3. Añadimos la lógica para la selección
         checkBox.setOnAction(event -> {
             if (checkBox.isSelected()) {
                 proveedoresSeleccionados.add(proveedor);
             } else {
                 proveedoresSeleccionados.remove(proveedor);
             }
-            LOGGER.info("Proveedores seleccionados: " + proveedoresSeleccionados.size());
         });
-
         topPane.getChildren().addAll(idLabel, checkBox);
 
-        // --- Resto de componentes (sin cambios) ---
-        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/icono-proveedores2.png")));
+        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/icono-proveedores.png")));
         imageView.setFitWidth(90);
         imageView.setFitHeight(90);
         imageView.setPreserveRatio(true);
 
         Label nombreLabel = new Label(proveedor.getNombre());
-        nombreLabel.getStyleClass().add("proveedor-text"); // Reutilizamos estilo
+        // --- CORRECCIÓN DE ESTILO ---
+        nombreLabel.getStyleClass().add("proveedor-text");
 
         Label telefonoLabel = new Label("Tel: " + proveedor.getTelefono());
-        telefonoLabel.getStyleClass().add("proveedor-text"); // Reutilizamos estilo
+        // --- CORRECCIÓN DE ESTILO ---
+        telefonoLabel.getStyleClass().add("proveedor-text");
 
         Label correoLabel = new Label(proveedor.getCorreo());
-        correoLabel.getStyleClass().add("proveedor-text"); // Reutilizamos estilo
+        // --- CORRECCIÓN DE ESTILO ---
+        correoLabel.getStyleClass().add("proveedor-text");
         correoLabel.setWrapText(true);
 
-        // --- VBox principal de la tarjeta ---
-        VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, telefonoLabel, correoLabel);
+        Button editarBtn = new Button("Editar");
+        editarBtn.getStyleClass().add("proveedor-accion-btn"); // Reutilizamos este estilo genérico
+        editarBtn.setOnAction(e -> handleEditarProveedor(proveedor));
+
+        HBox botonesBox = new HBox(10, editarBtn); // Contenedor para futuros botones
+        botonesBox.setAlignment(Pos.CENTER);
+
+        VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, telefonoLabel, correoLabel, botonesBox);
         tarjeta.setAlignment(Pos.TOP_CENTER);
-        tarjeta.getStyleClass().add("proveedor-card"); // Reutilizamos estilo
-        tarjeta.setPrefSize(230, 230);
+        // --- CORRECCIÓN DE ESTILO ---
+        tarjeta.getStyleClass().add("proveedor-card");
+        tarjeta.setPrefSize(230, 290);
 
         return tarjeta;
+    }
+
+    // --- AÑADE ESTE MÉTODO A TU CLASE ProveedoresController ---
+
+    /**
+     * Abre el diálogo de 'Añadir Proveedor' en modo edición.
+     * @param proveedor El proveedor a editar.
+     */
+    private void handleEditarProveedor(Proveedor proveedor) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/fran/gestortienda/ui/add_proveedor.fxml"));
+            Parent view = loader.load();
+
+            AddProveedorController dialogController = loader.getController();
+            dialogController.setProveedorParaEditar(proveedor);
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Editar Proveedor");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(contenedorProveedores.getScene().getWindow());
+
+            Scene scene = new Scene(view);
+            dialogStage.setScene(scene);
+
+            dialogController.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+
+            if (dialogController.isGuardado()) {
+                Proveedor proveedorEditado = dialogController.getNuevoProveedor();
+                if (proveedorEditado != null) {
+                    new ProveedorDAO().update(proveedorEditado);
+                    LOGGER.info("Proveedor actualizado: " + proveedorEditado.getNombre());
+                    cargarProveedores();
+                }
+            }
+        } catch (IOException | SQLException e) {
+            LOGGER.severe("Error al abrir o procesar el diálogo de edición de proveedor.");
+            e.printStackTrace();
+        }
     }
 
     // --- COPIA Y PEGA ESTOS MÉTODOS DENTRO DE TU CLASE ProveedoresController ---
