@@ -16,6 +16,7 @@ import org.fran.gestortienda.model.entity.Venta;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -190,13 +191,33 @@ public class AddVentaController {
         }
     }
 
+// --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
+
+    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController.java ---
+
     private Producto pedirProducto() throws SQLException {
-        ChoiceDialog<Producto> dialog = new ChoiceDialog<>();
-        dialog.getItems().addAll(productoDAO.getAll());
-        dialog.setHeaderText("Selecciona un producto");
+        List<Producto> productosDisponibles = productoDAO.getAll();
+        if (productosDisponibles.isEmpty()) {
+            new Alert(Alert.AlertType.WARNING, "No hay productos disponibles para añadir.").showAndWait();
+            return null;
+        }
+
+        // El ChoiceDialog ahora usará automáticamente el método toString() del Producto
+        ChoiceDialog<Producto> dialog = new ChoiceDialog<>(productosDisponibles.get(0), productosDisponibles);
+        dialog.setTitle("Seleccionar Producto");
+        dialog.setHeaderText("Elige un producto de la lista");
+        dialog.setContentText("Producto:");
+
         return dialog.showAndWait().orElse(null);
     }
 
+
+    // --- REEMPLAZA ESTOS DOS MÉTODOS EN AddVentaController.java ---
+
+    /**
+     * Actualiza el campo de texto del total.
+     * VERSIÓN CORREGIDA: Usa Locale.US para asegurar el punto decimal.
+     */
     private void actualizarTotal() {
         double total = detallesList.stream()
                 .mapToDouble(Detalle_Venta::getSubtotal)

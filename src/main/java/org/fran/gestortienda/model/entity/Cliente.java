@@ -59,12 +59,8 @@ public class Cliente {
 
     @Override
     public String toString() {
-        return "Cliente{" +
-                "id_cliente=" + id_cliente +
-                ", nombre='" + nombre + '\'' +
-                ", telefono='" + telefono + '\'' +
-                ", correo='" + direccion + '\'' +
-                '}';
+        // Devolvemos solo el nombre. Esto es lo que verá el ChoiceDialog.
+        return this.nombre;
     }
 
     @Override

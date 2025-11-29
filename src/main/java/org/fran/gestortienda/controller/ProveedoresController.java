@@ -86,7 +86,7 @@ public class ProveedoresController implements Initializable {
         });
         topPane.getChildren().addAll(idLabel, checkBox);
 
-        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/icono-proveedores.png")));
+        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/icono-proveedores2.png")));
         imageView.setFitWidth(90);
         imageView.setFitHeight(90);
         imageView.setPreserveRatio(true);

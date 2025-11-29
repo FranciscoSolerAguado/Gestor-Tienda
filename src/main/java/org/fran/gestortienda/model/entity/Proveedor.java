@@ -59,12 +59,8 @@ public class Proveedor {
 
     @Override
     public String toString() {
-        return "Proveedor{" +
-                "id_proveedor=" + id_proveedor +
-                ", nombre='" + nombre + '\'' +
-                ", telefono=" + telefono +
-                ", correo='" + correo + '\'' +
-                '}';
+        // Devolvemos solo el nombre. Esto es lo que verá el ChoiceDialog.
+        return this.nombre;
     }
 
     @Override

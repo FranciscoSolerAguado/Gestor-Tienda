@@ -94,15 +94,8 @@ public class Producto {
 
     @Override
     public String toString() {
-        return "Producto{" +
-                "id_producto=" + id_producto +
-                ", nombre='" + nombre + '\'' +
-                ", categoria=" + categoria +
-                ", precio=" + precio +
-                ", stock=" + stock +
-                ", proveedor=" + proveedor +
-                ", imagen='" + imagen + '\'' +
-                '}';
+        // Devolvemos solo el nombre. Esto es lo que verá el ChoiceDialog.
+        return this.nombre;
     }
 
     @Override
