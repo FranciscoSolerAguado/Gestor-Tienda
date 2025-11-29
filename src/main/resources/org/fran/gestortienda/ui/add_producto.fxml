@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="520" prefWidth="850"
-            styleClass="dialog-pane"
-            stylesheets="@../css/add_formulario.css"
-            xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.fran.gestortienda.controller.AddProductoController">
+<BorderPane prefHeight="520" prefWidth="890.0" styleClass="dialog-pane" stylesheets="@../css/add_formulario.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.fran.gestortienda.controller.AddProductoController">
 
     <!-- ENCABEZADO -->
     <top>
         <HBox styleClass="dialog-header">
             <children>
-                <Label styleClass="dialog-header-title" text="Registrar Nuevo Producto"/>
+                <Label styleClass="dialog-header-title" text="Registrar Nuevo Producto" />
             </children>
         </HBox>
     </top>
@@ -25,61 +20,51 @@
     <center>
         <VBox spacing="25">
             <padding>
-                <Insets top="20" right="20" bottom="20" left="20" />
+                <Insets bottom="20" left="20" right="20" top="20" />
             </padding>
             <!-- GRID -->
             <GridPane hgap="20" vgap="18">
                 <columnConstraints>
-                    <ColumnConstraints prefWidth="150"/>
-                    <ColumnConstraints hgrow="ALWAYS"/>
+                    <ColumnConstraints prefWidth="150" />
+                    <ColumnConstraints hgrow="ALWAYS" />
                 </columnConstraints>
 
                 <!-- NOMBRE -->
-                <Label text="Nombre:" styleClass="form-label" GridPane.rowIndex="0"/>
-                <TextField fx:id="nombreField" styleClass="form-input"
-                           GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Label styleClass="form-label" text="Nombre:" GridPane.rowIndex="0" />
+                <TextField fx:id="nombreField" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                 <!-- CATEGORIA -->
-                <Label text="Categoría:" styleClass="form-label" GridPane.rowIndex="1"/>
-                <ComboBox fx:id="categoriaCombo"
-                          promptText="Seleccionar categoría"
-                          styleClass="form-input"
-                          GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Label styleClass="form-label" text="Categoría:" GridPane.rowIndex="1" />
+                <ComboBox fx:id="categoriaCombo" promptText="Seleccionar categoría" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                 <!-- PRECIO -->
-                <Label text="Precio (€):" styleClass="form-label" GridPane.rowIndex="2"/>
-                <TextField fx:id="precioField" styleClass="form-input"
-                           promptText="0.00"
-                           GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <Label styleClass="form-label" text="Precio (€):" GridPane.rowIndex="2" />
+                <TextField fx:id="precioField" promptText="0.00" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
                 <!-- STOCK -->
-                <Label text="Stock:" styleClass="form-label" GridPane.rowIndex="3"/>
-                <TextField fx:id="stockField" styleClass="form-input"
-                           promptText="0"
-                           GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                <Label styleClass="form-label" text="Stock:" GridPane.rowIndex="3" />
+                <TextField fx:id="stockField" promptText="0" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
                 <!-- PROVEEDOR -->
-                <Label text="Proveedor:" styleClass="form-label" GridPane.rowIndex="4"/>
-                <ComboBox fx:id="proveedorCombo"
-                          promptText="Seleccionar proveedor"
-                          styleClass="form-input"
-                          GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                <Label styleClass="form-label" text="Proveedor:" GridPane.rowIndex="4" />
+                <ComboBox fx:id="proveedorCombo" promptText="Seleccionar proveedor" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
                 <!-- IMAGEN -->
-                <Label text="Imagen:" styleClass="form-label" GridPane.rowIndex="5"/>
-                <HBox spacing="10" alignment="CENTER_LEFT"
-                      GridPane.columnIndex="1" GridPane.rowIndex="5">
+                <Label styleClass="form-label" text="Imagen:" GridPane.rowIndex="5" />
+                <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="5">
 
-                    <ImageView fx:id="previewImagen"
-                               fitWidth="140" fitHeight="140"
-                               preserveRatio="true"
-                               style="-fx-border-color: #b29e84; -fx-border-width: 1;"/>
+                    <ImageView fx:id="previewImagen" fitHeight="140" fitWidth="140" preserveRatio="true" style="-fx-border-color: #b29e84; -fx-border-width: 1;" />
 
-                    <Button fx:id="btnSubirImagen"
-                            text="Elegir Imagen"
-                            onAction="#handleElegirImagen"
-                            styleClass="btn-save"/>
+                    <Button fx:id="btnSubirImagen" onAction="#handleElegirImagen" styleClass="btn-save" text="Elegir Imagen" />
                 </HBox>
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+            </rowConstraints>
 
             </GridPane>
         </VBox>
@@ -87,12 +72,15 @@
 
     <!-- BOTONES FINAL -->
     <bottom>
-        <HBox spacing="15" alignment="CENTER_RIGHT" styleClass="action-buttons-pane">
+        <HBox alignment="CENTER_RIGHT" spacing="15" styleClass="action-buttons-pane">
             <children>
-                <Button fx:id="saveButton" onAction="#handleSave" styleClass="btn-save" text="Guardar"/>
-                <Button fx:id="cancelButton" onAction="#handleCancel" styleClass="btn-cancel" text="Cancelar"/>
+                <Button fx:id="saveButton" onAction="#handleSave" styleClass="btn-save" text="Guardar" />
+                <Button fx:id="cancelButton" onAction="#handleCancel" styleClass="btn-cancel" text="Cancelar" />
             </children>
         </HBox>
     </bottom>
+   <padding>
+      <Insets bottom="10.0" />
+   </padding>
 
 </BorderPane>

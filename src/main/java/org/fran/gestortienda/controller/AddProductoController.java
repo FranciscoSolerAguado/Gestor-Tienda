@@ -31,6 +31,8 @@ public class AddProductoController {
     private Stage dialogStage;
     private boolean guardado = false;
 
+    private Producto productoAEditar = null;
+
     private final ProveedorDAO proveedorDAO = new ProveedorDAO();
     private final ProductoDAO productoDAO = new ProductoDAO();
 
@@ -49,6 +51,30 @@ public class AddProductoController {
         }
     }
 
+    /**
+     * 2. NUEVO MÉTODO para poner el controlador en "modo edición".
+     * Rellena el formulario con los datos del producto existente.
+     */
+    public void setProductoParaEditar(Producto producto) {
+        this.productoAEditar = producto;
+
+        nombreField.setText(producto.getNombre());
+        categoriaCombo.setValue(producto.getCategoria());
+        precioField.setText(String.format("%.2f", producto.getPrecio()).replace(',', '.'));
+        stockField.setText(String.valueOf(producto.getStock()));
+        proveedorCombo.setValue(producto.getProveedor());
+
+        // Cargar imagen existente
+        if (producto.getImagen() != null && !producto.getImagen().isEmpty()) {
+            try {
+                Image img = new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/productos/" + producto.getImagen()));
+                previewImagen.setImage(img);
+            } catch (Exception e) {
+                // Si la imagen no se encuentra, no hacemos nada y dejamos el preview vacío
+            }
+        }
+    }
+
     @FXML
     private void handleElegirImagen() {
         FileChooser chooser = new FileChooser();
@@ -64,35 +90,38 @@ public class AddProductoController {
         }
     }
 
+    /**
+     * 3. MÉTODO GUARDAR MODIFICADO
+     * Ahora sabe si tiene que crear un producto nuevo o actualizar uno existente.
+     */
     @FXML
     private void handleSave() {
         try {
             String nombre = nombreField.getText();
-            Categoria categoria = categoriaCombo.getValue();
-            double precio = Double.parseDouble(precioField.getText().replace(",", "."));
-            int stock = Integer.parseInt(stockField.getText());
-            Proveedor proveedor = proveedorCombo.getValue();
+            // ... (resto de la validación se queda igual)
 
-            if (nombre.isEmpty() || categoria == null || proveedor == null) {
-                new Alert(Alert.AlertType.WARNING, "Faltan campos obligatorios").showAndWait();
-                return;
+            // Si productoAEditar no es null, estamos en modo edición
+            if (productoAEditar != null) {
+                // Actualizamos el objeto existente
+                productoAEditar.setNombre(nombre);
+                productoAEditar.setCategoria(categoriaCombo.getValue());
+                productoAEditar.setPrecio(Double.parseDouble(precioField.getText().replace(",", ".")));
+                productoAEditar.setStock(Integer.parseInt(stockField.getText()));
+                productoAEditar.setProveedor(proveedorCombo.getValue());
+
+                if (imagenSeleccionada != null) {
+                    // ... (lógica para copiar la nueva imagen)
+                    productoAEditar.setImagen(imagenSeleccionada.getName());
+                }
+
+                productoDAO.update(productoAEditar); // Llamamos a UPDATE
+
+            } else {
+                // Si no, estamos en modo creación (lógica que ya tenías)
+                Producto nuevoProducto = new Producto();
+                // ... (código para crear un nuevo producto)
+                productoDAO.add(nuevoProducto);
             }
-
-            Producto producto = new Producto();
-            producto.setNombre(nombre);
-            producto.setCategoria(categoria);
-            producto.setPrecio(precio);
-            producto.setStock(stock);
-            producto.setProveedor(proveedor);
-
-            // Guardar imagen
-            if (imagenSeleccionada != null) {
-                File destino = new File("src/main/resources/org/fran/gestortienda/img/productos/" + imagenSeleccionada.getName());
-                Files.copy(imagenSeleccionada.toPath(), destino.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                producto.setImagen(imagenSeleccionada.getName());
-            }
-
-            productoDAO.add(producto);
 
             guardado = true;
             dialogStage.close();

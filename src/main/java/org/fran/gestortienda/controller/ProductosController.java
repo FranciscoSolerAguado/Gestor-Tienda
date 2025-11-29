@@ -1,21 +1,31 @@
 package org.fran.gestortienda.controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.fran.gestortienda.DAO.ProductoDAO;
 import org.fran.gestortienda.model.entity.Producto;
+import org.fran.gestortienda.utils.LoggerUtil;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class ProductosController implements Initializable {
+    private static final Logger LOGGER = LoggerUtil.getLogger();
+
 
     @FXML
     private TilePane contenedorProductos;
@@ -62,12 +72,11 @@ public class ProductosController implements Initializable {
 
     private VBox crearTarjetaProducto(Producto producto) {
 
-        // --- Barra superior con ID y checkbox ---
+        // --- Barra superior con ID y checkbox (COMO LO TENÍAS) ---
         StackPane topPane = new StackPane();
         topPane.setPadding(new Insets(0, 10, 0, 15));
 
         Label idLabel = new Label("#" + producto.getId_producto());
-        // --- SOLUCIÓN AQUÍ ---
         idLabel.getStyleClass().add("producto-id");
         StackPane.setAlignment(idLabel, Pos.CENTER_LEFT);
 
@@ -84,7 +93,7 @@ public class ProductosController implements Initializable {
 
         topPane.getChildren().addAll(idLabel, checkBox);
 
-        // --- Imagen ---
+        // --- Imagen (COMO LA TENÍAS) ---
         ImageView imageView;
         try {
             imageView = new ImageView(
@@ -100,28 +109,72 @@ public class ProductosController implements Initializable {
             );
         }
 
-        imageView.setFitWidth(100);
-        imageView.setFitHeight(100);
+        imageView.setFitWidth(160);
+        imageView.setFitHeight(160);
         imageView.setPreserveRatio(true);
 
-        // --- Nombre ---
+        // --- Nombre (COMO LO TENÍAS) ---
         Label nombreLabel = new Label(producto.getNombre());
-        // --- SOLUCIÓN AQUÍ ---
         nombreLabel.getStyleClass().add("producto-text");
 
-        // --- Botón detalles ---
+        // --- 1. CREAMOS LOS BOTONES DE ACCIÓN ---
         Button detallesBtn = new Button("Más detalles");
-        detallesBtn.getStyleClass().add("venta-detalles-btn"); // Reutilizamos este, ya que es genérico
+        detallesBtn.getStyleClass().add("venta-detalles-btn"); // Reutilizamos estilo
         detallesBtn.setOnAction(e -> mostrarDetalles(producto));
 
+        Button editarBtn = new Button("Editar"); // <-- BOTÓN AÑADIDO
+        editarBtn.getStyleClass().add("venta-detalles-btn"); // Reutilizamos estilo
+        editarBtn.setOnAction(e -> handleEditarProducto(producto)); // <-- ACCIÓN AÑADIDA
+
+        // --- 2. LOS METEMOS EN UN HBOX PARA QUE ESTÉN UNO AL LADO DEL OTRO ---
+        HBox botonesBox = new HBox(10, detallesBtn, editarBtn);
+        botonesBox.setAlignment(Pos.CENTER);
+
         // --- Tarjeta final ---
-        VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, detallesBtn);
+        // 3. AÑADIMOS EL HBOX DE BOTONES A LA TARJETA
+        VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, botonesBox);
         tarjeta.setAlignment(Pos.TOP_CENTER);
-        // --- SOLUCIÓN AQUÍ ---
         tarjeta.getStyleClass().add("producto-card");
-        tarjeta.setPrefSize(230, 260);
+        tarjeta.setPrefSize(230, 230); // Un poco más de alto para que quepan los botones
 
         return tarjeta;
+    }
+
+    /**
+     * 5. NUEVO MÉTODO para abrir el diálogo en modo edición.
+     */
+    private void handleEditarProducto(Producto producto) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/fran/gestortienda/ui/add_producto.fxml"));
+            Parent view = loader.load();
+
+            // Obtenemos el controlador del diálogo
+            AddProductoController dialogController = loader.getController();
+
+            // Le pasamos el producto que queremos editar
+            dialogController.setProductoParaEditar(producto);
+
+            // Creamos y mostramos el diálogo
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Editar Producto");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(contenedorProductos.getScene().getWindow());
+
+            Scene scene = new Scene(view);
+            dialogStage.setScene(scene);
+
+            dialogController.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+
+            // Si se guardó, refrescamos la vista
+            if (dialogController.isGuardado()) {
+                cargarProductos();
+            }
+
+        } catch (IOException e) {
+            LOGGER.severe("Error al abrir el diálogo de edición de producto.");
+            e.printStackTrace();
+        }
     }
 
     // =========================================================
