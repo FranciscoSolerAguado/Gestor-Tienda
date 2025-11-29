@@ -17,6 +17,7 @@ import org.fran.gestortienda.model.entity.Venta;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public class AddVentaController {
@@ -125,28 +126,67 @@ public class AddVentaController {
         tablaDetalles.setItems(detallesList);
     }
 
+// --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
+
     @FXML
     private void handleAddProducto() {
         try {
+            // 1. Pedir al usuario que elija un producto
             Producto producto = pedirProducto();
-            if (producto == null) return;
+            if (producto == null) {
+                return; // El usuario canceló
+            }
 
+            // 2. Pedir la cantidad
             TextInputDialog cantidadDialog = new TextInputDialog("1");
-            cantidadDialog.setHeaderText("Cantidad para " + producto.getNombre());
-            int cantidad = Integer.parseInt(cantidadDialog.showAndWait().orElse("1"));
+            cantidadDialog.setTitle("Añadir Producto");
+            cantidadDialog.setHeaderText("Introduce la cantidad para: " + producto.getNombre());
+            cantidadDialog.setContentText("Cantidad:");
 
-            double precio = producto.getPrecio();
-            double descuento = 0.0;
-            double iva = 21.0;
-            double subtotal = (precio * cantidad) * (1 + iva / 100);
+            Optional<String> cantidadResult = cantidadDialog.showAndWait();
+            if (cantidadResult.isEmpty()) {
+                return; // El usuario canceló
+            }
+            int cantidad = Integer.parseInt(cantidadResult.get());
 
-            Detalle_Venta dv = new Detalle_Venta(0, null, producto, cantidad, descuento, precio, iva, subtotal);
+            // --- SOLUCIÓN AQUÍ: Pedir el descuento ---
+            // 3. Pedir el descuento
+            TextInputDialog descuentoDialog = new TextInputDialog("0.0");
+            descuentoDialog.setTitle("Añadir Producto");
+            descuentoDialog.setHeaderText("Introduce el descuento (%) para: " + producto.getNombre());
+            descuentoDialog.setContentText("Descuento (%):");
 
+            Optional<String> descuentoResult = descuentoDialog.showAndWait();
+            if (descuentoResult.isEmpty()) {
+                return; // El usuario canceló
+            }
+            // Reemplazamos la coma por si el usuario la introduce
+            double descuento = Double.parseDouble(descuentoResult.get().replace(',', '.'));
+            // --- FIN DE LA SOLUCIÓN ---
+
+            // 4. Validar los datos introducidos
+            if (cantidad <= 0 || descuento < 0 || descuento > 100) {
+                new Alert(Alert.AlertType.WARNING, "La cantidad debe ser mayor que 0 y el descuento debe estar entre 0 y 100.").showAndWait();
+                return;
+            }
+
+            // 5. Calcular precios con el nuevo descuento
+            double precioUnitario = producto.getPrecio();
+            double iva = 21.0; // Asumimos un 21% de IVA
+
+            double precioConDescuento = precioUnitario * (1 - descuento / 100);
+            double subtotal = (precioConDescuento * cantidad) * (1 + iva / 100);
+
+            // 6. Crear y añadir el detalle a la tabla
+            Detalle_Venta dv = new Detalle_Venta(0, null, producto, cantidad, descuento, precioUnitario, iva, subtotal);
             detallesList.add(dv);
             actualizarTotal();
 
+        } catch (NumberFormatException e) {
+            new Alert(Alert.AlertType.ERROR, "La cantidad y el descuento deben ser números válidos.").showAndWait();
         } catch (Exception e) {
             e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Ocurrió un error al añadir el producto.").showAndWait();
         }
     }
 
