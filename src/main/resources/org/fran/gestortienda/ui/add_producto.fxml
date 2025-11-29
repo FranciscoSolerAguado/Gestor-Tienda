@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
@@ -22,8 +23,10 @@
 
     <!-- CUERPO -->
     <center>
-        <VBox spacing="25" padding="20">
-
+        <VBox spacing="25">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20" />
+            </padding>
             <!-- GRID -->
             <GridPane hgap="20" vgap="18">
                 <columnConstraints>
