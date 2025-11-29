@@ -1,21 +1,24 @@
 package org.fran.gestortienda.controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.fran.gestortienda.DAO.ClienteDAO;
 import org.fran.gestortienda.model.entity.Cliente;
 import org.fran.gestortienda.utils.LoggerUtil;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
@@ -196,6 +199,8 @@ public class ClientesController implements Initializable {
      * @param cliente El objeto Cliente con los datos a mostrar.
      * @return Un VBox configurado como una tarjeta de cliente.
      */
+    // --- REEMPLAZA TU MÉTODO crearTarjeta CON ESTE ---
+
     private VBox crearTarjeta(Cliente cliente) {
         // --- Contenedor para la parte superior (ID y CheckBox) ---
         StackPane topPane = new StackPane();
@@ -205,11 +210,9 @@ public class ClientesController implements Initializable {
         idLabel.getStyleClass().add("cliente-id");
         StackPane.setAlignment(idLabel, Pos.CENTER_LEFT);
 
-        // Creamos el CheckBox
         CheckBox checkBox = new CheckBox();
         StackPane.setAlignment(checkBox, Pos.CENTER_RIGHT);
 
-        // Añadimos la lógica para la selección
         checkBox.setOnAction(event -> {
             if (checkBox.isSelected()) {
                 clientesSeleccionados.add(cliente);
@@ -221,7 +224,7 @@ public class ClientesController implements Initializable {
 
         topPane.getChildren().addAll(idLabel, checkBox);
 
-        // --- Resto de componentes (sin cambios) ---
+        // --- Resto de componentes ---
         ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/icono-clientes2.png")));
         imageView.setFitWidth(90);
         imageView.setFitHeight(90);
@@ -237,12 +240,69 @@ public class ClientesController implements Initializable {
         direccionLabel.getStyleClass().add("cliente-text");
         direccionLabel.setWrapText(true);
 
+        Button editarBtn = new Button("Editar");
+        editarBtn.getStyleClass().add("cliente-accion-btn"); // <-- APLICAMOS EL NUEVO ESTILO
+        editarBtn.setOnAction(e -> handleEditarCliente(cliente));
+
         // --- VBox principal de la tarjeta ---
-        VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, telefonoLabel, direccionLabel);
+        VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, telefonoLabel, direccionLabel, editarBtn);
         tarjeta.setAlignment(Pos.TOP_CENTER);
         tarjeta.getStyleClass().add("cliente-card");
-        tarjeta.setPrefSize(230, 230);
+        tarjeta.setPrefSize(230, 290); // Un poco más de alto para el botón
 
         return tarjeta;
+    }
+
+    // --- REEMPLAZA/AÑADE ESTE MÉTODO EN TU CLASE ClientesController ---
+
+    /**
+     * Abre el diálogo de 'Añadir Cliente' en modo edición.
+     * @param cliente El cliente a editar.
+     */
+    private void handleEditarCliente(Cliente cliente) {
+        try {
+            // 1. Cargar el FXML del diálogo
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/fran/gestortienda/ui/add_cliente.fxml"));
+            Parent view = loader.load();
+
+            // 2. Obtener el controlador del diálogo
+            AddClienteController dialogController = loader.getController();
+
+            // 3. Pasar el cliente que queremos editar
+            dialogController.setClienteParaEditar(cliente);
+
+            // 4. Crear y configurar el Stage (la ventana) del diálogo
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Editar Cliente");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            // El dueño de la ventana es la ventana actual del contenedor de clientes
+            dialogStage.initOwner(contenedorClientes.getScene().getWindow());
+
+            Scene scene = new Scene(view);
+            dialogStage.setScene(scene);
+
+            // Le pasamos el Stage al controlador del diálogo para que pueda cerrarse
+            dialogController.setDialogStage(dialogStage);
+
+            // 5. Mostrar el diálogo y esperar a que el usuario lo cierre
+            dialogStage.showAndWait();
+
+            // 6. Si el usuario guardó los cambios, procesarlos
+            if (dialogController.isGuardado()) {
+                Cliente clienteEditado = dialogController.getNuevoCliente();
+                if (clienteEditado != null) {
+                    // Llamamos al DAO para actualizar la base de datos
+                    new ClienteDAO().update(clienteEditado);
+                    LOGGER.info("Cliente actualizado: " + clienteEditado.getNombre());
+
+                    // Refrescamos la vista para mostrar los cambios
+                    cargarClientes();
+                }
+            }
+
+        } catch (IOException | SQLException e) {
+            LOGGER.severe("Error al abrir o procesar el diálogo de edición de cliente.");
+            e.printStackTrace();
+        }
     }
 }

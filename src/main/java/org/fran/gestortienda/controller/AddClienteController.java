@@ -23,6 +23,9 @@ public class AddClienteController {
     private Cliente nuevoCliente = null;
     private boolean guardado = false;
 
+    // --- AÑADE ESTE CAMPO A TU CLASE AddClienteController ---
+    private Cliente clienteAEditar = null;
+
     public void setDialogStage(Stage dialogStage) {
         this.dialogStage = dialogStage;
     }
@@ -31,8 +34,42 @@ public class AddClienteController {
         return guardado;
     }
 
+    // --- REEMPLAZA TU MÉTODO getNuevoCliente CON ESTE ---
+
     public Cliente getNuevoCliente() {
-        return nuevoCliente;
+        String nombre = nombreField.getText().trim();
+        String telefono = telefonoField.getText().trim();
+        String direccion = direccionArea.getText().trim();
+
+        if (nombre.isEmpty()) {
+            return null; // Validación falla
+        }
+
+        // Si estamos en modo edición, actualizamos el objeto existente
+        if (clienteAEditar != null) {
+            clienteAEditar.setNombre(nombre);
+            clienteAEditar.setTelefono(telefono);
+            clienteAEditar.setDireccion(direccion);
+            return clienteAEditar;
+        } else {
+            // Si no, creamos uno nuevo
+            return new Cliente(nombre, telefono, direccion);
+        }
+    }
+
+
+    /**
+     * Pone el controlador en "modo edición" y rellena el formulario
+     * con los datos de un cliente existente.
+     * @param cliente El cliente a editar.
+     */
+    public void setClienteParaEditar(Cliente cliente) {
+        this.clienteAEditar = cliente;
+
+        // Rellenar los campos del formulario
+        nombreField.setText(cliente.getNombre());
+        telefonoField.setText(cliente.getTelefono());
+        direccionArea.setText(cliente.getDireccion());
     }
 
     @FXML
