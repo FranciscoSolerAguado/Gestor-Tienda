@@ -1,13 +1,18 @@
 package org.fran.gestortienda.controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.fran.gestortienda.DAO.ClienteDAO;
 import org.fran.gestortienda.DAO.VentaDAO;
 import org.fran.gestortienda.DAO.Detalle_VentaDAO;
@@ -15,6 +20,7 @@ import org.fran.gestortienda.model.entity.Venta;
 import org.fran.gestortienda.model.entity.Detalle_Venta;
 import org.fran.gestortienda.utils.LoggerUtil;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -77,11 +83,11 @@ public class VentasController implements Initializable {
         }
     }
 
+    // --- REEMPLAZA TU MÉTODO crearTarjeta CON ESTE ---
+
     private VBox crearTarjeta(Venta venta) {
 
         String nombreCliente = "Sin cliente";
-
-        // --- Cargar cliente si es necesario ---
         try {
             if (venta.getCliente() != null && venta.getCliente().getId_cliente() > 0) {
                 ClienteDAO clienteDAO = new ClienteDAO();
@@ -92,63 +98,51 @@ public class VentasController implements Initializable {
                 }
             }
         } catch (Exception e) {
-            nombreCliente = "Sin cliente";
+            nombreCliente = "Error al cargar cliente";
         }
 
-        // --- Contenedor superior estilo clientes (ID + CheckBox) ---
         StackPane topPane = new StackPane();
         topPane.setPadding(new Insets(0, 10, 0, 15));
-
         Label idLabel = new Label("#" + venta.getId_venta());
         idLabel.getStyleClass().add("venta-id");
         StackPane.setAlignment(idLabel, Pos.CENTER_LEFT);
-
         CheckBox checkBox = new CheckBox();
         StackPane.setAlignment(checkBox, Pos.CENTER_RIGHT);
-
-        // ✔ Lógica de selección
         checkBox.setOnAction(e -> {
-            if (checkBox.isSelected()) {
-                ventasSeleccionadas.add(venta);
-            } else {
-                ventasSeleccionadas.remove(venta);
-            }
-            LOGGER.info("Ventas seleccionadas: " + ventasSeleccionadas.size());
+            if (checkBox.isSelected()) ventasSeleccionadas.add(venta);
+            else ventasSeleccionadas.remove(venta);
         });
-
         topPane.getChildren().addAll(idLabel, checkBox);
 
-        // --- Imagen ---
-        ImageView imageView = new ImageView(
-                new Image(getClass().getResourceAsStream(
-                        "/org/fran/gestortienda/img/icono-ventas2.png"
-                ))
-        );
+        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/icono-ventas2.png")));
         imageView.setFitWidth(90);
         imageView.setFitHeight(90);
         imageView.setPreserveRatio(true);
 
-        // --- Fecha ---
         Label fechaLabel = new Label("Fecha: " + venta.getFecha());
         fechaLabel.getStyleClass().add("venta-text");
 
-        // --- Total ---
-        Label totalLabel = new Label("Total: " + venta.getTotal() + " €");
+        Label totalLabel = new Label("Total: " + String.format(java.util.Locale.US, "%.2f", venta.getTotal()) + " €");
         totalLabel.getStyleClass().add("venta-text");
 
-        // --- Cliente ---
         Label clienteLabel = new Label("Cliente: " + nombreCliente);
         clienteLabel.setWrapText(true);
         clienteLabel.getStyleClass().add("venta-text");
 
-        // --- Botón Detalles ---
+        // --- LÓGICA DE BOTONES ---
         Button detallesBtn = new Button("Detalles");
         detallesBtn.getStyleClass().add("venta-detalles-btn");
         detallesBtn.setOnAction(e -> mostrarDetallesVenta(venta));
 
+        Button editarBtn = new Button("Editar"); // Botón añadido
+        editarBtn.getStyleClass().add("venta-detalles-btn");
+        editarBtn.setOnAction(e -> handleEditarVenta(venta)); // Acción añadida
 
-        // --- Tarjeta completa ---
-        VBox tarjeta = new VBox(12, topPane, imageView, fechaLabel, totalLabel, clienteLabel, detallesBtn);
+        HBox botonesBox = new HBox(10, detallesBtn, editarBtn); // Contenedor para botones
+        botonesBox.setAlignment(Pos.CENTER);
+        // --- FIN LÓGICA DE BOTONES ---
+
+        VBox tarjeta = new VBox(12, topPane, imageView, fechaLabel, totalLabel, clienteLabel, botonesBox);
         tarjeta.setAlignment(Pos.TOP_CENTER);
         tarjeta.getStyleClass().add("venta-card");
         tarjeta.setPrefSize(230, 290);
@@ -156,6 +150,43 @@ public class VentasController implements Initializable {
         return tarjeta;
     }
 
+    // --- AÑADE ESTE MÉTODO A TU CLASE VentasController ---
+
+    /**
+     * Abre el diálogo de 'Añadir Venta' en modo edición.
+     * @param venta La venta a editar.
+     */
+    private void handleEditarVenta(Venta venta) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/fran/gestortienda/ui/add_venta.fxml"));
+            Parent view = loader.load();
+
+            AddVentaController dialogController = loader.getController();
+
+            // Le pasamos la venta que queremos editar
+            dialogController.setVentaParaEditar(venta);
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Editar Venta");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(contenedorVentas.getScene().getWindow());
+
+            Scene scene = new Scene(view);
+            dialogStage.setScene(scene);
+
+            dialogController.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+
+            // Si se guardó, refrescamos la vista
+            if (dialogController.isGuardado()) {
+                cargarVentas();
+            }
+
+        } catch (IOException e) {
+            LOGGER.severe("Error al abrir el diálogo de edición de venta.");
+            e.printStackTrace();
+        }
+    }
 
 
 

@@ -15,6 +15,9 @@ import org.fran.gestortienda.model.entity.Producto;
 import org.fran.gestortienda.model.entity.Venta;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.Locale;
+import java.util.logging.Logger;
 
 public class AddVentaController {
 
@@ -30,10 +33,14 @@ public class AddVentaController {
     @FXML private TableColumn<Detalle_Venta, Double> colIVA;
     @FXML private TableColumn<Detalle_Venta, Double> colSubtotal;
 
+    private static final Logger LOGGER = Logger.getLogger(AddVentaController.class.getName());
+
+
     private ObservableList<Detalle_Venta> detallesList = FXCollections.observableArrayList();
 
     private Stage dialogStage;
     private boolean guardado = false;
+    private Venta ventaAEditar = null;
 
     private final ClienteDAO clienteDAO = new ClienteDAO();
     private final ProductoDAO productoDAO = new ProductoDAO();
@@ -47,6 +54,35 @@ public class AddVentaController {
     public boolean isGuardado() {
         return guardado;
     }
+
+// --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
+
+    public void setVentaParaEditar(Venta venta) {
+        this.ventaAEditar = venta;
+
+        // Rellenar los campos del formulario
+        // --- SOLUCIÓN AQUÍ ---
+        // Comprobamos que la fecha no sea null antes de convertirla
+        if (venta.getFecha() != null) {
+            java.util.Date date = new java.util.Date(venta.getFecha().getTime());
+            LocalDate localDate = date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+            fechaPicker.setValue(localDate);
+        }
+        // --- FIN DE LA SOLUCIÓN ---
+
+        if (venta.getCliente() != null) {
+            clienteCombo.setValue(venta.getCliente());
+        }
+        totalField.setText(String.format(java.util.Locale.US, "%.2f", venta.getTotal()));
+
+        try {
+            detallesList.setAll(new Detalle_VentaDAO().getByVenta(venta.getId_venta()));
+            tablaDetalles.setItems(detallesList);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @FXML
     private void initialize() {
@@ -63,12 +99,22 @@ public class AddVentaController {
         }
     }
 
+// --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
+
     private void configurarTabla() {
-        colProducto.setCellValueFactory(data -> javafx.beans.property.SimpleStringProperty.stringExpression(
-                javafx.beans.binding.Bindings.createStringBinding(
-                        () -> data.getValue().getProducto().getNombre()
-                )
-        ));
+        // --- SOLUCIÓN AQUÍ ---
+        // Para la columna de Producto, creamos una CellValueFactory que extrae el nombre.
+        colProducto.setCellValueFactory(cellData -> {
+            // cellData.getValue() nos da el objeto Detalle_Venta de la fila
+            Producto producto = cellData.getValue().getProducto();
+            if (producto != null) {
+                // Devolvemos una propiedad de String simple con el nombre del producto
+                return new javafx.beans.property.SimpleStringProperty(producto.getNombre());
+            } else {
+                return new javafx.beans.property.SimpleStringProperty("<Producto no encontrado>");
+            }
+        });
+        // --- FIN DE LA SOLUCIÓN ---
 
         colCantidad.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getCantidad()));
         colPrecio.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getPrecio_unitario()));
@@ -82,7 +128,6 @@ public class AddVentaController {
     @FXML
     private void handleAddProducto() {
         try {
-            // Se abre un diálogo simple para seleccionar producto y cantidad
             Producto producto = pedirProducto();
             if (producto == null) return;
 
@@ -112,23 +157,12 @@ public class AddVentaController {
         return dialog.showAndWait().orElse(null);
     }
 
-
-    // --- REEMPLAZA ESTOS DOS MÉTODOS EN AddVentaController.java ---
-
-    /**
-     * Actualiza el campo de texto del total.
-     * VERSIÓN CORREGIDA: Usa Locale.US para asegurar el punto decimal.
-     */
     private void actualizarTotal() {
         double total = detallesList.stream()
                 .mapToDouble(Detalle_Venta::getSubtotal)
                 .sum();
-
-        // Usamos Locale.US para que el separador decimal sea siempre un punto (.)
-        totalField.setText(String.format(java.util.Locale.US, "%.2f", total));
+        totalField.setText(String.format(Locale.US, "%.2f", total));
     }
-
-    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
 
     @FXML
     private void handleSave() {
@@ -138,26 +172,53 @@ public class AddVentaController {
                 return;
             }
 
-            Venta ventaSinId = new Venta();
-            ventaSinId.setFecha(java.sql.Date.valueOf(fechaPicker.getValue()));
-            ventaSinId.setCliente(clienteCombo.getValue());
-            String totalText = totalField.getText().replace(',', '.');
-            ventaSinId.setTotal(Double.parseDouble(totalText));
+            if (ventaAEditar != null) {
+                // MODO EDICIÓN
+                ventaAEditar.setFecha(java.sql.Date.valueOf(fechaPicker.getValue()));
+                ventaAEditar.setCliente(clienteCombo.getValue());
+                String totalText = totalField.getText().replace(',', '.');
+                ventaAEditar.setTotal(Double.parseDouble(totalText));
 
-            // --- SOLUCIÓN AQUÍ ---
-            // 1. Guardamos la venta y recuperamos el objeto con el ID
-            Venta ventaGuardada = ventaDAO.addVenta(ventaSinId);
+                // 1. Actualizamos la venta principal
+                ventaDAO.update(ventaAEditar);
 
-            if (ventaGuardada == null) {
-                throw new SQLException("No se pudo guardar la venta principal y obtener su ID.");
+                // 2. Borramos todos los detalles antiguos
+                detalleDAO.deleteByVentaId(ventaAEditar.getId_venta());
+
+                // 3. Re-insertamos todos los detalles de la tabla
+                for (Detalle_Venta dv : detallesList) {
+                    dv.setVenta(ventaAEditar); // Nos aseguramos de que tienen el ID de venta correcto
+                    detalleDAO.add(dv);
+                }
+                LOGGER.info("Venta ID " + ventaAEditar.getId_venta() + " y sus detalles han sido actualizados.");
+
+            } else {
+                Venta nuevaVenta = new Venta();
+                nuevaVenta.setFecha(java.sql.Date.valueOf(fechaPicker.getValue()));
+                Cliente clienteSeleccionado = clienteCombo.getValue();
+                nuevaVenta.setCliente(clienteSeleccionado);
+                String totalText = totalField.getText().replace(',', '.');
+                nuevaVenta.setTotal(Double.parseDouble(totalText));
+
+                boolean guardadoConExito = ventaDAO.add(nuevaVenta);
+
+                if (!guardadoConExito) {
+                    throw new SQLException("No se pudo guardar la venta principal.");
+                }
+
+                Venta ventaGuardada = ventaDAO.getLastByCliente(clienteSeleccionado.getId_cliente());
+                if (ventaGuardada == null) {
+                    throw new SQLException("No se pudo recuperar la venta recién guardada.");
+                }
+                
+                ventaGuardada.setCliente(clienteSeleccionado);
+
+                for (Detalle_Venta dv : detallesList) {
+                    dv.setVenta(ventaGuardada);
+                    detalleDAO.add(dv);
+                }
+                LOGGER.info("Nueva venta guardada con ID: " + ventaGuardada.getId_venta());
             }
-
-            // 2. Guardar detalles USANDO la venta con el ID correcto
-            for (Detalle_Venta dv : detallesList) {
-                dv.setVenta(ventaGuardada); // Asignamos la venta con su nuevo ID
-                detalleDAO.add(dv);
-            }
-            // --- FIN DE LA SOLUCIÓN ---
 
             guardado = true;
             dialogStage.close();

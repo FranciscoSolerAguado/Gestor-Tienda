@@ -21,7 +21,20 @@ public class Detalle_VentaDAO extends Detalle_Venta implements CRUD<Detalle_Vent
     private final static String DELETE = "DELETE FROM detalle_venta WHERE id_detalle = ?";
     private final static String GET_ALL = "SELECT id_detalle, id_venta, id_producto, cantidad, descuento, precio_unitario, iva, subtotal FROM detalle_venta";
     private final static String GET_BY_ID = "SELECT id_detalle, id_venta, id_producto, cantidad, descuento, precio_unitario, iva, subtotal FROM detalle_venta WHERE id_detalle = ?";
-    private final static String GET_BY_VENTA = "SELECT * FROM detalle_venta WHERE id_venta = ?";
+    private final static String GET_BY_VENTA = """
+       SELECT 
+           dv.id_detalle, dv.id_venta, dv.cantidad, dv.descuento, dv.precio_unitario, dv.iva, dv.subtotal,
+           p.id_producto, p.nombre, p.categoria, p.precio, p.stock, p.imagen, p.id_proveedor
+       FROM 
+           detalle_venta dv
+       JOIN 
+           producto p ON dv.id_producto = p.id_producto
+       WHERE 
+           dv.id_venta = ?
+   """;
+
+    private final static String DELETE_BY_VENTA_ID = "DELETE FROM detalle_venta WHERE id_venta = ?";
+
 
     // --- CONSTRUCTORES ---
     public Detalle_VentaDAO(int id_detalle, Venta venta, Producto producto, int cantidad, double descuento, double precio_unitario, double iva, double subtotal) {
@@ -179,32 +192,51 @@ public class Detalle_VentaDAO extends Detalle_Venta implements CRUD<Detalle_Vent
 
     public List<Detalle_Venta> getByVenta(int idVenta) throws SQLException {
         List<Detalle_Venta> lista = new ArrayList<>();
-
         Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(GET_BY_VENTA)) {
                 ps.setInt(1, idVenta);
-                ResultSet rs = ps.executeQuery();
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        // 2. CREAMOS UN OBJETO PRODUCTO COMPLETO ("HIDRATADO")
+                        Producto productoCompleto = new Producto();
+                        productoCompleto.setId_producto(rs.getInt("id_producto"));
+                        productoCompleto.setNombre(rs.getString("nombre"));
+                        // ... (puedes añadir más campos del producto si los necesitas)
 
-                while (rs.next()) {
-                    Detalle_Venta dv = new Detalle_Venta();
-                    dv.setId_detalle(rs.getInt("id_detalle"));
-                    dv.setCantidad(rs.getInt("cantidad"));
-                    dv.setDescuento(rs.getDouble("descuento"));
-                    dv.setPrecio_unitario(rs.getDouble("precio_unitario"));
-                    dv.setIva(rs.getDouble("iva"));
-                    dv.setSubtotal(rs.getDouble("subtotal"));
+                        // 3. CREAMOS EL DETALLE DE VENTA CON EL PRODUCTO COMPLETO
+                        Detalle_Venta dv = new Detalle_Venta();
+                        dv.setId_detalle(rs.getInt("id_detalle"));
+                        dv.setCantidad(rs.getInt("cantidad"));
+                        dv.setDescuento(rs.getDouble("descuento"));
+                        dv.setPrecio_unitario(rs.getDouble("precio_unitario"));
+                        dv.setIva(rs.getDouble("iva"));
+                        dv.setSubtotal(rs.getDouble("subtotal"));
+                        dv.setProducto(productoCompleto); // <-- Asignamos el objeto completo
 
-                    // Producto con solo ID
-                    Producto p = new Producto();
-                    p.setId_producto(rs.getInt("id_producto"));
-                    dv.setProducto(p);
-
-                    lista.add(dv);
+                        lista.add(dv);
+                    }
                 }
             }
         }
         return lista;
+    }
+
+    /**
+     * Borra todos los detalles de una venta específica.
+     * @param idVenta El ID de la venta cuyos detalles se van a borrar.
+     * @return true si se borraron filas, false en caso contrario.
+     * @throws SQLException Si ocurre un error de SQL.
+     */
+    public boolean deleteByVentaId(int idVenta) throws SQLException {
+        Connection conn = ConnectionFactory.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(DELETE_BY_VENTA_ID)) {
+                ps.setInt(1, idVenta);
+                return ps.executeUpdate() > 0;
+            }
+        }
+        return false;
     }
 
 

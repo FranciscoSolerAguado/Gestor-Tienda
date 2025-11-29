@@ -19,7 +19,7 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
     private final static String GET_BY_FECHA = "SELECT id_venta, fecha, total, id_cliente FROM venta WHERE fecha = ?";
     private static final String GET_BY_CLIENTE = "SELECT id_venta, fecha, total, id_cliente FROM venta WHERE id_cliente = ?";
     private static final String GET_BY_TOTAL = "SELECT id_venta, fecha, total, id_cliente FROM venta WHERE total = ?";
-
+    private final static String GET_LAST_BY_CLIENTE = "SELECT * FROM venta WHERE id_cliente = ? ORDER BY id_venta DESC LIMIT 1";
 
     public VentaDAO(int id_venta, java.util.Date fecha, Double total, org.fran.gestortienda.model.entity.Cliente cliente) {
         super(id_venta, fecha, total, cliente);
@@ -56,20 +56,9 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         return false;
     }
 
-    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE VentaDAO ---
-
-    /**
-     * Guarda una nueva venta en la base de datos y devuelve el objeto
-     * con el ID generado.
-     *
-     * @param venta El objeto Venta a guardar (sin ID).
-     * @return El objeto Venta con su ID actualizado desde la base de datos, o null si falla.
-     * @throws SQLException Si ocurre un error de SQL.
-     */
     public Venta addVenta(Venta venta) throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
-            // Usamos Statement.RETURN_GENERATED_KEYS para poder recuperar el ID
             try (PreparedStatement ps = conn.prepareStatement(INSERT, java.sql.Statement.RETURN_GENERATED_KEYS)) {
                 ps.setObject(1, venta.getFecha());
                 ps.setDouble(2, venta.getTotal());
@@ -78,18 +67,16 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
                 int affectedRows = ps.executeUpdate();
 
                 if (affectedRows > 0) {
-                    // Recuperamos las claves generadas
                     try (java.sql.ResultSet generatedKeys = ps.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
-                            // Asignamos el nuevo ID al objeto venta
                             venta.setId_venta(generatedKeys.getInt(1));
-                            return venta; // Devolvemos el objeto completo y actualizado
+                            return venta;
                         }
                     }
                 }
             }
         }
-        return null; // Devolvemos null si algo falló
+        return null;
     }
 
     @Override
@@ -159,12 +146,11 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
             try (PreparedStatement ps = conn.prepareStatement(GET_ALL);
                  ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    // Consistente con ProductoDAO, se deja el objeto Cliente en null (lazy loading)
                     Venta venta = new Venta(
                             rs.getInt("id_venta"),
                             rs.getDate("fecha"),
                             rs.getDouble("total"),
-                            null // Cliente se cargará después si es necesario
+                            null
                     );
                     ventas.add(venta);
                 }
@@ -182,12 +168,11 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
                 ps.setInt(1, id);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        // Consistente con ProductoDAO, se deja el objeto Cliente en null (lazy loading)
                         venta = new Venta(
                                 rs.getInt("id_venta"),
                                 rs.getDate("fecha"),
                                 rs.getDouble("total"),
-                                null // Cliente se cargará después si es necesario
+                                null
                         );
                     }
                 }
@@ -291,4 +276,24 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         return lista;
     }
 
+    public Venta getLastByCliente(int idCliente) throws SQLException {
+        Venta venta = null;
+        Connection conn = ConnectionFactory.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(GET_LAST_BY_CLIENTE)) {
+                ps.setInt(1, idCliente);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        venta = new Venta(
+                                rs.getInt("id_venta"),
+                                rs.getDate("fecha"),
+                                rs.getDouble("total"),
+                                null
+                        );
+                    }
+                }
+            }
+        }
+        return venta;
+    }
 }
