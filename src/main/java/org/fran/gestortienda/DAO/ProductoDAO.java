@@ -33,6 +33,8 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
             WHERE p.id_producto = ?
             """;
 
+    private final static String GET_BY_PROVEEDOR_ID = "SELECT * FROM producto WHERE id_proveedor = ?";
+
 
     public ProductoDAO(int id_producto, String nombre, org.fran.gestortienda.model.Categoria categoria, double precio, int stock, org.fran.gestortienda.model.entity.Proveedor proveedor, String imagen) {
         super(id_producto, nombre, categoria, precio, stock, proveedor, imagen);
@@ -180,7 +182,41 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
         return producto;
     }
 
+    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE ProductoDAO.java ---
 
+    /**
+     * Busca todos los productos suministrados por un proveedor específico.
+     *
+     * @param idProveedor El ID del proveedor.
+     * @return Una lista de productos de ese proveedor.
+     * @throws SQLException Si ocurre un error de SQL.
+     */
+    public List<Producto> findByProveedorId(int idProveedor) throws SQLException {
+        List<Producto> productos = new ArrayList<>();
+        Connection conn = ConnectionFactory.getConnection();
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(GET_BY_PROVEEDOR_ID)) {
+                ps.setInt(1, idProveedor);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        // Aquí creamos el objeto Producto completo
+                        Producto producto = new Producto(
+                                rs.getInt("id_producto"),
+                                rs.getString("nombre"),
+                                // --- SOLUCIÓN AQUÍ: Convertimos a mayúsculas ---
+                                Categoria.valueOf(rs.getString("categoria").toUpperCase()),
+                                rs.getDouble("precio"),
+                                rs.getInt("stock"),
+                                null, // Dejamos el proveedor en null para evitar bucles
+                                rs.getString("imagen")
+                        );
+                        productos.add(producto);
+                    }
+                }
+            }
+        }
+        return productos;
+    }
 
     @Override
     public boolean update(Producto producto) throws SQLException {

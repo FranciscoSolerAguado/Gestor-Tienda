@@ -15,7 +15,9 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.fran.gestortienda.DAO.ProductoDAO;
 import org.fran.gestortienda.DAO.ProveedorDAO;
+import org.fran.gestortienda.model.entity.Producto;
 import org.fran.gestortienda.model.entity.Proveedor;
 import org.fran.gestortienda.utils.LoggerUtil;
 
@@ -66,12 +68,13 @@ public class ProveedoresController implements Initializable {
 
 // --- REEMPLAZA TU MÉTODO crearTarjeta CON ESTE ---
 
+    // --- REEMPLAZA TU MÉTODO crearTarjeta CON ESTE ---
+
     private VBox crearTarjeta(Proveedor proveedor) {
         StackPane topPane = new StackPane();
         topPane.setPadding(new javafx.geometry.Insets(0, 10, 0, 15));
 
         Label idLabel = new Label("#" + proveedor.getId_proveedor());
-        // --- CORRECCIÓN DE ESTILO ---
         idLabel.getStyleClass().add("proveedor-id");
         StackPane.setAlignment(idLabel, Pos.CENTER_LEFT);
 
@@ -92,35 +95,82 @@ public class ProveedoresController implements Initializable {
         imageView.setPreserveRatio(true);
 
         Label nombreLabel = new Label(proveedor.getNombre());
-        // --- CORRECCIÓN DE ESTILO ---
         nombreLabel.getStyleClass().add("proveedor-text");
 
         Label telefonoLabel = new Label("Tel: " + proveedor.getTelefono());
-        // --- CORRECCIÓN DE ESTILO ---
         telefonoLabel.getStyleClass().add("proveedor-text");
 
         Label correoLabel = new Label(proveedor.getCorreo());
-        // --- CORRECCIÓN DE ESTILO ---
         correoLabel.getStyleClass().add("proveedor-text");
         correoLabel.setWrapText(true);
 
         Button editarBtn = new Button("Editar");
-        editarBtn.getStyleClass().add("proveedor-accion-btn"); // Reutilizamos este estilo genérico
+        editarBtn.getStyleClass().add("proveedor-accion-btn");
         editarBtn.setOnAction(e -> handleEditarProveedor(proveedor));
 
-        HBox botonesBox = new HBox(10, editarBtn); // Contenedor para futuros botones
+        // --- 1. AÑADIMOS EL NUEVO BOTÓN ---
+        Button verProductosBtn = new Button("Ver Productos");
+        verProductosBtn.getStyleClass().add("proveedor-accion-btn"); // Reutilizamos el mismo estilo
+        verProductosBtn.setOnAction(e -> handleVerProductos(proveedor));
+
+        // --- 2. AÑADIMOS AMBOS BOTONES AL HBOX ---
+        HBox botonesBox = new HBox(10, editarBtn, verProductosBtn);
         botonesBox.setAlignment(Pos.CENTER);
 
+        // --- 3. AÑADIMOS EL HBOX A LA TARJETA ---
         VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, telefonoLabel, correoLabel, botonesBox);
         tarjeta.setAlignment(Pos.TOP_CENTER);
-        // --- CORRECCIÓN DE ESTILO ---
         tarjeta.getStyleClass().add("proveedor-card");
-        tarjeta.setPrefSize(230, 290);
+        tarjeta.setPrefSize(230, 320); // Aumentamos un poco la altura para que quepan los botones
 
         return tarjeta;
     }
+    // --- REEMPLAZA/AÑADE ESTE MÉTODO EN TU CLASE ProveedoresController ---
 
-    // --- AÑADE ESTE MÉTODO A TU CLASE ProveedoresController ---
+    /**
+     * Muestra una alerta con la lista de productos de un proveedor.
+     */
+    private void handleVerProductos(Proveedor proveedor) {
+        try {
+            // 1. Obtener los productos del proveedor desde el DAO
+            List<Producto> productos = new ProductoDAO().findByProveedorId(proveedor.getId_proveedor());
+
+            // 2. Crear el Alert
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Productos del Proveedor");
+            alert.setHeaderText("Productos suministrados por: " + proveedor.getNombre());
+
+            // 3. Crear la ListView para mostrar los productos
+            ListView<String> listView = new ListView<>();
+            if (productos.isEmpty()) {
+                listView.getItems().add("Este proveedor no tiene productos asociados.");
+            } else {
+                for (Producto producto : productos) {
+                    // Añadimos un texto formateado a la lista
+                    listView.getItems().add(
+                            String.format("#%d - %s (Stock: %d)",
+                                    producto.getId_producto(),
+                                    producto.getNombre(),
+                                    producto.getStock()
+                            )
+                    );
+                }
+            }
+
+            // Ajustamos el tamaño de la ListView para que no sea ni muy grande ni muy pequeña
+            listView.setPrefHeight(200);
+
+            // 4. ¡LA MAGIA! Insertamos la ListView dentro del panel expandible del Alert
+            alert.getDialogPane().setExpandableContent(new VBox(listView));
+            alert.getDialogPane().setExpanded(true); // Mostramos el contenido expandido por defecto
+
+            alert.showAndWait();
+
+        } catch (SQLException e) {
+            LOGGER.severe("Error al cargar los productos del proveedor: " + e.getMessage());
+            new Alert(Alert.AlertType.ERROR, "No se pudieron cargar los productos.").showAndWait();
+        }
+    }
 
     /**
      * Abre el diálogo de 'Añadir Proveedor' en modo edición.
