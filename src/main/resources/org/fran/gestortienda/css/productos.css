@@ -1,0 +1,63 @@
+/* ---------------------------- */
+/*        GRID TARJETAS         */
+/* ---------------------------- */
+
+.productos-scroll {
+    -fx-background-color: transparent;
+}
+
+.productos-grid {
+    -fx-background-color: transparent; /* Fondo del grid transparente para heredar el del panel central */
+    -fx-padding: 30 40;
+}
+
+/* ---------------------------- */
+/*      TARJETA DE PRODUCTO     */
+/* ---------------------------- */
+
+.producto-card {
+    -fx-background-color: #e4e4e4; /* Color de fondo como en ventas */
+    -fx-pref-width: 240;
+    -fx-pref-height: 300; /* Un poco más alta para los datos del producto */
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-padding: 15;
+}
+
+/* ---------------------------- */
+/*      TEXTOS DE LA TARJETA    */
+/* ---------------------------- */
+
+.producto-text {
+    -fx-text-fill: #a38a6b; /* Color de texto como en ventas */
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.producto-id {
+    -fx-text-fill: #a38a6b; /* Color de texto como en ventas */
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Estilo específico para el precio, para destacarlo */
+.producto-precio {
+    -fx-font-size: 20px;
+    -fx-text-fill: #333; /* Un color más oscuro para el precio, para que resalte */
+    -fx-font-weight: bold;
+}
+
+/* Botón inferior de detalles */
+.venta-detalles-btn {
+    -fx-background-color: #b29e84;
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 5 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 1, 0.0, 3, 3);
+}
+
+.venta-detalles-btn:hover {
+    -fx-background-color: #998771;
+    -fx-cursor: hand;
+}

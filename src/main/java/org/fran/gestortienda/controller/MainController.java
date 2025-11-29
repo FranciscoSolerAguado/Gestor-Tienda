@@ -20,9 +20,11 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.fran.gestortienda.DAO.ClienteDAO;
+import org.fran.gestortienda.DAO.ProductoDAO;
 import org.fran.gestortienda.DAO.ProveedorDAO;
 import org.fran.gestortienda.MainApp;
 import org.fran.gestortienda.model.entity.Cliente;
+import org.fran.gestortienda.model.entity.Producto;
 import org.fran.gestortienda.model.entity.Proveedor;
 import org.fran.gestortienda.utils.LoggerUtil;
 
@@ -88,7 +90,7 @@ public class MainController {
     @FXML
     void handleProductosClick(ActionEvent event) {
         LOGGER.info("Botón Productos presionado. Cargando vista de productos...");
-        // loadView("/org/fran/gestortienda/ui/productos.fxml");
+        loadView("/org/fran/gestortienda/ui/productos.fxml", "productos");
     }
 
     @FXML
@@ -139,8 +141,9 @@ public class MainController {
 
         } else if (activeController instanceof VentasController) {
             ((VentasController) activeController).borrarSeleccionados();
+        }else if (activeController instanceof ProductosController) {
+            ((ProductosController) activeController).borrarSeleccionados();
         } else {
-            // Este log nos dirá por qué falla si el 'if' es falso
             LOGGER.warning("El controlador activo no es una instancia de ClientesController. Es: " +
                     (activeController != null ? activeController.getClass().getName() : "null"));
         }
@@ -187,14 +190,29 @@ public class MainController {
         } else if (controller instanceof VentasController) {
             // --- LÓGICA AÑADIDA PARA VENTAS ---
             MenuItem porFecha = new MenuItem("Por Fecha");
-            porFecha.setOnAction(e -> setModoBusqueda("Fecha", "Buscar por Fecha (AAAA-MM-DD)..."));
+            porFecha.setOnAction(e -> setModoBusqueda("Fecha", "Buscar por Fecha"));
 
             MenuItem porCliente = new MenuItem("Por ID Cliente");
             porCliente.setOnAction(e -> setModoBusqueda("Cliente", "Buscar por ID de Cliente..."));
 
             filterMenuButton.getItems().addAll(porFecha, porCliente);
-            setModoBusqueda("Fecha", "Buscar por Fecha (AAAA-MM-DD)..."); // Modo por defecto
-        }else{
+            setModoBusqueda("Fecha", "Buscar por Fecha"); // Modo por defecto
+        } else if (controller instanceof ProductosController) {
+
+            MenuItem porNombre = new MenuItem("Por Nombre");
+            porNombre.setOnAction(e -> setModoBusqueda("Nombre", "Buscar por Nombre..."));
+
+            MenuItem porCategoria = new MenuItem("Por Categoría");
+            porCategoria.setOnAction(e -> setModoBusqueda("Categoria", "Buscar por Categoría..."));
+
+            MenuItem porProveedor = new MenuItem("Por Proveedor");
+            porProveedor.setOnAction(e -> setModoBusqueda("Proveedor", "Buscar por Proveedor..."));
+
+            filterMenuButton.getItems().addAll(porNombre, porCategoria, porProveedor);
+
+            setModoBusqueda("Nombre", "Buscar por Nombre...");
+        }
+ else {
             // Estado por defecto
             MenuItem defaultItem = new MenuItem("Sin filtro");
             defaultItem.setDisable(true);
@@ -222,8 +240,57 @@ public class MainController {
         } else if (activeController instanceof VentasController) {
             LOGGER.info("Controlador activo es VentasController. Abriendo dialogo de nueva venta");
             abrirDialogoNuevaVenta();
+        }else if (activeController instanceof ProductosController) {
+                abrirDialogoNuevoProducto();
         } else {
             LOGGER.warning("El botón de añadir no tiene una acción definida para el controlador actual.");
+        }
+    }
+
+    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE MainController ---
+
+    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE MainController ---
+
+    private void abrirDialogoNuevoProducto() {
+        try {
+            // La ruta a tu FXML es correcta
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/org/fran/gestortienda/ui/add_producto.fxml"));
+            Parent view = loader.load();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Añadir Nuevo Producto");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(mainPane.getScene().getWindow());
+            dialogStage.setResizable(false);
+
+            Scene scene = new Scene(view);
+            dialogStage.setScene(scene);
+
+            // Usamos el nombre de controlador correcto que encontramos en el FXML
+            AddProductoController dialogController = loader.getController();
+            dialogController.setDialogStage(dialogStage);
+
+            // Mostramos el diálogo y esperamos a que se cierre
+            dialogStage.showAndWait();
+
+            // --- SOLUCIÓN AQUÍ ---
+            // Simplemente comprobamos si se guardó. La lógica de creación y guardado
+            // ya está dentro de AddProductoController.
+            if (dialogController.isGuardado()) {
+                LOGGER.info("Diálogo de producto cerrado y guardado. Refrescando vista...");
+
+                // Refrescar la vista de productos
+                if (activeController instanceof ProductosController) {
+                    ((ProductosController) activeController).cargarProductos();
+                }
+            } else {
+                LOGGER.info("Diálogo de producto cerrado sin guardar.");
+            }
+            // --- FIN DE LA SOLUCIÓN ---
+
+        } catch (IOException e) {
+            LOGGER.severe("Error al abrir el diálogo de nuevo producto.");
+            e.printStackTrace();
         }
     }
 
@@ -304,6 +371,8 @@ public class MainController {
             e.printStackTrace();
         }
     }
+
+
 
 
     /**
@@ -440,9 +509,11 @@ public class MainController {
         } else if (activeController instanceof ProveedoresController) {
             ((ProveedoresController) activeController).filtrarProveedores(modoBusqueda, textoBusqueda);
 
-        } else if (activeController instanceof VentasController)
+        } else if (activeController instanceof VentasController) {
             ((VentasController) activeController).filtrarVentas(modoBusqueda, textoBusqueda);
-        else {
+        } else if (activeController instanceof ProductosController) {
+            ((ProductosController) activeController).filtrarProductos(modoBusqueda, textoBusqueda);
+        } else {
             LOGGER.warning("La búsqueda no está implementada para el controlador actual: " +
                     (activeController != null ? activeController.getClass().getName() : "null"));
         }

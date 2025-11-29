@@ -4,8 +4,11 @@ import org.fran.gestortienda.Connection.ConnectionFactory;
 import org.fran.gestortienda.model.CRUD;
 import org.fran.gestortienda.model.Categoria;
 import org.fran.gestortienda.model.entity.Producto;
+import org.fran.gestortienda.model.entity.Proveedor;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +17,21 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
     private final static String INSERT = "INSERT INTO producto(nombre, categoria, precio, stock, id_proveedor, imagen) VALUES(?, ?, ?, ?, ?, ?)";
     private final static String DELETE = "DELETE FROM producto WHERE id_producto = ?";
     private final static String UPDATE = "UPDATE producto SET nombre=?, categoria=?, precio=?, stock=?, id_proveedor=?, imagen=? WHERE id_producto=?";
-    private final static String GET_ALL = "SELECT * FROM producto";
-    private final static String GET_BY_ID = "SELECT * FROM producto WHERE id_producto = ?";
+    private final static String GET_ALL = """
+                SELECT p.*, pr.id_proveedor, pr.nombre AS proveedor_nombre, pr.telefono, pr.correo
+                FROM producto p
+                JOIN proveedor pr ON p.id_proveedor = pr.id_proveedor
+            """;
+    private static final String GET_BY_ID = """
+            SELECT p.*,
+                   pr.id_proveedor,
+                   pr.nombre AS proveedor_nombre,
+                   pr.telefono AS proveedor_telefono,
+                   pr.correo AS proveedor_correo
+            FROM producto p
+            JOIN proveedor pr ON p.id_proveedor = pr.id_proveedor
+            WHERE p.id_producto = ?
+            """;
 
 
     public ProductoDAO(int id_producto, String nombre, org.fran.gestortienda.model.Categoria categoria, double precio, int stock, org.fran.gestortienda.model.entity.Proveedor proveedor, String imagen) {
@@ -92,26 +108,29 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
     public List<Producto> getAll() throws SQLException {
         List<Producto> productos = new ArrayList<>();
         Connection conn = ConnectionFactory.getConnection();
+
         if (conn != null) {
             try (PreparedStatement ps = conn.prepareStatement(GET_ALL);
-                 java.sql.ResultSet rs = ps.executeQuery()) {
+                 ResultSet rs = ps.executeQuery()) {
+
                 while (rs.next()) {
-                    // 1. Obtén el nombre de la categoría como un String.
-                    String categoriaString = rs.getString("categoria");
 
-                    // 2. Convierte el String al enum Categoria.
-                    Categoria categoria = Categoria.valueOf(categoriaString.toUpperCase());
+                    Proveedor proveedor = new Proveedor(
+                            rs.getInt("id_proveedor"),
+                            rs.getString("proveedor_nombre"),
+                            rs.getString("telefono"),
+                            rs.getString("correo")
+                    );
 
-
-                    // 4. Crea el Producto usando los objetos correctos (categoria y proveedor).
                     Producto producto = new Producto(
                             rs.getInt("id_producto"),
                             rs.getString("nombre"),
-                            categoria,
+                            Categoria.valueOf(rs.getString("categoria").toUpperCase()),
                             rs.getDouble("precio"),
                             rs.getInt("stock"),
-                            null,
-                            rs.getString("imagen"));
+                            proveedor,
+                            rs.getString("imagen")
+                    );
 
                     productos.add(producto);
                 }
@@ -124,29 +143,43 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
     public Producto getById(int id) throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
         Producto producto = null;
-        if (conn != null) {
-            try (PreparedStatement ps = conn.prepareStatement(GET_BY_ID)) {
-                
-                ps.setInt(1, id); // Asignar el parámetro ANTES de ejecutar
 
-                try (java.sql.ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) { // Si hay un resultado, lo procesamos
+        if (conn != null) {
+
+            try (PreparedStatement ps = conn.prepareStatement(GET_BY_ID)) {
+
+                ps.setInt(1, id);
+
+                try (ResultSet rs = ps.executeQuery()) {
+
+                    if (rs.next()) {
+
+                        // Proveedor asociado
+                        Proveedor proveedor = new Proveedor(
+                                rs.getInt("id_proveedor"),
+                                rs.getString("proveedor_nombre"),
+                                rs.getString("proveedor_telefono"),
+                                rs.getString("proveedor_correo")
+                        );
+
+                        // Producto
                         producto = new Producto(
                                 rs.getInt("id_producto"),
                                 rs.getString("nombre"),
                                 Categoria.valueOf(rs.getString("categoria").toUpperCase()),
                                 rs.getDouble("precio"),
                                 rs.getInt("stock"),
-                                null,
-                                rs.getString("imagen"));
+                                proveedor,
+                                rs.getString("imagen")
+                        );
                     }
                 }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
         }
+
         return producto;
     }
+
 
 
     @Override
