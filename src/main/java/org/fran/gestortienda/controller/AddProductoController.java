@@ -11,10 +11,10 @@ import org.fran.gestortienda.DAO.ProveedorDAO;
 import org.fran.gestortienda.model.Categoria;
 import org.fran.gestortienda.model.entity.Producto;
 import org.fran.gestortienda.model.entity.Proveedor;
+import org.fran.gestortienda.utils.ReggexUtil;
+import org.fran.gestortienda.utils.Utils;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 
 public class AddProductoController {
@@ -25,6 +25,8 @@ public class AddProductoController {
     @FXML private TextField stockField;
     @FXML private ComboBox<Proveedor> proveedorCombo;
     @FXML private ImageView previewImagen;
+
+    Utils utils = new Utils();
 
     private File imagenSeleccionada = null;
 
@@ -96,30 +98,41 @@ public class AddProductoController {
      */
     @FXML
     private void handleSave() {
-        try {
-            String nombre = nombreField.getText();
-            // ... (resto de la validación se queda igual)
+        String errorMessage = validarEntrada();
+        if (!errorMessage.isEmpty()) {
+            utils.mostrarAlerta("Campos Inválidos");
+            return; // Si hay errores, no continuamos
+        }
 
-            // Si productoAEditar no es null, estamos en modo edición
+        try {
             if (productoAEditar != null) {
-                // Actualizamos el objeto existente
-                productoAEditar.setNombre(nombre);
+                productoAEditar.setNombre(nombreField.getText().trim());
                 productoAEditar.setCategoria(categoriaCombo.getValue());
-                productoAEditar.setPrecio(Double.parseDouble(precioField.getText().replace(",", ".")));
+                productoAEditar.setPrecio(Double.parseDouble(precioField.getText().replace(',', '.')));
                 productoAEditar.setStock(Integer.parseInt(stockField.getText()));
                 productoAEditar.setProveedor(proveedorCombo.getValue());
 
                 if (imagenSeleccionada != null) {
-                    // ... (lógica para copiar la nueva imagen)
                     productoAEditar.setImagen(imagenSeleccionada.getName());
                 }
 
-                productoDAO.update(productoAEditar); // Llamamos a UPDATE
+                productoDAO.update(productoAEditar);
 
             } else {
-                // Si no, estamos en modo creación (lógica que ya tenías)
-                Producto nuevoProducto = new Producto();
-                // ... (código para crear un nuevo producto)
+                // Modo Creación
+                Producto nuevoProducto = new Producto(
+                        nombreField.getText().trim(),
+                        categoriaCombo.getValue(),
+                        Double.parseDouble(precioField.getText().replace(',', '.')),
+                        Integer.parseInt(stockField.getText()),
+                        proveedorCombo.getValue(),
+                        null // La imagen se gestiona después
+                );
+
+                if (imagenSeleccionada != null) {
+                    // ... (lógica para copiar imagen)
+                    nuevoProducto.setImagen(imagenSeleccionada.getName());
+                }
                 productoDAO.add(nuevoProducto);
             }
 
@@ -128,8 +141,36 @@ public class AddProductoController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Error al guardar el producto").showAndWait();
+            utils.mostrarAlerta("Ocurrió un error al guardar el producto en la base de datos.");
         }
+    }
+
+    private String validarEntrada() {
+        StringBuilder errorMessage = new StringBuilder();
+
+        if (!ReggexUtil.NOMBRE_REGEX.matcher(nombreField.getText()).matches()) {
+            errorMessage.append("El nombre no es válido.\n");
+        }
+        if (categoriaCombo.getValue() == null) {
+            errorMessage.append("Debe seleccionar una categoría.\n");
+        }
+        if (proveedorCombo.getValue() == null) {
+            errorMessage.append("Debe seleccionar un proveedor.\n");
+        }
+
+        // ---Validación del precio ---
+        String precioStr = precioField.getText().replace(',', '.');
+        if (!ReggexUtil.DECIMAL_REGEX.matcher(precioStr).matches()) {
+            errorMessage.append("El formato del precio no es válido (ej: 12.99).\n");
+        }
+
+        try {
+            Integer.parseInt(stockField.getText());
+        } catch (NumberFormatException e) {
+            errorMessage.append("El stock debe ser un número entero.\n");
+        }
+
+        return errorMessage.toString();
     }
 
     @FXML

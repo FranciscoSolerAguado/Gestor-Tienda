@@ -13,6 +13,7 @@ import org.fran.gestortienda.model.entity.Cliente;
 import org.fran.gestortienda.model.entity.Detalle_Venta;
 import org.fran.gestortienda.model.entity.Producto;
 import org.fran.gestortienda.model.entity.Venta;
+import org.fran.gestortienda.utils.ReggexUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -129,6 +130,8 @@ public class AddVentaController {
 
 // --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
 
+    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
+
     @FXML
     private void handleAddProducto() {
         try {
@@ -145,12 +148,10 @@ public class AddVentaController {
             cantidadDialog.setContentText("Cantidad:");
 
             Optional<String> cantidadResult = cantidadDialog.showAndWait();
-            if (cantidadResult.isEmpty()) {
-                return; // El usuario canceló
+            if (cantidadResult.isEmpty() || cantidadResult.get().isBlank()) {
+                return; // El usuario canceló o dejó el campo vacío
             }
-            int cantidad = Integer.parseInt(cantidadResult.get());
 
-            // --- SOLUCIÓN AQUÍ: Pedir el descuento ---
             // 3. Pedir el descuento
             TextInputDialog descuentoDialog = new TextInputDialog("0.0");
             descuentoDialog.setTitle("Añadir Producto");
@@ -158,33 +159,42 @@ public class AddVentaController {
             descuentoDialog.setContentText("Descuento (%):");
 
             Optional<String> descuentoResult = descuentoDialog.showAndWait();
-            if (descuentoResult.isEmpty()) {
-                return; // El usuario canceló
+            if (descuentoResult.isEmpty() || descuentoResult.get().isBlank()) {
+                return; // El usuario canceló o dejó el campo vacío
             }
-            // Reemplazamos la coma por si el usuario la introduce
-            double descuento = Double.parseDouble(descuentoResult.get().replace(',', '.'));
-            // --- FIN DE LA SOLUCIÓN ---
 
-            // 4. Validar los datos introducidos
+            // --- VALIDACIÓN CON REGEX ---
+            String cantidadStr = cantidadResult.get();
+            String descuentoStr = descuentoResult.get().replace(',', '.');
+
+            // 4. Validar el formato del descuento con DECIMAL_REGEX
+            if (!ReggexUtil.DECIMAL_REGEX.matcher(descuentoStr).matches()) {
+                new Alert(Alert.AlertType.WARNING, "El formato del descuento no es válido (ej: 12.99).").showAndWait();
+                return;
+            }
+
+            // 5. Convertir a número (ahora es seguro)
+            int cantidad = Integer.parseInt(cantidadStr);
+            double descuento = Double.parseDouble(descuentoStr);
+
+            // 6. Validar los valores
             if (cantidad <= 0 || descuento < 0 || descuento > 100) {
                 new Alert(Alert.AlertType.WARNING, "La cantidad debe ser mayor que 0 y el descuento debe estar entre 0 y 100.").showAndWait();
                 return;
             }
 
-            // 5. Calcular precios con el nuevo descuento
+            // 7. Calcular precios y añadir a la tabla
             double precioUnitario = producto.getPrecio();
-            double iva = 21.0; // Asumimos un 21% de IVA
-
+            double iva = 21.0;
             double precioConDescuento = precioUnitario * (1 - descuento / 100);
             double subtotal = (precioConDescuento * cantidad) * (1 + iva / 100);
 
-            // 6. Crear y añadir el detalle a la tabla
             Detalle_Venta dv = new Detalle_Venta(0, null, producto, cantidad, descuento, precioUnitario, iva, subtotal);
             detallesList.add(dv);
             actualizarTotal();
 
         } catch (NumberFormatException e) {
-            new Alert(Alert.AlertType.ERROR, "La cantidad y el descuento deben ser números válidos.").showAndWait();
+            new Alert(Alert.AlertType.ERROR, "La cantidad debe ser un número entero válido.").showAndWait();
         } catch (Exception e) {
             e.printStackTrace();
             new Alert(Alert.AlertType.ERROR, "Ocurrió un error al añadir el producto.").showAndWait();
