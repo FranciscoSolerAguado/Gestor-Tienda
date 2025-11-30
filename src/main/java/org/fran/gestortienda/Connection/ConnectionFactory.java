@@ -1,57 +1,70 @@
 package org.fran.gestortienda.Connection;
 
-import java.io.InputStream;
+import org.fran.gestortienda.DatabaseManager.ConfigManager;
+import org.fran.gestortienda.utils.LoggerUtil;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
+import java.util.logging.Logger;
 
 public class ConnectionFactory {
-    // Ya no se necesita una variable estática para la conexión.
-    // private static Connection conn;
 
-    private static final Properties props = new Properties();
+    private static final Logger LOGGER = LoggerUtil.getLogger();
 
-    // El bloque estático para cargar las propiedades es correcto y se mantiene.
-    static {
-        try (InputStream input = ConnectionFactory.class.getClassLoader().getResourceAsStream("config.properties")) {
-            if (input == null) {
-                System.err.println("Error: No se pudo encontrar el archivo config.properties");
-            } else {
-                props.load(input);
-            }
-        } catch (Exception e) {
-            System.err.println("Error al cargar el archivo de configuración.");
-            e.printStackTrace();
-        }
+    // 2. Variable estática para guardar la ÚNICA instancia de la conexión
+    private static Connection connection = null;
+
+    private ConnectionFactory() {
+        // Constructor privado para evitar que se creen instancias
     }
 
-    // El constructor privado ya no es necesario, pero no molesta.
-    private ConnectionFactory() {}
-
     /**
-     * Crea y devuelve una NUEVA conexión a la base de datos cada vez que se llama.
-     * La conexión debe ser cerrada por quien la solicita (usando try-with-resources).
-     * @return una nueva conexión a la base de datos.
+     * Devuelve la instancia única de la conexión (Singleton).
+     * Si la conexión no existe, la crea.
+     * @return La conexión a la base de datos.
      * @throws SQLException si ocurre un error al conectar.
      */
     public static Connection getConnection() throws SQLException {
-        // La lógica para decidir la base de datos se mantiene.
-        String dbType = props.getProperty("db.active", "h2");
-        System.out.println("Intentando conectar a la base de datos: " + dbType);
+        // 3. Si la conexión no ha sido creada todavía...
+        if (connection == null || connection.isClosed()) {
+            try {
+                // Leemos la configuración desde ConfigManager
+                String dbType = ConfigManager.getActiveDatabaseType();
+                String url = ConfigManager.getProperty("db." + dbType + ".url");
+                String user = ConfigManager.getProperty("db." + dbType + ".user");
+                String pass = ConfigManager.getProperty("db." + dbType + ".password");
 
-        String url = props.getProperty("db." + dbType + ".url");
-        String user = props.getProperty("db." + dbType + ".user");
-        String pass = props.getProperty("db." + dbType + ".password");
+                if (url == null) {
+                    throw new SQLException("No se encontró la URL para la base de datos: " + dbType);
+                }
 
-        if (url == null) {
-            throw new SQLException("No se encontró la URL para la base de datos: " + dbType);
+                LOGGER.info("Creando nueva conexión a la base de datos: " + dbType);
+                // Creamos la conexión y la guardamos en nuestra variable estática
+                connection = DriverManager.getConnection(url, user, pass);
+                LOGGER.info("Conexión a " + dbType.toUpperCase() + " establecida correctamente.");
+
+            } catch (SQLException e) {
+                LOGGER.severe("FALLO CRÍTICO: No se pudo crear la conexión a la base de datos.");
+                throw e; // Relanzamos la excepción para que la aplicación principal la capture
+            }
         }
+        // 4. Devolvemos la conexión existente
+        return connection;
+    }
 
-        // La línea clave: siempre crea y devuelve una nueva conexión.
-        Connection newConnection = DriverManager.getConnection(url, user, pass);
-        System.out.println("Conexión a " + dbType.toUpperCase() + " establecida.");
-        return newConnection;
+    /**
+     * Cierra la conexión si está abierta.
+     * Se puede llamar al final de la aplicación.
+     */
+    public static void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+                LOGGER.info("Conexión a la base de datos cerrada.");
+            } catch (SQLException e) {
+                LOGGER.severe("Error al cerrar la conexión: " + e.getMessage());
+            }
+        }
     }
 }
-
