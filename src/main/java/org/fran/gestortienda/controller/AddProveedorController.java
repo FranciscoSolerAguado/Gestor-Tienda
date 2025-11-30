@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.fran.gestortienda.model.entity.Proveedor;
+import org.fran.gestortienda.utils.ReggexUtil;
 
 public class AddProveedorController {
 
@@ -55,34 +56,44 @@ public class AddProveedorController {
 
     // --- REEMPLAZA TU MÉTODO handleSave CON ESTE ---
 
+    // --- REEMPLAZA TU MÉTODO handleSave EN AddProveedorController ---
+
     @FXML
     private void handleSave() {
         String nombre = nombreField.getText().trim();
-        if (nombre.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Datos incompletos");
-            alert.setHeaderText(null);
-            alert.setContentText("El nombre del proveedor no puede estar vacío.");
-            alert.showAndWait();
-            return;
+        String telefono = telefonoField.getText().trim();
+        String correo = correoField.getText().trim();
+
+        // --- VALIDACIÓN CON REGEX ---
+        String errorMessage = "";
+
+        if (!ReggexUtil.NOMBRE_REGEX.matcher(nombre).matches()) {
+            errorMessage += "El nombre no es válido (no puede estar vacío).\n";
+        }
+        if (!ReggexUtil.TELEFONO_REGEX.matcher(telefono).matches()) {
+            errorMessage += "El teléfono no es válido (debe tener 9 dígitos y empezar por 6, 7, 8 o 9).\n";
+        }
+        if (!ReggexUtil.GMAIL_REGEX.matcher(correo).matches()) {
+            errorMessage += "El correo no es válido (debe ser una dirección de @gmail.com).\n";
         }
 
-        // Si estamos en modo edición, actualizamos el objeto existente
+        if (!errorMessage.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Datos Inválidos");
+            alert.setHeaderText("Por favor, corrige los campos marcados.");
+            alert.setContentText(errorMessage);
+            alert.showAndWait();
+            return; // La validación falla
+        }
+        // --- FIN DE LA VALIDACIÓN ---
+
         if (proveedorAEditar != null) {
             proveedorAEditar.setNombre(nombre);
-            proveedorAEditar.setTelefono(telefonoField.getText().trim());
-            proveedorAEditar.setCorreo(correoField.getText().trim());
-
-            // Guardamos el objeto actualizado en una variable local
+            proveedorAEditar.setTelefono(telefono);
+            proveedorAEditar.setCorreo(correo);
             nuevoProveedor = proveedorAEditar;
-
         } else {
-            // Si no, creamos uno nuevo
-            nuevoProveedor = new Proveedor(
-                    nombre,
-                    telefonoField.getText().trim(),
-                    correoField.getText().trim()
-            );
+            nuevoProveedor = new Proveedor(nombre, telefono, correo);
         }
 
         guardado = true;

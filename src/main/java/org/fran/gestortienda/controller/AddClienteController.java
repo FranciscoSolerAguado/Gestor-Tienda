@@ -7,6 +7,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.fran.gestortienda.model.entity.Cliente;
+import org.fran.gestortienda.utils.ReggexUtil;
 
 public class AddClienteController {
 
@@ -41,18 +42,32 @@ public class AddClienteController {
         String telefono = telefonoField.getText().trim();
         String direccion = direccionArea.getText().trim();
 
-        if (nombre.isEmpty()) {
-            return null; // Validación falla
+        String errorMessage = "";
+
+        if (!ReggexUtil.NOMBRE_REGEX.matcher(nombre).matches()) {
+            errorMessage += "El nombre no es válido (no puede estar vacío).\n";
+        }
+        // El teléfono es opcional, pero si se introduce, debe ser válido
+        if (!telefono.isEmpty() && !ReggexUtil.TELEFONO_REGEX.matcher(telefono).matches()) {
+            errorMessage += "El teléfono no es válido (debe tener 9 dígitos y empezar por 6, 7, 8 o 9).\n";
         }
 
-        // Si estamos en modo edición, actualizamos el objeto existente
+        if (!errorMessage.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Datos Inválidos");
+            alert.setHeaderText("Por favor, corrige los campos marcados.");
+            alert.setContentText(errorMessage);
+            alert.showAndWait();
+            return null;
+        }
+
+
         if (clienteAEditar != null) {
             clienteAEditar.setNombre(nombre);
             clienteAEditar.setTelefono(telefono);
             clienteAEditar.setDireccion(direccion);
             return clienteAEditar;
         } else {
-            // Si no, creamos uno nuevo
             return new Cliente(nombre, telefono, direccion);
         }
     }
