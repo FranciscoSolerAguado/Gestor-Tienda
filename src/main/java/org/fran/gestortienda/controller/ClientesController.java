@@ -9,13 +9,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.fran.gestortienda.DAO.ClienteDAO;
+import org.fran.gestortienda.DAO.VentaDAO;
 import org.fran.gestortienda.model.entity.Cliente;
+import org.fran.gestortienda.model.entity.Venta;
 import org.fran.gestortienda.utils.LoggerUtil;
 
 import java.io.IOException;
@@ -201,6 +204,8 @@ public class ClientesController implements Initializable {
      */
     // --- REEMPLAZA TU MÉTODO crearTarjeta CON ESTE ---
 
+    // --- REEMPLAZA TU MÉTODO crearTarjeta EN ClientesController ---
+
     private VBox crearTarjeta(Cliente cliente) {
         // --- Contenedor para la parte superior (ID y CheckBox) ---
         StackPane topPane = new StackPane();
@@ -219,7 +224,6 @@ public class ClientesController implements Initializable {
             } else {
                 clientesSeleccionados.remove(cliente);
             }
-            LOGGER.info("Clientes seleccionados: " + clientesSeleccionados.size());
         });
 
         topPane.getChildren().addAll(idLabel, checkBox);
@@ -240,17 +244,73 @@ public class ClientesController implements Initializable {
         direccionLabel.getStyleClass().add("cliente-text");
         direccionLabel.setWrapText(true);
 
+        // --- BOTONES DE ACCIÓN ---
         Button editarBtn = new Button("Editar");
-        editarBtn.getStyleClass().add("cliente-accion-btn"); // <-- APLICAMOS EL NUEVO ESTILO
+        editarBtn.getStyleClass().add("cliente-accion-btn");
         editarBtn.setOnAction(e -> handleEditarCliente(cliente));
 
+        Button verVentasBtn = new Button("Ver Ventas"); // <-- NUEVO BOTÓN
+        verVentasBtn.getStyleClass().add("cliente-accion-btn"); // Reutilizamos estilo
+        verVentasBtn.setOnAction(e -> handleVerVentas(cliente)); // <-- NUEVA ACCIÓN
+
+        HBox botonesBox = new HBox(10, editarBtn, verVentasBtn); // <-- Contenedor para botones
+        botonesBox.setAlignment(Pos.CENTER);
+        // --- FIN BOTONES DE ACCIÓN ---
+
         // --- VBox principal de la tarjeta ---
-        VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, telefonoLabel, direccionLabel, editarBtn);
+        VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, telefonoLabel, direccionLabel, botonesBox);
         tarjeta.setAlignment(Pos.TOP_CENTER);
         tarjeta.getStyleClass().add("cliente-card");
-        tarjeta.setPrefSize(230, 290); // Un poco más de alto para el botón
+        tarjeta.setPrefSize(230, 320); // Un poco más de alto para los botones
 
         return tarjeta;
+    }
+
+    // --- AÑADE ESTE MÉTODO A TU CLASE ClientesController ---
+
+    /**
+     * Muestra una alerta con la lista de ventas de un cliente.
+     */
+    private void handleVerVentas(Cliente cliente) {
+        try {
+            // 1. Obtener las ventas del cliente desde el DAO
+            List<Venta> ventas = new VentaDAO().findByCliente(cliente.getId_cliente());
+
+            // 2. Crear el Alert
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Ventas del Cliente");
+            alert.setHeaderText("Ventas realizadas por: " + cliente.getNombre());
+
+            // 3. Crear la ListView para mostrar las ventas
+            ListView<String> listView = new ListView<>();
+            if (ventas.isEmpty()) {
+                listView.getItems().add("Este cliente no tiene ventas registradas.");
+            } else {
+                for (Venta venta : ventas) {
+                    // Añadimos un texto formateado a la lista
+                    listView.getItems().add(
+                            String.format("Venta #%d  |  Fecha: %s  |  Total: %.2f €",
+                                    venta.getId_venta(),
+                                    venta.getFecha(),
+                                    venta.getTotal()
+                            )
+                    );
+                }
+            }
+
+            // Ajustamos el tamaño de la ListView
+            listView.setPrefSize(400, 200);
+
+            // 4. Insertamos la ListView dentro del panel expandible del Alert
+            alert.getDialogPane().setExpandableContent(new VBox(listView));
+            alert.getDialogPane().setExpanded(true); // Lo mostramos expandido
+
+            alert.showAndWait();
+
+        } catch (SQLException e) {
+            LOGGER.severe("Error al cargar las ventas del cliente: " + e.getMessage());
+            new Alert(Alert.AlertType.ERROR, "No se pudieron cargar las ventas.").showAndWait();
+        }
     }
 
     // --- REEMPLAZA/AÑADE ESTE MÉTODO EN TU CLASE ClientesController ---
