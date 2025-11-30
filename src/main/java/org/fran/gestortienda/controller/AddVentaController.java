@@ -13,6 +13,7 @@ import org.fran.gestortienda.model.entity.Cliente;
 import org.fran.gestortienda.model.entity.Detalle_Venta;
 import org.fran.gestortienda.model.entity.Producto;
 import org.fran.gestortienda.model.entity.Venta;
+import org.fran.gestortienda.utils.LoggerUtil;
 import org.fran.gestortienda.utils.ReggexUtil;
 
 import java.sql.SQLException;
@@ -23,6 +24,8 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 public class AddVentaController {
+
+    private static final Logger LOGGER = LoggerUtil.getLogger();
 
     @FXML private DatePicker fechaPicker;
     @FXML private ComboBox<Cliente> clienteCombo;
@@ -35,9 +38,6 @@ public class AddVentaController {
     @FXML private TableColumn<Detalle_Venta, Double> colDescuento;
     @FXML private TableColumn<Detalle_Venta, Double> colIVA;
     @FXML private TableColumn<Detalle_Venta, Double> colSubtotal;
-
-    private static final Logger LOGGER = Logger.getLogger(AddVentaController.class.getName());
-
 
     private ObservableList<Detalle_Venta> detallesList = FXCollections.observableArrayList();
 
@@ -58,20 +58,14 @@ public class AddVentaController {
         return guardado;
     }
 
-// --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
-
     public void setVentaParaEditar(Venta venta) {
         this.ventaAEditar = venta;
 
-        // Rellenar los campos del formulario
-        // --- SOLUCIÓN AQUÍ ---
-        // Comprobamos que la fecha no sea null antes de convertirla
         if (venta.getFecha() != null) {
             java.util.Date date = new java.util.Date(venta.getFecha().getTime());
             LocalDate localDate = date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
             fechaPicker.setValue(localDate);
         }
-        // --- FIN DE LA SOLUCIÓN ---
 
         if (venta.getCliente() != null) {
             clienteCombo.setValue(venta.getCliente());
@@ -82,10 +76,11 @@ public class AddVentaController {
             detallesList.setAll(new Detalle_VentaDAO().getByVenta(venta.getId_venta()));
             tablaDetalles.setItems(detallesList);
         } catch (SQLException e) {
+            LOGGER.severe("Error de SQL al cargar los detalles de la venta a editar: " + e.getMessage());
             e.printStackTrace();
         }
+        LOGGER.info("Diálogo de venta puesto en modo edición para la venta ID: " + venta.getId_venta());
     }
-
 
     @FXML
     private void initialize() {
@@ -98,26 +93,20 @@ public class AddVentaController {
         try {
             clienteCombo.setItems(FXCollections.observableArrayList(clienteDAO.getAll()));
         } catch (SQLException e) {
+            LOGGER.severe("Error de SQL al cargar clientes para el ComboBox: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-// --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
-
     private void configurarTabla() {
-        // --- SOLUCIÓN AQUÍ ---
-        // Para la columna de Producto, creamos una CellValueFactory que extrae el nombre.
         colProducto.setCellValueFactory(cellData -> {
-            // cellData.getValue() nos da el objeto Detalle_Venta de la fila
             Producto producto = cellData.getValue().getProducto();
             if (producto != null) {
-                // Devolvemos una propiedad de String simple con el nombre del producto
                 return new javafx.beans.property.SimpleStringProperty(producto.getNombre());
             } else {
                 return new javafx.beans.property.SimpleStringProperty("<Producto no encontrado>");
             }
         });
-        // --- FIN DE LA SOLUCIÓN ---
 
         colCantidad.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getCantidad()));
         colPrecio.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getPrecio_unitario()));
@@ -128,20 +117,15 @@ public class AddVentaController {
         tablaDetalles.setItems(detallesList);
     }
 
-// --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
-
-    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
-
     @FXML
     private void handleAddProducto() {
         try {
-            // 1. Pedir al usuario que elija un producto
             Producto producto = pedirProducto();
             if (producto == null) {
-                return; // El usuario canceló
+                LOGGER.info("Selección de producto cancelada.");
+                return;
             }
 
-            // 2. Pedir la cantidad
             TextInputDialog cantidadDialog = new TextInputDialog("1");
             cantidadDialog.setTitle("Añadir Producto");
             cantidadDialog.setHeaderText("Introduce la cantidad para: " + producto.getNombre());
@@ -149,10 +133,10 @@ public class AddVentaController {
 
             Optional<String> cantidadResult = cantidadDialog.showAndWait();
             if (cantidadResult.isEmpty() || cantidadResult.get().isBlank()) {
-                return; // El usuario canceló o dejó el campo vacío
+                LOGGER.info("Introducción de cantidad cancelada.");
+                return;
             }
 
-            // 3. Pedir el descuento
             TextInputDialog descuentoDialog = new TextInputDialog("0.0");
             descuentoDialog.setTitle("Añadir Producto");
             descuentoDialog.setHeaderText("Introduce el descuento (%) para: " + producto.getNombre());
@@ -160,30 +144,28 @@ public class AddVentaController {
 
             Optional<String> descuentoResult = descuentoDialog.showAndWait();
             if (descuentoResult.isEmpty() || descuentoResult.get().isBlank()) {
-                return; // El usuario canceló o dejó el campo vacío
+                LOGGER.info("Introducción de descuento cancelada.");
+                return;
             }
 
-            // --- VALIDACIÓN CON REGEX ---
             String cantidadStr = cantidadResult.get();
             String descuentoStr = descuentoResult.get().replace(',', '.');
 
-            // 4. Validar el formato del descuento con DECIMAL_REGEX
             if (!ReggexUtil.DECIMAL_REGEX.matcher(descuentoStr).matches()) {
+                LOGGER.warning("Validación fallida: formato de descuento incorrecto -> " + descuentoStr);
                 new Alert(Alert.AlertType.WARNING, "El formato del descuento no es válido (ej: 12.99).").showAndWait();
                 return;
             }
 
-            // 5. Convertir a número (ahora es seguro)
             int cantidad = Integer.parseInt(cantidadStr);
             double descuento = Double.parseDouble(descuentoStr);
 
-            // 6. Validar los valores
             if (cantidad <= 0 || descuento < 0 || descuento > 100) {
+                LOGGER.warning("Validación fallida: cantidad o descuento fuera de rango -> Cantidad: " + cantidad + ", Descuento: " + descuento);
                 new Alert(Alert.AlertType.WARNING, "La cantidad debe ser mayor que 0 y el descuento debe estar entre 0 y 100.").showAndWait();
                 return;
             }
 
-            // 7. Calcular precios y añadir a la tabla
             double precioUnitario = producto.getPrecio();
             double iva = 21.0;
             double precioConDescuento = precioUnitario * (1 - descuento / 100);
@@ -192,18 +174,17 @@ public class AddVentaController {
             Detalle_Venta dv = new Detalle_Venta(0, null, producto, cantidad, descuento, precioUnitario, iva, subtotal);
             detallesList.add(dv);
             actualizarTotal();
+            LOGGER.info("Producto '" + producto.getNombre() + "' añadido a la venta con cantidad: " + cantidad + " y descuento: " + descuento + "%");
 
         } catch (NumberFormatException e) {
+            LOGGER.warning("Error de formato de número al añadir producto a la venta: " + e.getMessage());
             new Alert(Alert.AlertType.ERROR, "La cantidad debe ser un número entero válido.").showAndWait();
         } catch (Exception e) {
+            LOGGER.severe("Error inesperado al añadir producto a la venta: " + e.getMessage());
             e.printStackTrace();
             new Alert(Alert.AlertType.ERROR, "Ocurrió un error al añadir el producto.").showAndWait();
         }
     }
-
-// --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
-
-    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController.java ---
 
     private Producto pedirProducto() throws SQLException {
         List<Producto> productosDisponibles = productoDAO.getAll();
@@ -212,7 +193,6 @@ public class AddVentaController {
             return null;
         }
 
-        // El ChoiceDialog ahora usará automáticamente el método toString() del Producto
         ChoiceDialog<Producto> dialog = new ChoiceDialog<>(productosDisponibles.get(0), productosDisponibles);
         dialog.setTitle("Seleccionar Producto");
         dialog.setHeaderText("Elige un producto de la lista");
@@ -221,13 +201,6 @@ public class AddVentaController {
         return dialog.showAndWait().orElse(null);
     }
 
-
-    // --- REEMPLAZA ESTOS DOS MÉTODOS EN AddVentaController.java ---
-
-    /**
-     * Actualiza el campo de texto del total.
-     * VERSIÓN CORREGIDA: Usa Locale.US para asegurar el punto decimal.
-     */
     private void actualizarTotal() {
         double total = detallesList.stream()
                 .mapToDouble(Detalle_Venta::getSubtotal)
@@ -244,21 +217,16 @@ public class AddVentaController {
             }
 
             if (ventaAEditar != null) {
-                // MODO EDICIÓN
                 ventaAEditar.setFecha(java.sql.Date.valueOf(fechaPicker.getValue()));
                 ventaAEditar.setCliente(clienteCombo.getValue());
                 String totalText = totalField.getText().replace(',', '.');
                 ventaAEditar.setTotal(Double.parseDouble(totalText));
 
-                // 1. Actualizamos la venta principal
                 ventaDAO.update(ventaAEditar);
-
-                // 2. Borramos todos los detalles antiguos
                 detalleDAO.deleteByVentaId(ventaAEditar.getId_venta());
 
-                // 3. Re-insertamos todos los detalles de la tabla
                 for (Detalle_Venta dv : detallesList) {
-                    dv.setVenta(ventaAEditar); // Nos aseguramos de que tienen el ID de venta correcto
+                    dv.setVenta(ventaAEditar);
                     detalleDAO.add(dv);
                 }
                 LOGGER.info("Venta ID " + ventaAEditar.getId_venta() + " y sus detalles han sido actualizados.");
@@ -281,7 +249,7 @@ public class AddVentaController {
                 if (ventaGuardada == null) {
                     throw new SQLException("No se pudo recuperar la venta recién guardada.");
                 }
-                
+
                 ventaGuardada.setCliente(clienteSeleccionado);
 
                 for (Detalle_Venta dv : detallesList) {
@@ -295,6 +263,7 @@ public class AddVentaController {
             dialogStage.close();
 
         } catch (Exception e) {
+            LOGGER.severe("Error al guardar la venta: " + e.getMessage());
             new Alert(Alert.AlertType.ERROR, "Ocurrió un error al guardar la venta.\n" + e.getMessage()).showAndWait();
             e.printStackTrace();
         }
@@ -302,6 +271,7 @@ public class AddVentaController {
 
     @FXML
     private void handleCancel() {
+        LOGGER.info("Operación de añadir/editar venta cancelada.");
         dialogStage.close();
     }
 }

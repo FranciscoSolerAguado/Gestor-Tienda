@@ -12,7 +12,7 @@ public class LoggerUtil {
     static {
         try {
             // Configurar el FileHandler para escribir en clinica.log
-            FileHandler fileHandler = new FileHandler("chat-offline.log", true);
+            FileHandler fileHandler = new FileHandler("gestor-tienda.log", true);
             fileHandler.setLevel(Level.INFO); // Nivel de registro
             fileHandler.setFormatter(new SimpleFormatter()); // Formato simple
             logger.addHandler(fileHandler);

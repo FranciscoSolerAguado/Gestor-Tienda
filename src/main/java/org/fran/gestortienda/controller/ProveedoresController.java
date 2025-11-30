@@ -17,6 +17,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.fran.gestortienda.DAO.ProductoDAO;
 import org.fran.gestortienda.DAO.ProveedorDAO;
+import org.fran.gestortienda.MainApp;
 import org.fran.gestortienda.model.entity.Producto;
 import org.fran.gestortienda.model.entity.Proveedor;
 import org.fran.gestortienda.utils.LoggerUtil;
@@ -37,38 +38,33 @@ public class ProveedoresController implements Initializable {
     private final ProveedorDAO proveedorDAO = new ProveedorDAO();
     private final Set<Proveedor> proveedoresSeleccionados = new HashSet<>();
 
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        LOGGER.info("Inicializando ProveedoresController y cargando proveedores...");
+        LOGGER.info("Inicializando ProveedoresController...");
         cargarProveedores();
     }
 
     public void cargarProveedores() {
         try {
             contenedorProveedores.getChildren().clear();
-            List<Proveedor> proveedores = proveedorDAO.getAll(); // <-- CAMBIO
+            List<Proveedor> proveedores = proveedorDAO.getAll();
 
             if (proveedores.isEmpty()) {
+                LOGGER.info("No se encontraron proveedores en la base de datos.");
                 contenedorProveedores.getChildren().add(new Label("No hay proveedores para mostrar."));
                 return;
             }
 
-            for (Proveedor proveedor : proveedores) { // <-- CAMBIO
-                VBox tarjetaProveedor = crearTarjeta(proveedor); // <-- CAMBIO
+            for (Proveedor proveedor : proveedores) {
+                VBox tarjetaProveedor = crearTarjeta(proveedor);
                 contenedorProveedores.getChildren().add(tarjetaProveedor);
             }
-            LOGGER.info("Se cargaron " + proveedores.size() + " proveedores.");
-
+            LOGGER.info("Se cargaron " + proveedores.size() + " proveedores en la vista.");
         } catch (SQLException e) {
             LOGGER.severe("Error de SQL al cargar los proveedores: " + e.getMessage());
             e.printStackTrace();
         }
     }
-
-// --- REEMPLAZA TU MÉTODO crearTarjeta CON ESTE ---
-
-    // --- REEMPLAZA TU MÉTODO crearTarjeta CON ESTE ---
 
     private VBox crearTarjeta(Proveedor proveedor) {
         StackPane topPane = new StackPane();
@@ -108,45 +104,35 @@ public class ProveedoresController implements Initializable {
         editarBtn.getStyleClass().add("proveedor-accion-btn");
         editarBtn.setOnAction(e -> handleEditarProveedor(proveedor));
 
-        // --- 1. AÑADIMOS EL NUEVO BOTÓN ---
         Button verProductosBtn = new Button("Ver Productos");
-        verProductosBtn.getStyleClass().add("proveedor-accion-btn"); // Reutilizamos el mismo estilo
+        verProductosBtn.getStyleClass().add("proveedor-accion-btn");
         verProductosBtn.setOnAction(e -> handleVerProductos(proveedor));
 
-        // --- 2. AÑADIMOS AMBOS BOTONES AL HBOX ---
         HBox botonesBox = new HBox(10, editarBtn, verProductosBtn);
         botonesBox.setAlignment(Pos.CENTER);
 
-        // --- 3. AÑADIMOS EL HBOX A LA TARJETA ---
         VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, telefonoLabel, correoLabel, botonesBox);
         tarjeta.setAlignment(Pos.TOP_CENTER);
         tarjeta.getStyleClass().add("proveedor-card");
-        tarjeta.setPrefSize(230, 320); // Aumentamos un poco la altura para que quepan los botones
+        tarjeta.setPrefSize(230, 320);
 
         return tarjeta;
     }
-    // --- REEMPLAZA/AÑADE ESTE MÉTODO EN TU CLASE ProveedoresController ---
 
-    /**
-     * Muestra una alerta con la lista de productos de un proveedor.
-     */
     private void handleVerProductos(Proveedor proveedor) {
+        LOGGER.info("Abriendo diálogo para ver productos del proveedor ID: " + proveedor.getId_proveedor());
         try {
-            // 1. Obtener los productos del proveedor desde el DAO
             List<Producto> productos = new ProductoDAO().findByProveedorId(proveedor.getId_proveedor());
 
-            // 2. Crear el Alert
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Productos del Proveedor");
             alert.setHeaderText("Productos suministrados por: " + proveedor.getNombre());
 
-            // 3. Crear la ListView para mostrar los productos
             ListView<String> listView = new ListView<>();
             if (productos.isEmpty()) {
                 listView.getItems().add("Este proveedor no tiene productos asociados.");
             } else {
                 for (Producto producto : productos) {
-                    // Añadimos un texto formateado a la lista
                     listView.getItems().add(
                             String.format("#%d - %s (Stock: %d)",
                                     producto.getId_producto(),
@@ -157,28 +143,22 @@ public class ProveedoresController implements Initializable {
                 }
             }
 
-            // Ajustamos el tamaño de la ListView para que no sea ni muy grande ni muy pequeña
             listView.setPrefHeight(200);
-
-            // 4. ¡LA MAGIA! Insertamos la ListView dentro del panel expandible del Alert
             alert.getDialogPane().setExpandableContent(new VBox(listView));
-            alert.getDialogPane().setExpanded(true); // Mostramos el contenido expandido por defecto
+            alert.getDialogPane().setExpanded(true);
 
             alert.showAndWait();
 
         } catch (SQLException e) {
-            LOGGER.severe("Error al cargar los productos del proveedor: " + e.getMessage());
+            LOGGER.severe("Error al cargar los productos del proveedor ID " + proveedor.getId_proveedor() + ": " + e.getMessage());
             new Alert(Alert.AlertType.ERROR, "No se pudieron cargar los productos.").showAndWait();
         }
     }
 
-    /**
-     * Abre el diálogo de 'Añadir Proveedor' en modo edición.
-     * @param proveedor El proveedor a editar.
-     */
     private void handleEditarProveedor(Proveedor proveedor) {
+        LOGGER.info("Abriendo diálogo para editar proveedor ID: " + proveedor.getId_proveedor());
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/fran/gestortienda/ui/add_proveedor.fxml"));
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/org/fran/gestortienda/ui/add_proveedor.fxml"));
             Parent view = loader.load();
 
             AddProveedorController dialogController = loader.getController();
@@ -199,32 +179,26 @@ public class ProveedoresController implements Initializable {
                 Proveedor proveedorEditado = dialogController.getNuevoProveedor();
                 if (proveedorEditado != null) {
                     new ProveedorDAO().update(proveedorEditado);
-                    LOGGER.info("Proveedor actualizado: " + proveedorEditado.getNombre());
+                    LOGGER.info("Proveedor ID " + proveedorEditado.getId_proveedor() + " actualizado a: " + proveedorEditado.getNombre());
                     cargarProveedores();
                 }
             }
         } catch (IOException | SQLException e) {
-            LOGGER.severe("Error al abrir o procesar el diálogo de edición de proveedor.");
+            LOGGER.severe("Error al abrir o procesar el diálogo de edición de proveedor: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    // --- COPIA Y PEGA ESTOS MÉTODOS DENTRO DE TU CLASE ProveedoresController ---
-
-    /**
-     * MÉTODO PÚBLICO PARA FILTRAR
-     * Filtra los proveedores según el modo y el texto de búsqueda.
-     */
     public void filtrarProveedores(String modo, String texto) {
         if (texto == null || texto.trim().isEmpty()) {
             cargarProveedores();
             return;
         }
+        LOGGER.info("Filtrando proveedores por '" + modo + "' con el texto: '" + texto + "'");
         List<Proveedor> proveedoresFiltrados = new ArrayList<>();
         try {
             switch (modo.toLowerCase()) {
                 case "id":
-                    // El filtro por ID no estaba implementado, lo añado
                     try {
                         int id = Integer.parseInt(texto);
                         Proveedor proveedor = proveedorDAO.getById(id);
@@ -239,8 +213,6 @@ public class ProveedoresController implements Initializable {
                     proveedoresFiltrados = proveedorDAO.findByNombre(texto);
                     break;
                 case "telefono":
-                    // Suponiendo que tienes un método findByTelefono en ProveedorDAO
-                    // Si no lo tienes, este caso no hará nada.
                     LOGGER.warning("La búsqueda por teléfono aún no está implementada en el DAO.");
                     break;
                 case "correo":
@@ -253,9 +225,6 @@ public class ProveedoresController implements Initializable {
         }
     }
 
-    /**
-     * Método ayudante que limpia y repuebla el TilePane con una lista de proveedores.
-     */
     private void actualizarVista(List<Proveedor> proveedores) {
         contenedorProveedores.getChildren().clear();
         if (proveedores.isEmpty()) {
@@ -268,16 +237,12 @@ public class ProveedoresController implements Initializable {
         }
     }
 
-    /**
-     * Método PÚBLICO que será llamado desde MainController para borrar.
-     */
     public void borrarSeleccionados() {
         if (proveedoresSeleccionados.isEmpty()) {
-            LOGGER.info("No hay proveedores seleccionados para borrar.");
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            LOGGER.info("Intento de borrado de proveedores sin selección.");
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "No has seleccionado ningún proveedor para borrar.");
             alert.setTitle("Borrado");
             alert.setHeaderText(null);
-            alert.setContentText("No has seleccionado ningún proveedor para borrar.");
             alert.showAndWait();
             return;
         }
@@ -289,7 +254,7 @@ public class ProveedoresController implements Initializable {
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            LOGGER.info("Borrando proveedores seleccionados...");
+            LOGGER.info("Iniciando borrado de " + proveedoresSeleccionados.size() + " proveedores.");
             int borradosExitosamente = 0;
             int borradosFallidos = 0;
 
@@ -318,10 +283,10 @@ public class ProveedoresController implements Initializable {
                 resumenAlert.setContentText(borradosFallidos + " proveedor(es) no se pudieron borrar porque tienen productos asociados.");
                 resumenAlert.showAndWait();
             } else {
-                LOGGER.info("Proveedores borrados exitosamente.");
+                LOGGER.info(borradosExitosamente + " proveedores borrados exitosamente.");
             }
         } else {
-            LOGGER.info("Borrado cancelado por el usuario.");
+            LOGGER.info("Borrado de proveedores cancelado por el usuario.");
         }
     }
 }

@@ -10,10 +10,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.fran.gestortienda.DAO.ProductoDAO;
+import org.fran.gestortienda.MainApp;
 import org.fran.gestortienda.model.entity.Producto;
 import org.fran.gestortienda.utils.LoggerUtil;
 
@@ -26,31 +30,25 @@ import java.util.logging.Logger;
 public class ProductosController implements Initializable {
     private static final Logger LOGGER = LoggerUtil.getLogger();
 
-
     @FXML
     private TilePane contenedorProductos;
 
     private final ProductoDAO productoDAO = new ProductoDAO();
-
     private final List<Producto> productosSeleccionados = new ArrayList<>();
-
-    private String modoFiltro = "Nombre";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        LOGGER.info("Inicializando ProductosController...");
         cargarProductos();
     }
 
-    // =========================================================
-    //          CARGAR PRODUCTOS COMO TARJETAS
-    // =========================================================
     public void cargarProductos() {
         try {
             contenedorProductos.getChildren().clear();
-
             List<Producto> lista = productoDAO.getAll();
 
             if (lista.isEmpty()) {
+                LOGGER.info("No se encontraron productos en la base de datos.");
                 contenedorProductos.getChildren().add(new Label("No hay productos registrados."));
                 return;
             }
@@ -59,20 +57,14 @@ public class ProductosController implements Initializable {
                 VBox tarjeta = crearTarjetaProducto(p);
                 contenedorProductos.getChildren().add(tarjeta);
             }
-
+            LOGGER.info("Se cargaron " + lista.size() + " productos en la vista.");
         } catch (SQLException e) {
+            LOGGER.severe("Error de SQL al cargar productos: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    // =========================================================
-    //          TARJETA DE PRODUCTO
-    // =========================================================
-    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE ProductosController ---
-
     private VBox crearTarjetaProducto(Producto producto) {
-
-        // --- Barra superior con ID y checkbox (COMO LO TENÍAS) ---
         StackPane topPane = new StackPane();
         topPane.setPadding(new Insets(0, 10, 0, 15));
 
@@ -93,7 +85,6 @@ public class ProductosController implements Initializable {
 
         topPane.getChildren().addAll(idLabel, checkBox);
 
-        // --- Imagen (COMO LA TENÍAS) ---
         ImageView imageView;
         try {
             imageView = new ImageView(
@@ -113,48 +104,37 @@ public class ProductosController implements Initializable {
         imageView.setFitHeight(160);
         imageView.setPreserveRatio(true);
 
-        // --- Nombre (COMO LO TENÍAS) ---
         Label nombreLabel = new Label(producto.getNombre());
         nombreLabel.getStyleClass().add("producto-text");
 
-        // --- 1. CREAMOS LOS BOTONES DE ACCIÓN ---
         Button detallesBtn = new Button("Más detalles");
-        detallesBtn.getStyleClass().add("venta-detalles-btn"); // Reutilizamos estilo
+        detallesBtn.getStyleClass().add("venta-detalles-btn");
         detallesBtn.setOnAction(e -> mostrarDetalles(producto));
 
-        Button editarBtn = new Button("Editar"); // <-- BOTÓN AÑADIDO
-        editarBtn.getStyleClass().add("venta-detalles-btn"); // Reutilizamos estilo
-        editarBtn.setOnAction(e -> handleEditarProducto(producto)); // <-- ACCIÓN AÑADIDA
+        Button editarBtn = new Button("Editar");
+        editarBtn.getStyleClass().add("venta-detalles-btn");
+        editarBtn.setOnAction(e -> handleEditarProducto(producto));
 
-        // --- 2. LOS METEMOS EN UN HBOX PARA QUE ESTÉN UNO AL LADO DEL OTRO ---
         HBox botonesBox = new HBox(10, detallesBtn, editarBtn);
         botonesBox.setAlignment(Pos.CENTER);
 
-        // --- Tarjeta final ---
-        // 3. AÑADIMOS EL HBOX DE BOTONES A LA TARJETA
         VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, botonesBox);
         tarjeta.setAlignment(Pos.TOP_CENTER);
         tarjeta.getStyleClass().add("producto-card");
-        tarjeta.setPrefSize(230, 230); // Un poco más de alto para que quepan los botones
+        tarjeta.setPrefSize(230, 320);
 
         return tarjeta;
     }
 
-    /**
-     * 5. NUEVO MÉTODO para abrir el diálogo en modo edición.
-     */
     private void handleEditarProducto(Producto producto) {
+        LOGGER.info("Abriendo diálogo para editar producto ID: " + producto.getId_producto());
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/fran/gestortienda/ui/add_producto.fxml"));
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/org/fran/gestortienda/ui/add_producto.fxml"));
             Parent view = loader.load();
 
-            // Obtenemos el controlador del diálogo
             AddProductoController dialogController = loader.getController();
-
-            // Le pasamos el producto que queremos editar
             dialogController.setProductoParaEditar(producto);
 
-            // Creamos y mostramos el diálogo
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Editar Producto");
             dialogStage.initModality(Modality.WINDOW_MODAL);
@@ -166,22 +146,20 @@ public class ProductosController implements Initializable {
             dialogController.setDialogStage(dialogStage);
             dialogStage.showAndWait();
 
-            // Si se guardó, refrescamos la vista
             if (dialogController.isGuardado()) {
+                LOGGER.info("Diálogo de edición de producto cerrado y guardado. Refrescando vista...");
                 cargarProductos();
+            } else {
+                LOGGER.info("Diálogo de edición de producto cerrado sin guardar.");
             }
-
         } catch (IOException e) {
-            LOGGER.severe("Error al abrir el diálogo de edición de producto.");
+            LOGGER.severe("Error al abrir el diálogo de edición de producto: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    // =========================================================
-    //          ALERTA DE DETALLES DEL PRODUCTO
-    // =========================================================
     private void mostrarDetalles(Producto p) {
-
+        LOGGER.info("Mostrando detalles para el producto ID: " + p.getId_producto());
         String info = """
                 ID: %d
                 Nombre: %s
@@ -207,13 +185,10 @@ public class ProductosController implements Initializable {
         alert.showAndWait();
     }
 
-    // =========================================================
-    //          BORRAR PRODUCTOS SELECCIONADOS
-    // =========================================================
     public void borrarSeleccionados() {
         if (productosSeleccionados.isEmpty()) {
-            new Alert(Alert.AlertType.INFORMATION,
-                    "No has seleccionado ningún producto para borrar.").showAndWait();
+            LOGGER.info("Intento de borrado de productos sin selección.");
+            new Alert(Alert.AlertType.INFORMATION, "No has seleccionado ningún producto para borrar.").showAndWait();
             return;
         }
 
@@ -223,84 +198,73 @@ public class ProductosController implements Initializable {
         confirm.setContentText("Productos a borrar: " + productosSeleccionados.size());
 
         Optional<ButtonType> r = confirm.showAndWait();
-        if (r.isEmpty() || r.get() != ButtonType.OK) return;
+        if (r.isEmpty() || r.get() != ButtonType.OK) {
+            LOGGER.info("Borrado de productos cancelado por el usuario.");
+            return;
+        }
 
+        LOGGER.info("Iniciando borrado de " + productosSeleccionados.size() + " productos.");
         int borrados = 0;
-
         for (Producto p : productosSeleccionados) {
             try {
                 productoDAO.delete(p);
                 borrados++;
-            } catch (SQLException ignored) {}
+            } catch (SQLException e) {
+                LOGGER.severe("Error de SQL al borrar el producto ID " + p.getId_producto() + ": " + e.getMessage());
+            }
         }
 
         productosSeleccionados.clear();
         cargarProductos();
 
-        new Alert(Alert.AlertType.INFORMATION,
-                borrados + " producto(s) borrado(s)").showAndWait();
+        new Alert(Alert.AlertType.INFORMATION, borrados + " producto(s) borrado(s)").showAndWait();
+        LOGGER.info(borrados + " productos borrados exitosamente.");
     }
 
-    // =========================================================
-    //          FILTRADO
-    // =========================================================
     public void filtrarProductos(String modo, String texto) {
-
         if (texto == null || texto.isBlank()) {
             cargarProductos();
             return;
         }
 
+        LOGGER.info("Filtrando productos por '" + modo + "' con el texto: '" + texto + "'");
         List<Producto> filtrados = new ArrayList<>();
-
         try {
             List<Producto> todos = productoDAO.getAll();
-
             switch (modo.toLowerCase()) {
-
                 case "nombre":
                     filtrados = todos.stream()
                             .filter(p -> p.getNombre().toLowerCase().contains(texto.toLowerCase()))
                             .toList();
                     break;
-
                 case "categoria":
                     filtrados = todos.stream()
-                            .filter(p -> p.getCategoria().name()
-                                    .toLowerCase()
-                                    .contains(texto.toLowerCase()))
+                            .filter(p -> p.getCategoria().name().toLowerCase().contains(texto.toLowerCase()))
                             .toList();
                     break;
-
                 case "proveedor":
                     filtrados = todos.stream()
                             .filter(p -> p.getProveedor() != null &&
-                                    p.getProveedor().getNombre()
-                                            .toLowerCase()
-                                            .contains(texto.toLowerCase()))
+                                    p.getProveedor().getNombre().toLowerCase().contains(texto.toLowerCase()))
                             .toList();
                     break;
             }
-
             actualizarVista(filtrados);
-
         } catch (SQLException e) {
+            LOGGER.severe("Error de SQL al filtrar productos: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private void actualizarVista(List<Producto> productos) {
         contenedorProductos.getChildren().clear();
-
         if (productos == null || productos.isEmpty()) {
             contenedorProductos.getChildren().add(new Label("No se encontraron productos."));
             return;
         }
-
         for (Producto p : productos) {
             contenedorProductos.getChildren().add(crearTarjetaProducto(p));
         }
     }
 }
-
 

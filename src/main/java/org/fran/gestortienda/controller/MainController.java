@@ -43,8 +43,6 @@ public class MainController {
     @FXML
     private VBox rightPanel;
     @FXML
-    private String modoBusqueda = "Nombre";
-    @FXML
     private TextField searchField;
     @FXML
     private MenuButton filterMenuButton;
@@ -57,54 +55,44 @@ public class MainController {
     @FXML
     private Button sideBtnVentas;
 
-
-    // Guardamos una referencia al controlador de la vista activa
     private Object activeController;
+    private String modoBusqueda = "Nombre";
 
     @FXML
     public void initialize() {
-        LOGGER.info("MainController inicializado.");
-        // LOG DE DEPURACIÓN: Comprobamos si el panel derecho se ha inyectado correctamente.
-        LOGGER.info("Estado de rightPanel en initialize(): " + (rightPanel != null ? "Inyectado correctamente" : "¡¡¡ES NULL!!!"));
-
+        LOGGER.info("MainController inicializado y componentes FXML inyectados.");
         if (rightPanel != null) {
             rightPanel.setVisible(false);
         }
     }
 
-    // --- Métodos de Navegación ---
-
     @FXML
     void handleClientesClick(ActionEvent event) {
-        LOGGER.info("Botón Clientes presionado. Cargando vista de clientes...");
+        LOGGER.info("Botón Clientes presionado.");
         loadView("/org/fran/gestortienda/ui/clientes.fxml", "clientes");
     }
 
-
     @FXML
     void handleProveedoresClick(ActionEvent event) {
-        LOGGER.info("Botón Proveedores presionado. Cargando vista de proveedores...");
+        LOGGER.info("Botón Proveedores presionado.");
         loadView("/org/fran/gestortienda/ui/proveedores.fxml", "proveedores");
     }
 
     @FXML
     void handleProductosClick(ActionEvent event) {
-        LOGGER.info("Botón Productos presionado. Cargando vista de productos...");
+        LOGGER.info("Botón Productos presionado.");
         loadView("/org/fran/gestortienda/ui/productos.fxml", "productos");
     }
 
     @FXML
     void handleVentasClick(ActionEvent event) {
+        LOGGER.info("Botón Ventas presionado.");
         loadView("/org/fran/gestortienda/ui/ventas.fxml", "ventas");
     }
 
-
     private void loadView(String fxmlPath, String viewName) {
+        LOGGER.info("Iniciando carga de vista: " + fxmlPath);
         try {
-            // LOG DE DEPURACIÓN: Comprobamos el estado del panel antes de hacer nada.
-            LOGGER.info("--- Iniciando loadView para: " + fxmlPath + " ---");
-            LOGGER.info("Estado de rightPanel ANTES de cargar FXML: " + (rightPanel != null ? "Existe" : "¡¡¡ES NULL!!!"));
-
             FXMLLoader loader = new FXMLLoader(MainApp.class.getResource(fxmlPath));
             Parent view = loader.load();
             activeController = loader.getController();
@@ -112,24 +100,22 @@ public class MainController {
 
             mainPane.setCenter(view);
             LOGGER.info("Vista '" + fxmlPath + "' cargada en el panel central.");
+
             actualizarEstadoMenu(viewName);
-            // LOG DE DEPURACIÓN: Comprobamos el panel justo antes de mostrarlo.
+
             if (rightPanel != null) {
-                LOGGER.info("Haciendo visible el rightPanel. Su visibilidad actual es: " + rightPanel.isVisible());
                 rightPanel.setVisible(true);
-                LOGGER.info("Visibilidad de rightPanel establecida en true. Ahora es: " + rightPanel.isVisible());
                 actualizarMenuFiltro(activeController);
+                LOGGER.info("Panel derecho actualizado y visible.");
             } else {
-                LOGGER.severe("¡¡¡ERROR!!! rightPanel se ha vuelto NULL después de cargar la vista.");
+                LOGGER.severe("¡ERROR CRÍTICO! rightPanel es NULL y no se puede mostrar.");
             }
 
         } catch (IOException e) {
-            LOGGER.severe("Error de E/S al cargar la vista FXML: " + fxmlPath);
+            LOGGER.severe("Error de E/S al cargar la vista FXML: " + fxmlPath + " - " + e.getMessage());
             e.printStackTrace();
         }
     }
-
-    // --- Métodos de Acción de la Barra Derecha ---
 
     @FXML
     private void handleDeleteClick() {
@@ -138,20 +124,15 @@ public class MainController {
             ((ClientesController) activeController).borrarSeleccionados();
         } else if (activeController instanceof ProveedoresController) {
             ((ProveedoresController) activeController).borrarSeleccionados();
-
         } else if (activeController instanceof VentasController) {
             ((VentasController) activeController).borrarSeleccionados();
-        }else if (activeController instanceof ProductosController) {
+        } else if (activeController instanceof ProductosController) {
             ((ProductosController) activeController).borrarSeleccionados();
         } else {
-            LOGGER.warning("El controlador activo no es una instancia de ClientesController. Es: " +
-                    (activeController != null ? activeController.getClass().getName() : "null"));
+            LOGGER.warning("El borrado no está implementado para el controlador actual: " + (activeController != null ? activeController.getClass().getName() : "null"));
         }
     }
 
-    /**
-     * Método ayudante para cambiar el modo de búsqueda y el texto del prompt.
-     */
     private void setModoBusqueda(String modo, String promptText) {
         this.modoBusqueda = modo;
         searchField.setPromptText(promptText);
@@ -159,7 +140,10 @@ public class MainController {
     }
 
     private void actualizarMenuFiltro(Object controller) {
-        if (filterMenuButton == null) return; // Guarda de seguridad
+        if (filterMenuButton == null) {
+            LOGGER.warning("filterMenuButton es null. No se puede actualizar el menú.");
+            return;
+        }
 
         filterMenuButton.getItems().clear();
         searchField.setDisable(false);
@@ -174,10 +158,7 @@ public class MainController {
             porDireccion.setOnAction(e -> setModoBusqueda("Direccion", "Buscar por Dirección..."));
             filterMenuButton.getItems().addAll(porNombre, porId, porDireccion);
             setModoBusqueda("Nombre", "Buscar por Nombre...");
-
-
         } else if (controller instanceof ProveedoresController) {
-            // ESTA ES LA LÓGICA QUE DEBE FUNCIONAR
             MenuItem porNombre = new MenuItem("Por Nombre");
             porNombre.setOnAction(e -> setModoBusqueda("Nombre", "Buscar por Nombre..."));
             MenuItem porTelefono = new MenuItem("Por Teléfono");
@@ -186,128 +167,83 @@ public class MainController {
             porCorreo.setOnAction(e -> setModoBusqueda("Correo", "Buscar por Correo..."));
             filterMenuButton.getItems().addAll(porNombre, porTelefono, porCorreo);
             setModoBusqueda("Nombre", "Buscar por Nombre...");
-
         } else if (controller instanceof VentasController) {
-            // --- LÓGICA AÑADIDA PARA VENTAS ---
             MenuItem porFecha = new MenuItem("Por Fecha");
             porFecha.setOnAction(e -> setModoBusqueda("Fecha", "Buscar por Fecha"));
-
             MenuItem porCliente = new MenuItem("Por ID Cliente");
             porCliente.setOnAction(e -> setModoBusqueda("Cliente", "Buscar por ID de Cliente..."));
-
             filterMenuButton.getItems().addAll(porFecha, porCliente);
-            setModoBusqueda("Fecha", "Buscar por Fecha"); // Modo por defecto
+            setModoBusqueda("Fecha", "Buscar por Fecha");
         } else if (controller instanceof ProductosController) {
-
             MenuItem porNombre = new MenuItem("Por Nombre");
             porNombre.setOnAction(e -> setModoBusqueda("Nombre", "Buscar por Nombre..."));
-
             MenuItem porCategoria = new MenuItem("Por Categoría");
             porCategoria.setOnAction(e -> setModoBusqueda("Categoria", "Buscar por Categoría..."));
-
             MenuItem porProveedor = new MenuItem("Por Proveedor");
             porProveedor.setOnAction(e -> setModoBusqueda("Proveedor", "Buscar por Proveedor..."));
-
             filterMenuButton.getItems().addAll(porNombre, porCategoria, porProveedor);
-
             setModoBusqueda("Nombre", "Buscar por Nombre...");
-        }
- else {
-            // Estado por defecto
+        } else {
             MenuItem defaultItem = new MenuItem("Sin filtro");
             defaultItem.setDisable(true);
             filterMenuButton.getItems().add(defaultItem);
             searchField.setDisable(true);
             filterMenuButton.setDisable(true);
         }
+        LOGGER.info("Menú de filtro actualizado para el controlador: " + (controller != null ? controller.getClass().getSimpleName() : "null"));
     }
 
-
-    /**
-     * Maneja el clic en el botón de añadir (+).
-     * Abre un diálogo para crear un nuevo registro según la vista activa.
-     */
     @FXML
     private void handleAddClick() {
-        LOGGER.info("Se ha hecho clic en el botón Añadir (+).");
-
+        LOGGER.info("Botón de añadir presionado.");
         if (activeController instanceof ClientesController) {
-            LOGGER.info("Controlador activo es ClientesController. Abriendo diálogo de nuevo cliente...");
             abrirDialogoNuevoCliente();
         } else if (activeController instanceof ProveedoresController) {
-            LOGGER.info("Controlador activo es ProveedoresController. Abriendo diálogo de nuevo proveedor...");
             abrirDialogoNuevoProveedor();
         } else if (activeController instanceof VentasController) {
-            LOGGER.info("Controlador activo es VentasController. Abriendo dialogo de nueva venta");
             abrirDialogoNuevaVenta();
-        }else if (activeController instanceof ProductosController) {
-                abrirDialogoNuevoProducto();
+        } else if (activeController instanceof ProductosController) {
+            abrirDialogoNuevoProducto();
         } else {
-            LOGGER.warning("El botón de añadir no tiene una acción definida para el controlador actual.");
+            LOGGER.warning("La acción de añadir no está implementada para el controlador actual.");
         }
     }
 
-    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE MainController ---
-
-    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE MainController ---
-
     private void abrirDialogoNuevoProducto() {
+        LOGGER.info("Abriendo diálogo para añadir nuevo producto...");
         try {
-            // La ruta a tu FXML es correcta
             FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/org/fran/gestortienda/ui/add_producto.fxml"));
             Parent view = loader.load();
-
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Añadir Nuevo Producto");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(mainPane.getScene().getWindow());
             dialogStage.setResizable(false);
-
             Scene scene = new Scene(view);
             dialogStage.setScene(scene);
-
-            // Usamos el nombre de controlador correcto que encontramos en el FXML
             AddProductoController dialogController = loader.getController();
             dialogController.setDialogStage(dialogStage);
-
-            // Mostramos el diálogo y esperamos a que se cierre
             dialogStage.showAndWait();
-
-            // --- SOLUCIÓN AQUÍ ---
-            // Simplemente comprobamos si se guardó. La lógica de creación y guardado
-            // ya está dentro de AddProductoController.
             if (dialogController.isGuardado()) {
                 LOGGER.info("Diálogo de producto cerrado y guardado. Refrescando vista...");
-
-                // Refrescar la vista de productos
                 if (activeController instanceof ProductosController) {
                     ((ProductosController) activeController).cargarProductos();
                 }
             } else {
                 LOGGER.info("Diálogo de producto cerrado sin guardar.");
             }
-            // --- FIN DE LA SOLUCIÓN ---
-
         } catch (IOException e) {
-            LOGGER.severe("Error al abrir el diálogo de nuevo producto.");
+            LOGGER.severe("Error al abrir el diálogo de nuevo producto: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    /**
-     * Actualiza el estilo y la imagen de los botones del menú lateral.
-     * VERSIÓN MEJORADA: Ahora también cambia el icono.
-     */
     private void actualizarEstadoMenu(String vistaActiva) {
-
         resetButtonState(sideBtnClientes, "/org/fran/gestortienda/img/icono-clientes.png");
         resetButtonState(sideBtnProveedores, "/org/fran/gestortienda/img/icono-proveedores.png");
         resetButtonState(sideBtnProductos, "/org/fran/gestortienda/img/icono-productos.png");
         resetButtonState(sideBtnVentas, "/org/fran/gestortienda/img/icono-ventas.png");
-
         if (vistaActiva == null) return;
-
-
         switch (vistaActiva) {
             case "clientes":
                 setButtonActive(sideBtnClientes, "/org/fran/gestortienda/img/icono-clientes-pulsado.png");
@@ -322,20 +258,15 @@ public class MainController {
                 setButtonActive(sideBtnVentas, "/org/fran/gestortienda/img/icono-ventas-pulsado.png");
                 break;
         }
+        LOGGER.info("Estado del menú actualizado. Vista activa: " + vistaActiva);
     }
 
-    /**
-     * Método ayudante para poner un botón en estado "activo".
-     */
     private void setButtonActive(Button button, String imagePath) {
         button.getStyleClass().remove("side-menu-button");
         button.getStyleClass().add("side-menu-button-active");
         ((ImageView) button.getGraphic()).setImage(new Image(getClass().getResourceAsStream(imagePath)));
     }
 
-    /**
-     * Método ayudante para resetear un botón a su estado normal.
-     */
     private void resetButtonState(Button button, String imagePath) {
         button.getStyleClass().remove("side-menu-button-active");
         if (!button.getStyleClass().contains("side-menu-button")) {
@@ -345,182 +276,121 @@ public class MainController {
     }
 
     private void abrirDialogoNuevaVenta() {
+        LOGGER.info("Abriendo diálogo para añadir nueva venta...");
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/fran/gestortienda/ui/add_venta.fxml"));
             Parent root = loader.load();
-
             AddVentaController controller = loader.getController();
-
             Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.setTitle("Registrar nueva venta");
             dialog.setScene(new Scene(root));
             dialog.setResizable(false);
-
             controller.setDialogStage(dialog);
             dialog.showAndWait();
-
             if (controller.isGuardado()) {
-                if (activeController instanceof VentasController ventasController) {
-                    ventasController.cargarVentas();
+                LOGGER.info("Diálogo de venta cerrado y guardado. Refrescando vista...");
+                if (activeController instanceof VentasController) {
+                    ((VentasController) activeController).cargarVentas();
                 }
             }
-
         } catch (Exception e) {
             LOGGER.severe("Error al abrir diálogo de nueva venta: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-
-
-
-    /**
-     * Abre, gestiona y procesa el diálogo para añadir un nuevo PROVEEDOR.
-     * VERSIÓN CORREGIDA: Apunta al FXML correcto.
-     */
     private void abrirDialogoNuevoProveedor() {
+        LOGGER.info("Abriendo diálogo para añadir nuevo proveedor...");
         try {
-            // --- SOLUCIÓN AQUÍ: Cambiamos la ruta al FXML del proveedor ---
             URL fxmlUrl = MainApp.class.getResource("/org/fran/gestortienda/ui/add_proveedor.fxml");
             if (fxmlUrl == null) {
                 LOGGER.severe("No se pudo encontrar el recurso FXML: /org/fran/gestortienda/ui/add_proveedor.fxml");
                 return;
             }
-
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent view = loader.load();
-
-            // 2. Crear un nuevo Stage (ventana) para el diálogo
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Añadir Nuevo Proveedor");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(mainPane.getScene().getWindow());
             dialogStage.setResizable(false);
-
             Scene scene = new Scene(view);
             dialogStage.setScene(scene);
-
-            // Aplicamos la hoja de estilos
             URL cssUrl = getClass().getResource("/org/fran/gestortienda/css/add_formulario.css");
             if (cssUrl != null) {
                 scene.getStylesheets().add(cssUrl.toExternalForm());
             }
-
-            // 3. Pasar el Stage al controlador del diálogo
             AddProveedorController dialogController = loader.getController();
             dialogController.setDialogStage(dialogStage);
-
-            // 4. Mostrar el diálogo y esperar
             dialogStage.showAndWait();
-
-            // 5. Procesar el resultado
             if (dialogController.isGuardado()) {
                 Proveedor nuevoProveedor = dialogController.getNuevoProveedor();
                 if (nuevoProveedor != null) {
                     new ProveedorDAO().add(nuevoProveedor);
                     LOGGER.info("Nuevo proveedor guardado: " + nuevoProveedor.getNombre());
-                    // Refrescar la vista de proveedores
-                    ((ProveedoresController) activeController).cargarProveedores();
+                    if (activeController instanceof ProveedoresController) {
+                        ((ProveedoresController) activeController).cargarProveedores();
+                    }
                 }
             }
-
         } catch (IOException | SQLException e) {
-            LOGGER.severe("Error al abrir o procesar el diálogo de nuevo proveedor.");
+            LOGGER.severe("Error al abrir o procesar el diálogo de nuevo proveedor: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-
-    /**
-     * Abre, gestiona y procesa el diálogo para añadir un nuevo cliente.
-     * VERSIÓN MEJORADA: Usa un Stage modal personalizado.
-     */
     private void abrirDialogoNuevoCliente() {
+        LOGGER.info("Abriendo diálogo para añadir nuevo cliente...");
         try {
-            // 1. Cargar el FXML del diálogo
             FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/org/fran/gestortienda/ui/add_cliente.fxml"));
             Parent view = loader.load();
-
-            // 2. Crear un nuevo Stage (ventana) para el diálogo
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Añadir Nuevo Cliente");
-            dialogStage.initModality(Modality.WINDOW_MODAL); // Bloquea la ventana principal
-            dialogStage.initOwner(mainPane.getScene().getWindow()); // Asocia el diálogo a la ventana principal
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(mainPane.getScene().getWindow());
             dialogStage.setResizable(false);
-
             Scene scene = new Scene(view);
             dialogStage.setScene(scene);
-
-            // 3. Pasar el Stage al controlador del diálogo para que pueda cerrarse
             AddClienteController dialogController = loader.getController();
             dialogController.setDialogStage(dialogStage);
-
-            // 4. Mostrar el diálogo y esperar a que se cierre
             dialogStage.showAndWait();
-
-            // 5. Procesar el resultado (solo si se guardó)
             if (dialogController.isGuardado()) {
                 Cliente nuevoCliente = dialogController.getNuevoCliente();
                 if (nuevoCliente != null) {
                     new ClienteDAO().add(nuevoCliente);
                     LOGGER.info("Nuevo cliente guardado: " + nuevoCliente.getNombre());
-                    ((ClientesController) activeController).cargarClientes(); // Refrescar la vista
+                    if (activeController instanceof ClientesController) {
+                        ((ClientesController) activeController).cargarClientes();
+                    }
                 }
             }
-
         } catch (IOException | SQLException e) {
-            LOGGER.severe("Error al abrir o procesar el diálogo de nuevo cliente.");
+            LOGGER.severe("Error al abrir o procesar el diálogo de nuevo cliente: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     @FXML
-    private void handleFiltroPorNombre() {
-        modoBusqueda = "Nombre";
-        searchField.setPromptText("Buscar por Nombre...");
-        LOGGER.info("Modo de búsqueda cambiado a: Nombre");
-    }
-
-    @FXML
-    private void handleFiltroPorID() {
-        modoBusqueda = "ID";
-        searchField.setPromptText("Buscar por ID...");
-        LOGGER.info("Modo de búsqueda cambiado a: ID");
-    }
-
-    @FXML
-    private void handleFiltroPorDireccion() {
-        modoBusqueda = "Direccion";
-        searchField.setPromptText("Buscar por Dirección...");
-        LOGGER.info("Modo de búsqueda cambiado a: Dirección");
-    }
-
-    /**
-     * Se ejecuta al pulsar Enter en el campo de búsqueda.
-     */
-    @FXML
     private void handleSearch() {
         String textoBusqueda = searchField.getText();
         LOGGER.info("Búsqueda iniciada con el texto: '" + textoBusqueda + "' en modo: " + modoBusqueda);
-
         if (activeController instanceof ClientesController) {
             ((ClientesController) activeController).filtrarClientes(modoBusqueda, textoBusqueda);
         } else if (activeController instanceof ProveedoresController) {
             ((ProveedoresController) activeController).filtrarProveedores(modoBusqueda, textoBusqueda);
-
         } else if (activeController instanceof VentasController) {
             ((VentasController) activeController).filtrarVentas(modoBusqueda, textoBusqueda);
         } else if (activeController instanceof ProductosController) {
             ((ProductosController) activeController).filtrarProductos(modoBusqueda, textoBusqueda);
         } else {
-            LOGGER.warning("La búsqueda no está implementada para el controlador actual: " +
-                    (activeController != null ? activeController.getClass().getName() : "null"));
+            LOGGER.warning("La búsqueda no está implementada para el controlador actual.");
         }
     }
 
     @FXML
     private void handleMinimize() {
+        LOGGER.info("Minimizando la ventana.");
         Stage stage = (Stage) topBar.getScene().getWindow();
         stage.setIconified(true);
     }
@@ -531,24 +401,26 @@ public class MainController {
     private void handleToggleMaximize() {
         Stage stage = (Stage) topBar.getScene().getWindow();
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-
         if (isMaximized) {
             stage.setWidth(1200);
             stage.setHeight(800);
             stage.setX(screenBounds.getMinX() + (screenBounds.getWidth() - 1000) / 2);
             stage.setY(screenBounds.getMinY() + (screenBounds.getHeight() - 700) / 2);
             isMaximized = false;
+            LOGGER.info("Ventana restaurada a tamaño normal.");
         } else {
             stage.setX(screenBounds.getMinX());
             stage.setY(screenBounds.getMinY());
             stage.setWidth(screenBounds.getWidth());
             stage.setHeight(screenBounds.getHeight());
             isMaximized = true;
+            LOGGER.info("Ventana maximizada.");
         }
     }
 
     @FXML
     private void handleClose() {
+        LOGGER.info("Cerrando la aplicación.");
         Platform.exit();
     }
 }

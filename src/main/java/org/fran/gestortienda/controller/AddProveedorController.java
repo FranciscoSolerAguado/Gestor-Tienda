@@ -6,9 +6,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.fran.gestortienda.model.entity.Proveedor;
+import org.fran.gestortienda.utils.LoggerUtil;
 import org.fran.gestortienda.utils.ReggexUtil;
 
+import java.util.logging.Logger;
+
 public class AddProveedorController {
+
+    private static final Logger LOGGER = LoggerUtil.getLogger();
 
     @FXML
     private TextField nombreField;
@@ -19,9 +24,7 @@ public class AddProveedorController {
     @FXML
     private Button saveButton;
 
-    // --- AÑADE ESTE CAMPO A TU CLASE AddProveedorController ---
     private Proveedor proveedorAEditar = null;
-
     private Stage dialogStage;
     private Proveedor nuevoProveedor = null;
     private boolean guardado = false;
@@ -38,25 +41,13 @@ public class AddProveedorController {
         return nuevoProveedor;
     }
 
-    // --- AÑADE ESTE MÉTODO A TU CLASE AddProveedorController ---
-
-    /**
-     * Pone el controlador en "modo edición" y rellena el formulario
-     * con los datos de un proveedor existente.
-     * @param proveedor El proveedor a editar.
-     */
     public void setProveedorParaEditar(Proveedor proveedor) {
         this.proveedorAEditar = proveedor;
-
-        // Rellenar los campos del formulario
         nombreField.setText(proveedor.getNombre());
         telefonoField.setText(proveedor.getTelefono());
         correoField.setText(proveedor.getCorreo());
+        LOGGER.info("Diálogo de proveedor puesto en modo edición para el proveedor ID: " + proveedor.getId_proveedor());
     }
-
-    // --- REEMPLAZA TU MÉTODO handleSave CON ESTE ---
-
-    // --- REEMPLAZA TU MÉTODO handleSave EN AddProveedorController ---
 
     @FXML
     private void handleSave() {
@@ -64,7 +55,6 @@ public class AddProveedorController {
         String telefono = telefonoField.getText().trim();
         String correo = correoField.getText().trim();
 
-        // --- VALIDACIÓN CON REGEX ---
         String errorMessage = "";
 
         if (!ReggexUtil.NOMBRE_REGEX.matcher(nombre).matches()) {
@@ -78,22 +68,24 @@ public class AddProveedorController {
         }
 
         if (!errorMessage.isEmpty()) {
+            LOGGER.warning("Falló la validación al guardar proveedor: " + errorMessage.replace("\n", " "));
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Datos Inválidos");
             alert.setHeaderText("Por favor, corrige los campos marcados.");
             alert.setContentText(errorMessage);
             alert.showAndWait();
-            return; // La validación falla
+            return;
         }
-        // --- FIN DE LA VALIDACIÓN ---
 
         if (proveedorAEditar != null) {
             proveedorAEditar.setNombre(nombre);
             proveedorAEditar.setTelefono(telefono);
             proveedorAEditar.setCorreo(correo);
             nuevoProveedor = proveedorAEditar;
+            LOGGER.info("Preparando para actualizar proveedor ID: " + proveedorAEditar.getId_proveedor());
         } else {
             nuevoProveedor = new Proveedor(nombre, telefono, correo);
+            LOGGER.info("Preparando para crear nuevo proveedor con nombre: " + nombre);
         }
 
         guardado = true;
@@ -102,6 +94,7 @@ public class AddProveedorController {
 
     @FXML
     private void handleCancel() {
+        LOGGER.info("Operación de añadir/editar proveedor cancelada.");
         dialogStage.close();
     }
 }

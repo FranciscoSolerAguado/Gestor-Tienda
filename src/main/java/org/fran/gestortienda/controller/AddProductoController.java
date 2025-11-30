@@ -1,7 +1,8 @@
 package org.fran.gestortienda.controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
@@ -11,13 +12,21 @@ import org.fran.gestortienda.DAO.ProveedorDAO;
 import org.fran.gestortienda.model.Categoria;
 import org.fran.gestortienda.model.entity.Producto;
 import org.fran.gestortienda.model.entity.Proveedor;
+import org.fran.gestortienda.utils.LoggerUtil;
 import org.fran.gestortienda.utils.ReggexUtil;
 import org.fran.gestortienda.utils.Utils;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 public class AddProductoController {
+
+    private static final Logger LOGGER = LoggerUtil.getLogger();
 
     @FXML private TextField nombreField;
     @FXML private ComboBox<Categoria> categoriaCombo;
@@ -27,12 +36,9 @@ public class AddProductoController {
     @FXML private ImageView previewImagen;
 
     Utils utils = new Utils();
-
     private File imagenSeleccionada = null;
-
     private Stage dialogStage;
     private boolean guardado = false;
-
     private Producto productoAEditar = null;
 
     private final ProveedorDAO proveedorDAO = new ProveedorDAO();
@@ -43,20 +49,15 @@ public class AddProductoController {
 
     @FXML
     private void initialize() {
-
         categoriaCombo.getItems().addAll(Categoria.values());
-
         try {
             proveedorCombo.getItems().addAll(proveedorDAO.getAll());
         } catch (SQLException e) {
+            LOGGER.severe("Error de SQL al cargar proveedores: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    /**
-     * 2. NUEVO MÉTODO para poner el controlador en "modo edición".
-     * Rellena el formulario con los datos del producto existente.
-     */
     public void setProductoParaEditar(Producto producto) {
         this.productoAEditar = producto;
 
@@ -66,15 +67,20 @@ public class AddProductoController {
         stockField.setText(String.valueOf(producto.getStock()));
         proveedorCombo.setValue(producto.getProveedor());
 
-        // Cargar imagen existente
         if (producto.getImagen() != null && !producto.getImagen().isEmpty()) {
             try {
-                Image img = new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/productos/" + producto.getImagen()));
-                previewImagen.setImage(img);
+                String imagePath = "/org/fran/gestortienda/img/productos/" + producto.getImagen();
+                Image img = new Image(getClass().getResourceAsStream(imagePath));
+                if (img.isError()) {
+                    LOGGER.warning("No se pudo cargar la imagen existente desde la ruta: " + imagePath);
+                } else {
+                    previewImagen.setImage(img);
+                }
             } catch (Exception e) {
-                // Si la imagen no se encuentra, no hacemos nada y dejamos el preview vacío
+                LOGGER.severe("Excepción al cargar la imagen del producto a editar: " + e.getMessage());
             }
         }
+        LOGGER.info("Diálogo de producto puesto en modo edición para el producto ID: " + producto.getId_producto());
     }
 
     @FXML
@@ -89,57 +95,61 @@ public class AddProductoController {
 
         if (imagenSeleccionada != null) {
             previewImagen.setImage(new Image(imagenSeleccionada.toURI().toString()));
+            LOGGER.info("Imagen seleccionada por el usuario: " + imagenSeleccionada.getAbsolutePath());
         }
     }
 
-    /**
-     * 3. MÉTODO GUARDAR MODIFICADO
-     * Ahora sabe si tiene que crear un producto nuevo o actualizar uno existente.
-     */
     @FXML
     private void handleSave() {
         String errorMessage = validarEntrada();
         if (!errorMessage.isEmpty()) {
+            LOGGER.warning("Falló la validación al guardar producto: " + errorMessage.replace("\n", " "));
             utils.mostrarAlerta("Campos Inválidos");
-            return; // Si hay errores, no continuamos
+            return;
         }
 
         try {
+            String imageNameToSave = null;
+            if (imagenSeleccionada != null) {
+                Path destDir = Paths.get("src/main/resources/org/fran/gestortienda/img/productos/");
+                if (!Files.exists(destDir)) {
+                    Files.createDirectories(destDir);
+                }
+                Path destPath = destDir.resolve(imagenSeleccionada.getName());
+                Files.copy(imagenSeleccionada.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
+                imageNameToSave = imagenSeleccionada.getName();
+                LOGGER.info("Imagen copiada a: " + destPath);
+            }
+
             if (productoAEditar != null) {
                 productoAEditar.setNombre(nombreField.getText().trim());
                 productoAEditar.setCategoria(categoriaCombo.getValue());
                 productoAEditar.setPrecio(Double.parseDouble(precioField.getText().replace(',', '.')));
                 productoAEditar.setStock(Integer.parseInt(stockField.getText()));
                 productoAEditar.setProveedor(proveedorCombo.getValue());
-
-                if (imagenSeleccionada != null) {
-                    productoAEditar.setImagen(imagenSeleccionada.getName());
+                if (imageNameToSave != null) {
+                    productoAEditar.setImagen(imageNameToSave);
                 }
-
                 productoDAO.update(productoAEditar);
-
+                LOGGER.info("Producto ID " + productoAEditar.getId_producto() + " actualizado correctamente.");
             } else {
-                // Modo Creación
                 Producto nuevoProducto = new Producto(
                         nombreField.getText().trim(),
                         categoriaCombo.getValue(),
                         Double.parseDouble(precioField.getText().replace(',', '.')),
                         Integer.parseInt(stockField.getText()),
                         proveedorCombo.getValue(),
-                        null // La imagen se gestiona después
+                        imageNameToSave
                 );
-
-                if (imagenSeleccionada != null) {
-                    // ... (lógica para copiar imagen)
-                    nuevoProducto.setImagen(imagenSeleccionada.getName());
-                }
                 productoDAO.add(nuevoProducto);
+                LOGGER.info("Nuevo producto '" + nuevoProducto.getNombre() + "' creado correctamente.");
             }
 
             guardado = true;
             dialogStage.close();
 
         } catch (Exception e) {
+            LOGGER.severe("Error al guardar el producto en la base de datos: " + e.getMessage());
             e.printStackTrace();
             utils.mostrarAlerta("Ocurrió un error al guardar el producto en la base de datos.");
         }
@@ -158,7 +168,6 @@ public class AddProductoController {
             errorMessage.append("Debe seleccionar un proveedor.\n");
         }
 
-        // ---Validación del precio ---
         String precioStr = precioField.getText().replace(',', '.');
         if (!ReggexUtil.DECIMAL_REGEX.matcher(precioStr).matches()) {
             errorMessage.append("El formato del precio no es válido (ej: 12.99).\n");
@@ -175,8 +184,7 @@ public class AddProductoController {
 
     @FXML
     private void handleCancel() {
+        LOGGER.info("Operación de añadir/editar producto cancelada.");
         dialogStage.close();
     }
 }
-
-

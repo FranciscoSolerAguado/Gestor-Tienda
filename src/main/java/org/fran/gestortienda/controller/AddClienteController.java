@@ -7,9 +7,14 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.fran.gestortienda.model.entity.Cliente;
+import org.fran.gestortienda.utils.LoggerUtil;
 import org.fran.gestortienda.utils.ReggexUtil;
 
+import java.util.logging.Logger;
+
 public class AddClienteController {
+
+    private static final Logger LOGGER = LoggerUtil.getLogger();
 
     @FXML
     private TextField nombreField;
@@ -21,10 +26,7 @@ public class AddClienteController {
     private Button saveButton;
 
     private Stage dialogStage;
-    private Cliente nuevoCliente = null;
     private boolean guardado = false;
-
-    // --- AÑADE ESTE CAMPO A TU CLASE AddClienteController ---
     private Cliente clienteAEditar = null;
 
     public void setDialogStage(Stage dialogStage) {
@@ -35,81 +37,68 @@ public class AddClienteController {
         return guardado;
     }
 
-    // --- REEMPLAZA TU MÉTODO getNuevoCliente CON ESTE ---
-
-    public Cliente getNuevoCliente() {
-        String nombre = nombreField.getText().trim();
-        String telefono = telefonoField.getText().trim();
-        String direccion = direccionArea.getText().trim();
-
-        String errorMessage = "";
-
-        if (!ReggexUtil.NOMBRE_REGEX.matcher(nombre).matches()) {
-            errorMessage += "El nombre no es válido (no puede estar vacío).\n";
-        }
-        // El teléfono es opcional, pero si se introduce, debe ser válido
-        if (!telefono.isEmpty() && !ReggexUtil.TELEFONO_REGEX.matcher(telefono).matches()) {
-            errorMessage += "El teléfono no es válido (debe tener 9 dígitos y empezar por 6, 7, 8 o 9).\n";
-        }
-
-        if (!errorMessage.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Datos Inválidos");
-            alert.setHeaderText("Por favor, corrige los campos marcados.");
-            alert.setContentText(errorMessage);
-            alert.showAndWait();
-            return null;
-        }
-
-
-        if (clienteAEditar != null) {
-            clienteAEditar.setNombre(nombre);
-            clienteAEditar.setTelefono(telefono);
-            clienteAEditar.setDireccion(direccion);
-            return clienteAEditar;
-        } else {
-            return new Cliente(nombre, telefono, direccion);
-        }
-    }
-
-
-    /**
-     * Pone el controlador en "modo edición" y rellena el formulario
-     * con los datos de un cliente existente.
-     * @param cliente El cliente a editar.
-     */
     public void setClienteParaEditar(Cliente cliente) {
         this.clienteAEditar = cliente;
-
-        // Rellenar los campos del formulario
         nombreField.setText(cliente.getNombre());
         telefonoField.setText(cliente.getTelefono());
         direccionArea.setText(cliente.getDireccion());
+        LOGGER.info("Diálogo de cliente puesto en modo edición para el cliente ID: " + cliente.getId_cliente());
     }
 
     @FXML
     private void handleSave() {
         String nombre = nombreField.getText().trim();
-        if (nombre.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Datos incompletos");
-            alert.setHeaderText(null);
-            alert.setContentText("El nombre del cliente no puede estar vacío.");
-            alert.showAndWait();
-            return;
+        String telefono = telefonoField.getText().trim();
+        String direccion = direccionArea.getText().trim();
+
+        // --- VALIDACIÓN CON REGEX Y LOGS ---
+        String errorMessage = "";
+
+        if (!ReggexUtil.NOMBRE_REGEX.matcher(nombre).matches()) {
+            errorMessage += "El nombre no es válido (no puede estar vacío).\n";
+        }
+        if (!telefono.isEmpty() && !ReggexUtil.TELEFONO_REGEX.matcher(telefono).matches()) {
+            errorMessage += "El teléfono no es válido (debe tener 9 dígitos y empezar por 6, 7, 8 o 9).\n";
         }
 
-        nuevoCliente = new Cliente(
-                nombre,
-                telefonoField.getText().trim(),
-                direccionArea.getText().trim()
-        );
+        if (!errorMessage.isEmpty()) {
+            LOGGER.warning("Falló la validación al guardar cliente: " + errorMessage.replace("\n", " "));
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Datos Inválidos");
+            alert.setHeaderText("Por favor, corrige los campos marcados.");
+            alert.setContentText(errorMessage);
+            alert.showAndWait();
+            return; // Detenemos el guardado
+        }
+
+        // Si la validación pasa, procedemos a crear o actualizar
+        if (clienteAEditar != null) {
+            // Modo Edición
+            clienteAEditar.setNombre(nombre);
+            clienteAEditar.setTelefono(telefono);
+            clienteAEditar.setDireccion(direccion);
+            LOGGER.info("Preparando para actualizar cliente ID: " + clienteAEditar.getId_cliente());
+        } else {
+            // Modo Creación
+            clienteAEditar = new Cliente(nombre, telefono, direccion);
+            LOGGER.info("Preparando para crear nuevo cliente con nombre: " + nombre);
+        }
+
         guardado = true;
         dialogStage.close();
     }
 
     @FXML
     private void handleCancel() {
+        LOGGER.info("Operación de añadir/editar cliente cancelada por el usuario.");
         dialogStage.close();
+    }
+
+    /**
+     * Este método ahora devuelve el cliente que se ha preparado para guardar,
+     * ya sea uno nuevo o uno actualizado.
+     */
+    public Cliente getNuevoCliente() {
+        return clienteAEditar;
     }
 }
