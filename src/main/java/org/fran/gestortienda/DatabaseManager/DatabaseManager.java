@@ -72,7 +72,7 @@ public class DatabaseManager {
         String checkSql = "SELECT COUNT(*) FROM proveedor";
         boolean databaseIsEmpty = false;
 
-        // --- PASO 1: Comprobar si la base de datos está vacía ---
+        // --- Comprobar si la base de datos está vacía ---
         try (Connection conn = ConnectionFactory.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(checkSql)) {
@@ -87,7 +87,7 @@ public class DatabaseManager {
             databaseIsEmpty = true;  // forzar inserción
         }
 
-        // --- PASO 2: Si está vacía, insertar los datos ---
+        // --- Si está vacía, insertar los datos ---
         if (databaseIsEmpty) {
             System.out.println("Base de datos vacía. Insertando datos iniciales...");
             String insertSql = """
