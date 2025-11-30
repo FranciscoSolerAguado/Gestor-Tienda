@@ -1,71 +1,83 @@
 -- phpMyAdmin SQL Dump (versión vacía)
 -- Base de datos: `tienda`
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET
+SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
-SET time_zone = "+00:00";
+SET
+time_zone = "+00:00";
 SET NAMES utf8mb4;
 
 -- --------------------------------------------------------
 -- Tabla: cliente
 -- --------------------------------------------------------
 
-CREATE TABLE `cliente` (
-                           `id_cliente` int(10) UNSIGNED ZEROFILL NOT NULL,
-                           `nombre` varchar(50) NOT NULL,
-                           `telefono` varchar(15) DEFAULT NULL,
-                           `direccion` varchar(100) DEFAULT NULL
+CREATE TABLE `cliente`
+(
+    `id_cliente` int(10) UNSIGNED ZEROFILL NOT NULL,
+    `nombre`     varchar(50) NOT NULL,
+    `telefono`   varchar(15)  DEFAULT NULL,
+    `direccion`  varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 -- Tabla: detalle_venta
 -- --------------------------------------------------------
 
-CREATE TABLE `detalle_venta` (
-                                 `id_detalle` int(10) UNSIGNED ZEROFILL NOT NULL,
-                                 `id_venta` int(10) UNSIGNED ZEROFILL NOT NULL,
-                                 `id_producto` int(10) UNSIGNED ZEROFILL NOT NULL,
-                                 `cantidad` int(11) NOT NULL,
-                                 `descuento` decimal(5,2) DEFAULT 0.00,
-                                 `precio_unitario` decimal(10,2) NOT NULL,
-                                 `iva` decimal(5,2) NOT NULL,
-                                 `subtotal` decimal(10,2) NOT NULL
+CREATE TABLE `detalle_venta`
+(
+    `id_detalle`      int(10) UNSIGNED ZEROFILL NOT NULL,
+    `id_venta`        int(10) UNSIGNED ZEROFILL NOT NULL,
+    `id_producto`     int(10) UNSIGNED ZEROFILL NOT NULL,
+    `cantidad`        int(11) NOT NULL,
+    `descuento`       decimal(5, 2) DEFAULT 0.00,
+    `precio_unitario` decimal(10, 2) NOT NULL,
+    `iva`             decimal(5, 2)  NOT NULL,
+    `subtotal`        decimal(10, 2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 -- Tabla: producto
 -- --------------------------------------------------------
 
-CREATE TABLE `producto` (
-                            `id_producto` int(10) UNSIGNED ZEROFILL NOT NULL,
-                            `nombre` varchar(50) NOT NULL,
-                            `categoria` enum('Bebidas','Snacks','Electronica','Limpieza') NOT NULL,
-                            `precio` decimal(10,2) NOT NULL,
-                            `stock` int(11) NOT NULL,
-                            `imagen` varchar(255) NOT NULL,
-                            `id_proveedor` int(10) UNSIGNED ZEROFILL NOT NULL
+CREATE TABLE `producto`
+(
+    `id_producto`  int(10) UNSIGNED ZEROFILL NOT NULL,
+    `nombre`       varchar(50)    NOT NULL,
+    `categoria`    enum(
+                            'BEBIDAS', 'SNACKS', 'ELECTRONICA', 'LIMPIEZA',
+                            'LACTEOS', 'FRUTAS_Y_VERDURAS', 'CARNICERIA', 'PESCADERIA',
+                            'PANADERIA', 'CONGELADOS', 'CONSERVAS', 'CUIDADO_PERSONAL',
+                            'MASCOTAS', 'HOGAR'
+                        ) NOT NULL,
+    `precio`       decimal(10, 2) NOT NULL,
+    `stock`        int(11) NOT NULL,
+    `imagen`       varchar(255)   NOT NULL,
+    `id_proveedor` int(10) UNSIGNED ZEROFILL NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 -- Tabla: proveedor
 -- --------------------------------------------------------
 
-CREATE TABLE `proveedor` (
-                             `id_proveedor` int(10) UNSIGNED ZEROFILL NOT NULL,
-                             `nombre` varchar(50) NOT NULL,
-                             `telefono` varchar(15) NOT NULL,
-                             `correo` varchar(100) NOT NULL
+CREATE TABLE `proveedor`
+(
+    `id_proveedor` int(10) UNSIGNED ZEROFILL NOT NULL,
+    `nombre`       varchar(50)  NOT NULL,
+    `telefono`     varchar(15)  NOT NULL,
+    `correo`       varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 -- Tabla: venta
 -- --------------------------------------------------------
 
-CREATE TABLE `venta` (
-                         `id_venta` int(10) UNSIGNED ZEROFILL NOT NULL,
-                         `fecha` date NOT NULL,
-                         `total` decimal(10,2) NOT NULL,
-                         `id_cliente` int(10) UNSIGNED ZEROFILL NOT NULL
+CREATE TABLE `venta`
+(
+    `id_venta`   int(10) UNSIGNED ZEROFILL NOT NULL,
+    `fecha`      date           NOT NULL,
+    `total`      decimal(10, 2) NOT NULL,
+    `id_cliente` int(10) UNSIGNED ZEROFILL NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -96,19 +108,19 @@ ALTER TABLE `venta`
 -- --------------------------------------------------------
 
 ALTER TABLE `cliente`
-    MODIFY `id_cliente` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+    MODIFY `id_cliente` int (10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `detalle_venta`
-    MODIFY `id_detalle` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+    MODIFY `id_detalle` int (10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `producto`
-    MODIFY `id_producto` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+    MODIFY `id_producto` int (10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `proveedor`
-    MODIFY `id_proveedor` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+    MODIFY `id_proveedor` int (10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `venta`
-    MODIFY `id_venta` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+    MODIFY `id_venta` int (10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
 -- --------------------------------------------------------
 -- Foreign Keys
