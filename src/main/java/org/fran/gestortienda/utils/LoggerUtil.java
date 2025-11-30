@@ -7,11 +7,11 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public class LoggerUtil {
-    private static final Logger logger = Logger.getLogger("ClinicaLogger");
+    private static final Logger logger = Logger.getLogger("Gestor-Tienda Logger");
 
     static {
         try {
-            // Configurar el FileHandler para escribir en clinica.log
+            // Configurar el FileHandler para escribir en gestor-tienda.log
             FileHandler fileHandler = new FileHandler("gestor-tienda.log", true);
             fileHandler.setLevel(Level.INFO); // Nivel de registro
             fileHandler.setFormatter(new SimpleFormatter()); // Formato simple
