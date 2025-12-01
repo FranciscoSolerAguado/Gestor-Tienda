@@ -208,6 +208,8 @@ public class AddVentaController {
         totalField.setText(String.format(Locale.US, "%.2f", total));
     }
 
+    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE AddVentaController ---
+
     @FXML
     private void handleSave() {
         try {
@@ -217,21 +219,25 @@ public class AddVentaController {
             }
 
             if (ventaAEditar != null) {
+                // MODO EDICIÓN
+                // ... (la lógica de edición de la venta principal se queda igual)
                 ventaAEditar.setFecha(java.sql.Date.valueOf(fechaPicker.getValue()));
                 ventaAEditar.setCliente(clienteCombo.getValue());
                 String totalText = totalField.getText().replace(',', '.');
                 ventaAEditar.setTotal(Double.parseDouble(totalText));
-
                 ventaDAO.update(ventaAEditar);
-                detalleDAO.deleteByVentaId(ventaAEditar.getId_venta());
 
+                // Lógica de "borrar y re-insertar" detalles
+                detalleDAO.deleteByVentaId(ventaAEditar.getId_venta());
                 for (Detalle_Venta dv : detallesList) {
                     dv.setVenta(ventaAEditar);
                     detalleDAO.add(dv);
+                    // Aquí también iría la lógica de actualización de stock
                 }
                 LOGGER.info("Venta ID " + ventaAEditar.getId_venta() + " y sus detalles han sido actualizados.");
 
             } else {
+                // MODO CREACIÓN
                 Venta nuevaVenta = new Venta();
                 nuevaVenta.setFecha(java.sql.Date.valueOf(fechaPicker.getValue()));
                 Cliente clienteSeleccionado = clienteCombo.getValue();
@@ -240,7 +246,6 @@ public class AddVentaController {
                 nuevaVenta.setTotal(Double.parseDouble(totalText));
 
                 boolean guardadoConExito = ventaDAO.add(nuevaVenta);
-
                 if (!guardadoConExito) {
                     throw new SQLException("No se pudo guardar la venta principal.");
                 }
@@ -249,13 +254,30 @@ public class AddVentaController {
                 if (ventaGuardada == null) {
                     throw new SQLException("No se pudo recuperar la venta recién guardada.");
                 }
-
                 ventaGuardada.setCliente(clienteSeleccionado);
 
+                // --- SOLUCIÓN AQUÍ: Bucle para guardar detalles Y ACTUALIZAR STOCK ---
                 for (Detalle_Venta dv : detallesList) {
+                    // 1. Guardamos el detalle de la venta
                     dv.setVenta(ventaGuardada);
                     detalleDAO.add(dv);
+
+                    // 2. Obtenemos el producto y la cantidad vendida
+                    Producto productoVendido = dv.getProducto();
+                    int cantidadVendida = dv.getCantidad();
+
+                    // 3. Calculamos y establecemos el nuevo stock
+                    int nuevoStock = productoVendido.getStock() - cantidadVendida;
+                    productoVendido.setStock(nuevoStock);
+
+                    // 4. Actualizamos el producto en la base de datos
+                    productoDAO.update(productoVendido);
+                    LOGGER.info(String.format("Stock actualizado para producto ID %d: %d -> %d",
+                            productoVendido.getId_producto(),
+                            productoVendido.getStock() + cantidadVendida, // Stock original
+                            nuevoStock));
                 }
+                // --- FIN DE LA SOLUCIÓN ---
                 LOGGER.info("Nueva venta guardada con ID: " + ventaGuardada.getId_venta());
             }
 
