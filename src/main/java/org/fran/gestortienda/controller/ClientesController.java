@@ -28,13 +28,17 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
 
+// Controlador principal para la pestaña de Clientes.
+// Aquí nos encargamos de mostrar la rejilla con las tarjetas, filtrar y borrar.
 public class ClientesController implements Initializable {
 
     private static final Logger LOGGER = LoggerUtil.getLogger();
 
+    // El contenedor visual (tarjetas) de cada cliente
     @FXML
     private TilePane contenedorClientes;
 
+    // Acceso a datos
     private final ClienteDAO clienteDAO = new ClienteDAO();
     private final Set<Cliente> clientesSeleccionados = new HashSet<>();
 
@@ -44,17 +48,23 @@ public class ClientesController implements Initializable {
         cargarClientes();
     }
 
+    /**
+     * Método que carga todos los clientes desde la base de datos y los muestra en la vista.
+     */
     void cargarClientes() {
         try {
+            // Limpiamos lo que hubiera antes para no duplicar.
             contenedorClientes.getChildren().clear();
             List<Cliente> clientes = clienteDAO.getAll();
 
+            // Si no hay datos
             if (clientes.isEmpty()) {
                 LOGGER.info("No se encontraron clientes en la base de datos.");
                 contenedorClientes.getChildren().add(new Label("No hay clientes para mostrar."));
                 return;
             }
 
+            // Si hay clientes, fabricamos una tarjeta para cada uno y la añadimos al panel.
             for (Cliente cliente : clientes) {
                 VBox tarjetaCliente = crearTarjeta(cliente);
                 contenedorClientes.getChildren().add(tarjetaCliente);
@@ -66,7 +76,13 @@ public class ClientesController implements Initializable {
         }
     }
 
+    /**
+     * Método para aplicar los filtros que podemos a los clientes
+     * @param modo el modo que siempre sera de busqueda
+     * @param texto el texto que buscamos
+     */
     public void filtrarClientes(String modo, String texto) {
+        // Si se borra el texto, desaplicamos el filtro
         if (texto == null || texto.trim().isEmpty()) {
             cargarClientes();
             return;
@@ -77,6 +93,7 @@ public class ClientesController implements Initializable {
         try {
             switch (modo.toLowerCase()) {
                 case "id":
+                    // Si busca por ID, hay que asegurarse de que sea un número.
                     try {
                         int id = Integer.parseInt(texto);
                         Cliente cliente = clienteDAO.getById(id);
@@ -94,6 +111,7 @@ public class ClientesController implements Initializable {
                     clientesFiltrados = clienteDAO.findByDireccion(texto);
                     break;
             }
+            // Refrescamos la vista solo con los que coinciden.
             actualizarVista(clientesFiltrados);
         } catch (SQLException e) {
             LOGGER.severe("Error de SQL al filtrar clientes: " + e.getMessage());
@@ -101,6 +119,10 @@ public class ClientesController implements Initializable {
         }
     }
 
+    /**
+     * Método que actualiza la vista con los clientes filtrados
+     * @param clientes la lista de clientes a mostrar
+     */
     private void actualizarVista(List<Cliente> clientes) {
         contenedorClientes.getChildren().clear();
         if (clientes.isEmpty()) {
@@ -113,6 +135,10 @@ public class ClientesController implements Initializable {
         }
     }
 
+    /**
+     * Método para borrar los clientes seleccionados, solo borra a aquellos seleccionados con el checkbox o los que no tengan ventas asociadas
+     *
+     */
     public void borrarSeleccionados() {
         if (clientesSeleccionados.isEmpty()) {
             LOGGER.info("Intento de borrado de clientes sin selección.");
@@ -122,6 +148,7 @@ public class ClientesController implements Initializable {
             alert.showAndWait();
             return;
         }
+
 
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Confirmar Borrado");
@@ -140,6 +167,7 @@ public class ClientesController implements Initializable {
                         borradosExitosamente++;
                     }
                 } catch (java.sql.SQLIntegrityConstraintViolationException e) {
+                    // Si el cliente tiene ventas, no deja borrarlo
                     borradosFallidos++;
                     LOGGER.warning("No se pudo borrar el cliente ID " + cliente.getId_cliente() + " porque tiene ventas asociadas.");
                 } catch (SQLException e) {
@@ -149,8 +177,10 @@ public class ClientesController implements Initializable {
                 }
             }
 
+            // Limpiamos la selección y recargamos la pantalla.
             clientesSeleccionados.clear();
             cargarClientes();
+
 
             if (borradosFallidos > 0) {
                 Alert resumenAlert = new Alert(Alert.AlertType.WARNING);
@@ -166,7 +196,14 @@ public class ClientesController implements Initializable {
         }
     }
 
+    // --- Tarjetas ---
+
+    /**
+     * Método que crea una tarjeta para un cliente
+     * @param cliente el cliente a mostrar
+     */
     private VBox crearTarjeta(Cliente cliente) {
+        // Parte de arriba: ID a la izquierda, CheckBox a la derecha.
         StackPane topPane = new StackPane();
         topPane.setPadding(new javafx.geometry.Insets(0, 10, 0, 15));
 
@@ -177,6 +214,7 @@ public class ClientesController implements Initializable {
         CheckBox checkBox = new CheckBox();
         StackPane.setAlignment(checkBox, Pos.CENTER_RIGHT);
 
+        // Lógica del CheckBox: Si lo marcas, te vas al Set de borrado.
         checkBox.setOnAction(event -> {
             if (checkBox.isSelected()) {
                 clientesSeleccionados.add(cliente);
@@ -187,11 +225,13 @@ public class ClientesController implements Initializable {
 
         topPane.getChildren().addAll(idLabel, checkBox);
 
+        // Imagen del avatar (se usa una generica para la creacion, aunque luego mas tarde si tiene o el usuario la añade se cambia sola).
         ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/icono-clientes2.png")));
         imageView.setFitWidth(90);
         imageView.setFitHeight(90);
         imageView.setPreserveRatio(true);
 
+        // Datos del cliente.
         Label nombreLabel = new Label(cliente.getNombre());
         nombreLabel.getStyleClass().add("cliente-text");
 
@@ -202,6 +242,7 @@ public class ClientesController implements Initializable {
         direccionLabel.getStyleClass().add("cliente-text");
         direccionLabel.setWrapText(true);
 
+        // º    Botnes de Editar y Ver Ventas
         Button editarBtn = new Button("Editar");
         editarBtn.getStyleClass().add("cliente-accion-btn");
         editarBtn.setOnAction(e -> handleEditarCliente(cliente));
@@ -213,6 +254,7 @@ public class ClientesController implements Initializable {
         HBox botonesBox = new HBox(10, editarBtn, verVentasBtn);
         botonesBox.setAlignment(Pos.CENTER);
 
+        // Alineacion vertical
         VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, telefonoLabel, direccionLabel, botonesBox);
         tarjeta.setAlignment(Pos.TOP_CENTER);
         tarjeta.getStyleClass().add("cliente-card");
@@ -221,6 +263,10 @@ public class ClientesController implements Initializable {
         return tarjeta;
     }
 
+    /**
+     * Método que abre la ventana de ventas del cliente
+     * @param cliente el cliente al que queremos ver las ventas
+     */
     private void handleVerVentas(Cliente cliente) {
         LOGGER.info("Abriendo diálogo para ver ventas del cliente ID: " + cliente.getId_cliente());
         try {
@@ -230,6 +276,7 @@ public class ClientesController implements Initializable {
             alert.setTitle("Ventas del Cliente");
             alert.setHeaderText("Ventas realizadas por: " + cliente.getNombre());
 
+            // Usamos un ListView
             ListView<String> listView = new ListView<>();
             if (ventas.isEmpty()) {
                 listView.getItems().add("Este cliente no tiene ventas registradas.");
@@ -257,12 +304,17 @@ public class ClientesController implements Initializable {
         }
     }
 
+    /**
+     * Método que abre la ventana de edición de cliente
+     * @param cliente el cliente al que queremos editar
+     */
     private void handleEditarCliente(Cliente cliente) {
         LOGGER.info("Abriendo diálogo para editar cliente ID: " + cliente.getId_cliente());
         try {
             FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/org/fran/gestortienda/ui/add_cliente.fxml"));
             Parent view = loader.load();
 
+            // Recuperamos el controlador y le pasamos el cliente para que rellene los campos automaticamentes
             AddClienteController dialogController = loader.getController();
             dialogController.setClienteParaEditar(cliente);
 
@@ -277,6 +329,7 @@ public class ClientesController implements Initializable {
             dialogController.setDialogStage(dialogStage);
             dialogStage.showAndWait();
 
+            // Si guardó, actualizamos en BD y actualizamos la vista
             if (dialogController.isGuardado()) {
                 Cliente clienteEditado = dialogController.getNuevoCliente();
                 if (clienteEditado != null) {

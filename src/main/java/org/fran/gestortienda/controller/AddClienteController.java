@@ -12,10 +12,12 @@ import org.fran.gestortienda.utils.ReggexUtil;
 
 import java.util.logging.Logger;
 
+// Controlador para la ventana de añadir o editar clientes.
 public class AddClienteController {
 
     private static final Logger LOGGER = LoggerUtil.getLogger();
 
+    // --- Elementos de la interfaz (FXML) ---
     @FXML
     private TextField nombreField;
     @FXML
@@ -25,18 +27,31 @@ public class AddClienteController {
     @FXML
     private Button saveButton;
 
-    private Stage dialogStage;
-    private boolean guardado = false;
-    private Cliente clienteAEditar = null;
 
+    private Stage dialogStage; // Referencia a la propia ventana.
+    private boolean guardado = false;
+    private Cliente clienteAEditar = null; // Aquí guardamos el cliente si estamos editando uno existente.
+
+    /**
+     * Método que establece la ventana de diálogo
+     * @param dialogStage La ventana de diálogo que queremos establecer
+     */
     public void setDialogStage(Stage dialogStage) {
         this.dialogStage = dialogStage;
     }
 
+    /**
+     * Método que confirma si se ha guardado
+     * @return True si se ha guardado, false si no
+     */
     public boolean isGuardado() {
         return guardado;
     }
 
+    /**
+     * Método que prepara los datos de cliente que se quiere editar
+     * @param cliente El cliente que recibimos de fuera y queremos editar
+     */
     public void setClienteParaEditar(Cliente cliente) {
         this.clienteAEditar = cliente;
         nombreField.setText(cliente.getNombre());
@@ -45,49 +60,60 @@ public class AddClienteController {
         LOGGER.info("Diálogo de cliente puesto en modo edición para el cliente ID: " + cliente.getId_cliente());
     }
 
+    /**
+     * Acción del botón Guardar.
+     */
     @FXML
     private void handleSave() {
+        // lo que ha escrito el usuario.
         String nombre = nombreField.getText().trim();
         String telefono = telefonoField.getText().trim();
         String direccion = direccionArea.getText().trim();
 
-        // --- VALIDACIÓN CON REGEX Y LOGS ---
+        // --- Validación de datos ---
         String errorMessage = "";
 
         if (!ReggexUtil.NOMBRE_REGEX.matcher(nombre).matches()) {
             errorMessage += "El nombre no es válido (no puede estar vacío).\n";
         }
+        // El teléfono solo se valida si escribieron algo (si es opcional).
         if (!telefono.isEmpty() && !ReggexUtil.TELEFONO_REGEX.matcher(telefono).matches()) {
             errorMessage += "El teléfono no es válido (debe tener 9 dígitos y empezar por 6, 7, 8 o 9).\n";
         }
 
+        // Si hemos encontrado fallos, mostramos un aviso y no seguimos.
         if (!errorMessage.isEmpty()) {
             LOGGER.warning("Falló la validación al guardar cliente: " + errorMessage.replace("\n", " "));
+
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Datos Inválidos");
             alert.setHeaderText("Por favor, corrige los campos marcados.");
             alert.setContentText(errorMessage);
             alert.showAndWait();
-            return; // Detenemos el guardado
+
+            return; // Cortamos aquí la ejecución.
         }
 
-        // Si la validación pasa, procedemos a crear o actualizar
+        // Si todo está correcto, procedemos.
         if (clienteAEditar != null) {
-            // Modo Edición
+            // Estábamos editando: actualizamos los datos del objeto existente.
             clienteAEditar.setNombre(nombre);
             clienteAEditar.setTelefono(telefono);
             clienteAEditar.setDireccion(direccion);
             LOGGER.info("Preparando para actualizar cliente ID: " + clienteAEditar.getId_cliente());
         } else {
-            // Modo Creación
             clienteAEditar = new Cliente(nombre, telefono, direccion);
             LOGGER.info("Preparando para crear nuevo cliente con nombre: " + nombre);
         }
 
+        // Marcamos como guardado y cerramos la ventana.
         guardado = true;
         dialogStage.close();
     }
 
+    /**
+     * Acción del botón Cancelar.
+     */
     @FXML
     private void handleCancel() {
         LOGGER.info("Operación de añadir/editar cliente cancelada por el usuario.");
@@ -95,8 +121,8 @@ public class AddClienteController {
     }
 
     /**
-     * Este método ahora devuelve el cliente que se ha preparado para guardar,
-     * ya sea uno nuevo o uno actualizado.
+     * Devuelve el objeto cliente con los datos listos.
+     * Ya sea el nuevo que creamos o el que editamos.
      */
     public Cliente getNuevoCliente() {
         return clienteAEditar;
