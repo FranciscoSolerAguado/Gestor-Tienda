@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -13,6 +14,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -57,6 +59,11 @@ public class MainController {
 
     private Object activeController;
     private String modoBusqueda = "Nombre";
+    private double xOffset = 0;
+    private double yOffset = 0;
+    private double startX, startY, startWidth, startHeight, startScreenX, startScreenY;
+    private boolean isResizing = false;
+    private static final int RESIZE_MARGIN = 5;
 
     @FXML
     public void initialize() {
@@ -64,6 +71,113 @@ public class MainController {
         if (rightPanel != null) {
             rightPanel.setVisible(false);
         }
+
+        topBar.setOnMousePressed(event -> {
+            Stage stage = (Stage) topBar.getScene().getWindow();
+            xOffset = stage.getX() - event.getScreenX();
+            yOffset = stage.getY() - event.getScreenY();
+        });
+
+        topBar.setOnMouseDragged(event -> {
+            Stage stage = (Stage) topBar.getScene().getWindow();
+            stage.setX(event.getScreenX() + xOffset);
+            stage.setY(event.getScreenY() + yOffset);
+        });
+
+        addResizeListeners();
+    }
+
+    private void addResizeListeners() {
+        mainPane.setOnMouseMoved(this::handleMouseMoved);
+        mainPane.setOnMousePressed(this::handleMousePressed);
+        mainPane.setOnMouseDragged(this::handleMouseDragged);
+        mainPane.setOnMouseReleased(this::handleMouseReleased);
+    }
+
+    private void handleMouseMoved(MouseEvent event) {
+        if (isMaximized) return;
+
+        Stage stage = (Stage) mainPane.getScene().getWindow();
+        Scene scene = stage.getScene();
+        double x = event.getX();
+        double y = event.getY();
+        double width = stage.getWidth();
+        double height = stage.getHeight();
+
+        Cursor cursor = Cursor.DEFAULT;
+        if (x < RESIZE_MARGIN && y < RESIZE_MARGIN) {
+            cursor = Cursor.NW_RESIZE;
+        } else if (x < RESIZE_MARGIN && y > height - RESIZE_MARGIN) {
+            cursor = Cursor.SW_RESIZE;
+        } else if (x > width - RESIZE_MARGIN && y < RESIZE_MARGIN) {
+            cursor = Cursor.NE_RESIZE;
+        } else if (x > width - RESIZE_MARGIN && y > height - RESIZE_MARGIN) {
+            cursor = Cursor.SE_RESIZE;
+        } else if (x < RESIZE_MARGIN) {
+            cursor = Cursor.W_RESIZE;
+        } else if (x > width - RESIZE_MARGIN) {
+            cursor = Cursor.E_RESIZE;
+        } else if (y < RESIZE_MARGIN) {
+            cursor = Cursor.N_RESIZE;
+        } else if (y > height - RESIZE_MARGIN) {
+            cursor = Cursor.S_RESIZE;
+        }
+        scene.setCursor(cursor);
+    }
+
+    private void handleMousePressed(MouseEvent event) {
+        if (isMaximized) return;
+
+        Stage stage = (Stage) mainPane.getScene().getWindow();
+        if (stage.getScene().getCursor() != Cursor.DEFAULT) {
+            isResizing = true;
+            startX = stage.getX();
+            startY = stage.getY();
+            startWidth = stage.getWidth();
+            startHeight = stage.getHeight();
+            startScreenX = event.getScreenX();
+            startScreenY = event.getScreenY();
+        }
+    }
+
+    private void handleMouseDragged(MouseEvent event) {
+        if (!isResizing) return;
+
+        Stage stage = (Stage) mainPane.getScene().getWindow();
+        double dx = event.getScreenX() - startScreenX;
+        double dy = event.getScreenY() - startScreenY;
+        Cursor cursor = stage.getScene().getCursor();
+
+        if (cursor == Cursor.W_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.SW_RESIZE) {
+            double newWidth = startWidth - dx;
+            if (newWidth > stage.getMinWidth()) {
+                stage.setX(startX + dx);
+                stage.setWidth(newWidth);
+            }
+        }
+        if (cursor == Cursor.E_RESIZE || cursor == Cursor.NE_RESIZE || cursor == Cursor.SE_RESIZE) {
+            double newWidth = startWidth + dx;
+            if (newWidth > stage.getMinWidth()) {
+                stage.setWidth(newWidth);
+            }
+        }
+        if (cursor == Cursor.N_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.NE_RESIZE) {
+            double newHeight = startHeight - dy;
+            if (newHeight > stage.getMinHeight()) {
+                stage.setY(startY + dy);
+                stage.setHeight(newHeight);
+            }
+        }
+        if (cursor == Cursor.S_RESIZE || cursor == Cursor.SW_RESIZE || cursor == Cursor.SE_RESIZE) {
+            double newHeight = startHeight + dy;
+            if (newHeight > stage.getMinHeight()) {
+                stage.setHeight(newHeight);
+            }
+        }
+    }
+
+    private void handleMouseReleased(MouseEvent event) {
+        isResizing = false;
     }
 
     @FXML
@@ -396,19 +510,23 @@ public class MainController {
     }
 
     private boolean isMaximized = false;
+    private Rectangle2D backupWindowBounds;
 
     @FXML
     private void handleToggleMaximize() {
         Stage stage = (Stage) topBar.getScene().getWindow();
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
         if (isMaximized) {
-            stage.setWidth(1200);
-            stage.setHeight(800);
-            stage.setX(screenBounds.getMinX() + (screenBounds.getWidth() - 1000) / 2);
-            stage.setY(screenBounds.getMinY() + (screenBounds.getHeight() - 700) / 2);
+            if (backupWindowBounds != null) {
+                stage.setX(backupWindowBounds.getMinX());
+                stage.setY(backupWindowBounds.getMinY());
+                stage.setWidth(backupWindowBounds.getWidth());
+                stage.setHeight(backupWindowBounds.getHeight());
+            }
             isMaximized = false;
             LOGGER.info("Ventana restaurada a tamaño normal.");
         } else {
+            backupWindowBounds = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
             stage.setX(screenBounds.getMinX());
             stage.setY(screenBounds.getMinY());
             stage.setWidth(screenBounds.getWidth());
