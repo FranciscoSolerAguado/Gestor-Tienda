@@ -33,11 +33,13 @@ import java.util.logging.Logger;
 public class VentasController implements Initializable {
 
     private static final Logger LOGGER = LoggerUtil.getLogger();
+
     private final List<Venta> ventasSeleccionadas = new ArrayList<>();
 
     @FXML
     private TilePane contenedorVentas;
 
+    // DAOs para el acceso a datos
     private final VentaDAO ventaDAO = new VentaDAO();
     private final Detalle_VentaDAO detalleDAO = new Detalle_VentaDAO();
 
@@ -47,17 +49,24 @@ public class VentasController implements Initializable {
         cargarVentas();
     }
 
+    /**
+     * Carga todas las ventas de la base de datos y las muestra
+     * * Si no hay ventas, muestra un mensaje informativo.
+     */
     public void cargarVentas() {
         try {
+            // Limpiamos el panel antes de añadir elementos nuevos
             contenedorVentas.getChildren().clear();
             List<Venta> ventas = ventaDAO.getAll();
 
+            // Comprobamos si la lista está vacía
             if (ventas.isEmpty()) {
                 LOGGER.info("No se encontraron ventas en la base de datos.");
                 contenedorVentas.getChildren().add(new Label("No hay ventas para mostrar."));
                 return;
             }
 
+            // Generamos una tarjeta por cada venta
             for (Venta venta : ventas) {
                 VBox tarjeta = crearTarjeta(venta);
                 contenedorVentas.getChildren().add(tarjeta);
@@ -69,9 +78,16 @@ public class VentasController implements Initializable {
         }
     }
 
+    /**
+     * Construye la Tarjeta que representa una venta.
+     * Incluye lógica para obtener el nombre del cliente asociado.
+     * @param venta El objeto venta con los datos a mostrar.
+     * @return Un VBox con la estructura visual de la tarjeta.
+     */
     private VBox crearTarjeta(Venta venta) {
         String nombreCliente = "Sin cliente";
         try {
+            // Intentamos recuperar el nombre del cliente si la venta tiene un ID de cliente válido
             if (venta.getCliente() != null && venta.getCliente().getId_cliente() > 0) {
                 ClienteDAO clienteDAO = new ClienteDAO();
                 var cliente = clienteDAO.getById(venta.getCliente().getId_cliente());
@@ -84,24 +100,31 @@ public class VentasController implements Initializable {
             nombreCliente = "Error al cargar cliente";
         }
 
+        // id y checkbox
         StackPane topPane = new StackPane();
         topPane.setPadding(new Insets(0, 10, 0, 15));
+
         Label idLabel = new Label("#" + venta.getId_venta());
         idLabel.getStyleClass().add("venta-id");
         StackPane.setAlignment(idLabel, Pos.CENTER_LEFT);
+
         CheckBox checkBox = new CheckBox();
         StackPane.setAlignment(checkBox, Pos.CENTER_RIGHT);
+
+        // borrado multiple si no hace una cosa hace otra
         checkBox.setOnAction(e -> {
             if (checkBox.isSelected()) ventasSeleccionadas.add(venta);
             else ventasSeleccionadas.remove(venta);
         });
         topPane.getChildren().addAll(idLabel, checkBox);
 
+        // Icono de la venta
         ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/icono-ventas2.png")));
         imageView.setFitWidth(90);
         imageView.setFitHeight(90);
         imageView.setPreserveRatio(true);
 
+        // Fecha, Total, Cliente
         Label fechaLabel = new Label("Fecha: " + venta.getFecha());
         fechaLabel.getStyleClass().add("venta-text");
 
@@ -112,6 +135,7 @@ public class VentasController implements Initializable {
         clienteLabel.setWrapText(true);
         clienteLabel.getStyleClass().add("venta-text");
 
+        // Detalles y Editar
         Button detallesBtn = new Button("Detalles");
         detallesBtn.getStyleClass().add("venta-detalles-btn");
         detallesBtn.setOnAction(e -> mostrarDetallesVenta(venta));
@@ -123,6 +147,7 @@ public class VentasController implements Initializable {
         HBox botonesBox = new HBox(10, detallesBtn, editarBtn);
         botonesBox.setAlignment(Pos.CENTER);
 
+        //Alineacion vertical
         VBox tarjeta = new VBox(12, topPane, imageView, fechaLabel, totalLabel, clienteLabel, botonesBox);
         tarjeta.setAlignment(Pos.TOP_CENTER);
         tarjeta.getStyleClass().add("venta-card");
@@ -131,6 +156,11 @@ public class VentasController implements Initializable {
         return tarjeta;
     }
 
+    /**
+     * Abre el formulario para editar una venta existente.
+     * Permite modificar la cabecera y las líneas de detalle.
+     * @param venta La venta que se va a editar.
+     */
     private void handleEditarVenta(Venta venta) {
         LOGGER.info("Abriendo diálogo para editar venta ID: " + venta.getId_venta());
         try {
@@ -138,6 +168,7 @@ public class VentasController implements Initializable {
             Parent view = loader.load();
 
             AddVentaController dialogController = loader.getController();
+            // Pasamos la venta al controlador del diálogo para que rellene los campos automaticamnete
             dialogController.setVentaParaEditar(venta);
 
             Stage dialogStage = new Stage();
@@ -151,6 +182,7 @@ public class VentasController implements Initializable {
             dialogController.setDialogStage(dialogStage);
             dialogStage.showAndWait();
 
+            // Si se guardaron cambios, recargamos la lista
             if (dialogController.isGuardado()) {
                 LOGGER.info("Diálogo de edición de venta cerrado y guardado. Refrescando vista...");
                 cargarVentas();
@@ -163,6 +195,9 @@ public class VentasController implements Initializable {
         }
     }
 
+    /**
+     * @param venta La venta de la cual queremos ver los detalles.
+     */
     private void mostrarDetallesVenta(Venta venta) {
         LOGGER.info("Mostrando detalles para la venta ID: " + venta.getId_venta());
         try {
@@ -173,6 +208,7 @@ public class VentasController implements Initializable {
             alert.setTitle("Detalles de la venta");
             alert.setHeaderText("Venta #" + venta.getId_venta() + " - Cliente: " + nombreCliente);
 
+            // Usamos un ListView
             ListView<String> listView = new ListView<>();
             if (detalles.isEmpty()) {
                 listView.getItems().add("No hay detalles para esta venta.");
@@ -198,9 +234,14 @@ public class VentasController implements Initializable {
         }
     }
 
+    /**
+     * Filtra las ventas mostradas en pantalla según el criterio seleccionado.
+     * @param modo El criterio de búsqueda ("id", "fecha", "cliente").
+     * @param texto El valor a buscar.
+     */
     public void filtrarVentas(String modo, String texto) {
         if (texto == null || texto.trim().isEmpty()) {
-            cargarVentas();
+            cargarVentas(); // Si el texto está vacío, mostramos todo
             return;
         }
         LOGGER.info("Filtrando ventas por '" + modo + "' con el texto: '" + texto + "'");
@@ -218,6 +259,7 @@ public class VentasController implements Initializable {
                     break;
                 case "fecha":
                     try {
+
                         java.sql.Date fecha = java.sql.Date.valueOf(texto);
                         ventasFiltradas = ventaDAO.findByFecha(fecha);
                     } catch (IllegalArgumentException e) {
@@ -239,6 +281,10 @@ public class VentasController implements Initializable {
         }
     }
 
+    /**
+     * Elimina las ventas seleccionadas.
+     * Primero borra los detalles (líneas de producto) para evitar errores de integridad referencial.
+     */
     public void borrarSeleccionados() {
         if (ventasSeleccionadas.isEmpty()) {
             LOGGER.info("Intento de borrado de ventas sin selección.");
@@ -260,9 +306,9 @@ public class VentasController implements Initializable {
         LOGGER.info("Iniciando borrado de " + ventasSeleccionadas.size() + " ventas.");
         int borradas = 0;
         int fallidas = 0;
+
         for (Venta venta : ventasSeleccionadas) {
             try {
-                // Primero borrar los detalles, luego la venta
                 detalleDAO.deleteByVentaId(venta.getId_venta());
                 if (ventaDAO.delete(venta)) {
                     borradas++;
@@ -286,6 +332,10 @@ public class VentasController implements Initializable {
         LOGGER.info(borradas + " ventas borradas, " + fallidas + " fallidas.");
     }
 
+    /**
+     * Método auxiliar para limpiar el contenedor y recargarlo con una lista específica.
+     * @param ventas Lista de ventas a mostrar.
+     */
     private void actualizarVista(List<Venta> ventas) {
         contenedorVentas.getChildren().clear();
         if (ventas == null || ventas.isEmpty()) {

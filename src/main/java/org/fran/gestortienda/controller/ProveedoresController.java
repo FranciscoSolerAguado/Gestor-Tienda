@@ -44,17 +44,24 @@ public class ProveedoresController implements Initializable {
         cargarProveedores();
     }
 
+    /**
+     * Recupera la lista completa de proveedores de la base de datos
+     * y genera las tarjetas visuales para mostrarlas en la interfaz.
+     */
     public void cargarProveedores() {
         try {
+            // Limpiamos el contenedor antes de repoblarlo
             contenedorProveedores.getChildren().clear();
             List<Proveedor> proveedores = proveedorDAO.getAll();
 
+            // Verificación de lista vacía
             if (proveedores.isEmpty()) {
                 LOGGER.info("No se encontraron proveedores en la base de datos.");
                 contenedorProveedores.getChildren().add(new Label("No hay proveedores para mostrar."));
                 return;
             }
 
+            // creamos una tarjeta por cada proveedor
             for (Proveedor proveedor : proveedores) {
                 VBox tarjetaProveedor = crearTarjeta(proveedor);
                 contenedorProveedores.getChildren().add(tarjetaProveedor);
@@ -66,7 +73,13 @@ public class ProveedoresController implements Initializable {
         }
     }
 
+    /**
+     * Construye la tarjeta para un proveedor.
+     * @param proveedor El objeto proveedor con los datos a mostrar.
+     * @return VBox configurado con la interfaz de la tarjeta.
+     */
     private VBox crearTarjeta(Proveedor proveedor) {
+        // Contenedor superior para el ID y el CheckBox
         StackPane topPane = new StackPane();
         topPane.setPadding(new javafx.geometry.Insets(0, 10, 0, 15));
 
@@ -74,6 +87,7 @@ public class ProveedoresController implements Initializable {
         idLabel.getStyleClass().add("proveedor-id");
         StackPane.setAlignment(idLabel, Pos.CENTER_LEFT);
 
+        // CheckBox para la selección múltiple (borrado)
         CheckBox checkBox = new CheckBox();
         StackPane.setAlignment(checkBox, Pos.CENTER_RIGHT);
         checkBox.setOnAction(event -> {
@@ -85,11 +99,13 @@ public class ProveedoresController implements Initializable {
         });
         topPane.getChildren().addAll(idLabel, checkBox);
 
+        // Configuración de la imagen del proveedor
         ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/org/fran/gestortienda/img/icono-proveedores2.png")));
         imageView.setFitWidth(90);
         imageView.setFitHeight(90);
         imageView.setPreserveRatio(true);
 
+        // Etiquetas de información (Nombre, Teléfono, Correo)
         Label nombreLabel = new Label(proveedor.getNombre());
         nombreLabel.getStyleClass().add("proveedor-text");
 
@@ -100,6 +116,7 @@ public class ProveedoresController implements Initializable {
         correoLabel.getStyleClass().add("proveedor-text");
         correoLabel.setWrapText(true);
 
+        // Botones de acción: Editar y Ver Productos
         Button editarBtn = new Button("Editar");
         editarBtn.getStyleClass().add("proveedor-accion-btn");
         editarBtn.setOnAction(e -> handleEditarProveedor(proveedor));
@@ -111,6 +128,7 @@ public class ProveedoresController implements Initializable {
         HBox botonesBox = new HBox(10, editarBtn, verProductosBtn);
         botonesBox.setAlignment(Pos.CENTER);
 
+        // Estructura final vertical de la tarjeta
         VBox tarjeta = new VBox(12, topPane, imageView, nombreLabel, telefonoLabel, correoLabel, botonesBox);
         tarjeta.setAlignment(Pos.TOP_CENTER);
         tarjeta.getStyleClass().add("proveedor-card");
@@ -119,15 +137,21 @@ public class ProveedoresController implements Initializable {
         return tarjeta;
     }
 
+    /**
+     * Muestra un diálogo informativo con la lista de productos suministrados por el proveedor.
+     * @param proveedor El proveedor del que queremos consultar el stock.
+     */
     private void handleVerProductos(Proveedor proveedor) {
         LOGGER.info("Abriendo diálogo para ver productos del proveedor ID: " + proveedor.getId_proveedor());
         try {
+            // Consultamos a la base de datos por los productos de este proveedor
             List<Producto> productos = new ProductoDAO().findByProveedorId(proveedor.getId_proveedor());
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Productos del Proveedor");
             alert.setHeaderText("Productos suministrados por: " + proveedor.getNombre());
 
+            // Usamos un ListView para listar los resultados
             ListView<String> listView = new ListView<>();
             if (productos.isEmpty()) {
                 listView.getItems().add("Este proveedor no tiene productos asociados.");
@@ -155,18 +179,24 @@ public class ProveedoresController implements Initializable {
         }
     }
 
+    /**
+     * Abre la ventana para editar los datos de un proveedor existente.
+     * @param proveedor El objeto proveedor a modificar.
+     */
     private void handleEditarProveedor(Proveedor proveedor) {
         LOGGER.info("Abriendo diálogo para editar proveedor ID: " + proveedor.getId_proveedor());
         try {
+            // Carga de la vista FXML de edición
             FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/org/fran/gestortienda/ui/add_proveedor.fxml"));
             Parent view = loader.load();
 
             AddProveedorController dialogController = loader.getController();
+            // Pre-cargamos los datos en el formulario
             dialogController.setProveedorParaEditar(proveedor);
 
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Editar Proveedor");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initModality(Modality.WINDOW_MODAL); // Bloqueo modal
             dialogStage.initOwner(contenedorProveedores.getScene().getWindow());
 
             Scene scene = new Scene(view);
@@ -175,6 +205,7 @@ public class ProveedoresController implements Initializable {
             dialogController.setDialogStage(dialogStage);
             dialogStage.showAndWait();
 
+            // actualizamos en BD y refrescamos la vista
             if (dialogController.isGuardado()) {
                 Proveedor proveedorEditado = dialogController.getNuevoProveedor();
                 if (proveedorEditado != null) {
@@ -189,9 +220,14 @@ public class ProveedoresController implements Initializable {
         }
     }
 
+    /**
+     * Filtra la lista de proveedores según el criterio seleccionado.
+     * @param modo El campo por el que buscar (ID, Nombre, Telefono, Correo).
+     * @param texto El texto a buscar.
+     */
     public void filtrarProveedores(String modo, String texto) {
         if (texto == null || texto.trim().isEmpty()) {
-            cargarProveedores();
+            cargarProveedores(); // Si no hay texto, mostramos todos
             return;
         }
         LOGGER.info("Filtrando proveedores por '" + modo + "' con el texto: '" + texto + "'");
@@ -225,6 +261,10 @@ public class ProveedoresController implements Initializable {
         }
     }
 
+    /**
+     * Carga contenedor con una lista específica de proveedores.
+     * @param proveedores La lista filtrada o actualizada a mostrar.
+     */
     private void actualizarVista(List<Proveedor> proveedores) {
         contenedorProveedores.getChildren().clear();
         if (proveedores.isEmpty()) {
@@ -237,6 +277,10 @@ public class ProveedoresController implements Initializable {
         }
     }
 
+    /**
+     * Elimina de la base de datos los proveedores seleccionados mediante los checkbox.
+     * Gestiona las restricciones de integridad (no borra si tienen productos asociados).
+     */
     public void borrarSeleccionados() {
         if (proveedoresSeleccionados.isEmpty()) {
             LOGGER.info("Intento de borrado de proveedores sin selección.");
@@ -246,6 +290,7 @@ public class ProveedoresController implements Initializable {
             alert.showAndWait();
             return;
         }
+
 
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Confirmar Borrado");
@@ -258,6 +303,7 @@ public class ProveedoresController implements Initializable {
             int borradosExitosamente = 0;
             int borradosFallidos = 0;
 
+            // borrar uno a uno
             for (Proveedor proveedor : proveedoresSeleccionados) {
                 try {
                     if (proveedorDAO.delete(proveedor)) {
@@ -273,8 +319,10 @@ public class ProveedoresController implements Initializable {
                 }
             }
 
+            // recarga
             proveedoresSeleccionados.clear();
             cargarProveedores();
+
 
             if (borradosFallidos > 0) {
                 Alert resumenAlert = new Alert(Alert.AlertType.WARNING);
