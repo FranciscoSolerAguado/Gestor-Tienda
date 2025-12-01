@@ -8,11 +8,15 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
+/**
+ * Clase que maneja la conexión a la base de datos.
+ * Tanto de H2 como de MySQL.
+ */
 public class ConnectionFactory {
 
     private static final Logger LOGGER = LoggerUtil.getLogger();
 
-    // 2. Variable estática para guardar la ÚNICA instancia de la conexión
+    // Variable estática para guardar la ÚNICA instancia de la conexión
     private static Connection connection = null;
 
     private ConnectionFactory() {
@@ -26,7 +30,7 @@ public class ConnectionFactory {
      * @throws SQLException si ocurre un error al conectar.
      */
     public static Connection getConnection() throws SQLException {
-        // 3. Si la conexión no ha sido creada todavía...
+        // Si la conexión no ha sido creada todavía, la creamos
         if (connection == null || connection.isClosed()) {
             try {
                 // Leemos la configuración desde ConfigManager
@@ -49,7 +53,7 @@ public class ConnectionFactory {
                 throw e; // Relanzamos la excepción para que la aplicación principal la capture
             }
         }
-        // 4. Devolvemos la conexión existente
+        //  Devolvemos la conexión existente
         return connection;
     }
 
