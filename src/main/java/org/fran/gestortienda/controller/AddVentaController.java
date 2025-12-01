@@ -120,23 +120,32 @@ public class AddVentaController {
     @FXML
     private void handleAddProducto() {
         try {
+            // 1. Pedir al usuario que elija un producto
             Producto producto = pedirProducto();
             if (producto == null) {
-                LOGGER.info("Selección de producto cancelada.");
-                return;
+                return; // El usuario canceló
             }
 
+            // --- SOLUCIÓN 1: Comprobar si hay stock disponible ---
+            if (producto.getStock() <= 0) {
+                LOGGER.warning("Intento de añadir producto sin stock: " + producto.getNombre());
+                new Alert(Alert.AlertType.WARNING, "El producto '" + producto.getNombre() + "' está agotado y no se puede añadir a la venta.").showAndWait();
+                return; // Detenemos el proceso
+            }
+            // --- FIN DE LA SOLUCIÓN 1 ---
+
+            // 2. Pedir la cantidad
             TextInputDialog cantidadDialog = new TextInputDialog("1");
             cantidadDialog.setTitle("Añadir Producto");
-            cantidadDialog.setHeaderText("Introduce la cantidad para: " + producto.getNombre());
+            cantidadDialog.setHeaderText("Introduce la cantidad para: " + producto.getNombre() + "\nStock disponible: " + producto.getStock());
             cantidadDialog.setContentText("Cantidad:");
 
             Optional<String> cantidadResult = cantidadDialog.showAndWait();
             if (cantidadResult.isEmpty() || cantidadResult.get().isBlank()) {
-                LOGGER.info("Introducción de cantidad cancelada.");
-                return;
+                return; // El usuario canceló o dejó el campo vacío
             }
 
+            // 3. Pedir el descuento
             TextInputDialog descuentoDialog = new TextInputDialog("0.0");
             descuentoDialog.setTitle("Añadir Producto");
             descuentoDialog.setHeaderText("Introduce el descuento (%) para: " + producto.getNombre());
@@ -144,15 +153,14 @@ public class AddVentaController {
 
             Optional<String> descuentoResult = descuentoDialog.showAndWait();
             if (descuentoResult.isEmpty() || descuentoResult.get().isBlank()) {
-                LOGGER.info("Introducción de descuento cancelada.");
-                return;
+                return; // El usuario canceló o dejó el campo vacío
             }
 
+            // 4. Validar y convertir datos
             String cantidadStr = cantidadResult.get();
             String descuentoStr = descuentoResult.get().replace(',', '.');
 
             if (!ReggexUtil.DECIMAL_REGEX.matcher(descuentoStr).matches()) {
-                LOGGER.warning("Validación fallida: formato de descuento incorrecto -> " + descuentoStr);
                 new Alert(Alert.AlertType.WARNING, "El formato del descuento no es válido (ej: 12.99).").showAndWait();
                 return;
             }
@@ -160,12 +168,20 @@ public class AddVentaController {
             int cantidad = Integer.parseInt(cantidadStr);
             double descuento = Double.parseDouble(descuentoStr);
 
+            // --- SOLUCIÓN 2: Comprobar que la cantidad no supere el stock ---
+            if (cantidad > producto.getStock()) {
+                LOGGER.warning(String.format("Intento de vender %d unidades de '%s', pero solo hay %d en stock.", cantidad, producto.getNombre(), producto.getStock()));
+                new Alert(Alert.AlertType.WARNING, "No puedes vender " + cantidad + " unidades. Solo hay " + producto.getStock() + " disponibles en stock.").showAndWait();
+                return;
+            }
+            // --- FIN DE LA SOLUCIÓN 2 ---
+
             if (cantidad <= 0 || descuento < 0 || descuento > 100) {
-                LOGGER.warning("Validación fallida: cantidad o descuento fuera de rango -> Cantidad: " + cantidad + ", Descuento: " + descuento);
                 new Alert(Alert.AlertType.WARNING, "La cantidad debe ser mayor que 0 y el descuento debe estar entre 0 y 100.").showAndWait();
                 return;
             }
 
+            // 5. Calcular y añadir a la tabla
             double precioUnitario = producto.getPrecio();
             double iva = 21.0;
             double precioConDescuento = precioUnitario * (1 - descuento / 100);
@@ -174,13 +190,10 @@ public class AddVentaController {
             Detalle_Venta dv = new Detalle_Venta(0, null, producto, cantidad, descuento, precioUnitario, iva, subtotal);
             detallesList.add(dv);
             actualizarTotal();
-            LOGGER.info("Producto '" + producto.getNombre() + "' añadido a la venta con cantidad: " + cantidad + " y descuento: " + descuento + "%");
 
         } catch (NumberFormatException e) {
-            LOGGER.warning("Error de formato de número al añadir producto a la venta: " + e.getMessage());
             new Alert(Alert.AlertType.ERROR, "La cantidad debe ser un número entero válido.").showAndWait();
         } catch (Exception e) {
-            LOGGER.severe("Error inesperado al añadir producto a la venta: " + e.getMessage());
             e.printStackTrace();
             new Alert(Alert.AlertType.ERROR, "Ocurrió un error al añadir el producto.").showAndWait();
         }
