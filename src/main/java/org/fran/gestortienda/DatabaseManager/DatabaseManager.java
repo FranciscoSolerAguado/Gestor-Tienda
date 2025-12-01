@@ -8,12 +8,14 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.logging.Logger;
 
+/**
+ * Clase que gestiona la creacion de tablas si la base de datos es H2
+ */
 public class DatabaseManager {
     private static final Logger LOGGER = LoggerUtil.getLogger();
 
     public static void crearTablas() {
-
-        // 1. Comprobamos si la base de datos activa es H2
+        // Comprobamos si la base de datos activa es H2
         if ("h2".equals(ConfigManager.getActiveDatabaseType())) {
             LOGGER.info("La base de datos es H2. Creando tablas si no existen...");
 
@@ -83,8 +85,12 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Método que inserta datos por defecto para que la base de datos no este vacia
+     * Esto solo lo hace si la base de datos no tiene datos
+     */
     public static void seedData() {
-        // 2. Comprobamos si la base de datos activa es H2
+        // Comprobamos si la base de datos activa es H2
         if ("h2".equals(ConfigManager.getActiveDatabaseType())) {
             LOGGER.info("La base de datos es H2. Comprobando si se necesitan datos iniciales...");
 

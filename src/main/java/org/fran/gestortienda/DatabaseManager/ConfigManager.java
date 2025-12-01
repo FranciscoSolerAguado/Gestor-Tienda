@@ -3,6 +3,10 @@ package org.fran.gestortienda.DatabaseManager;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Clase que lee el archivo config.properties para determinar cual es la base de datos activa
+ * Esto se usa para ser usado en la clase ConfigManager y poder crear la base de datos automaticamente y tener datos de ejemplo para prueba
+ */
 public class ConfigManager {
 
     private static final Properties properties = new Properties();
