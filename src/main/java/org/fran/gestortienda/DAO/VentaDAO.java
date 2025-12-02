@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VentaDAO extends Venta implements CRUD<Venta> {
-
-
     private final static String INSERT = "INSERT INTO venta(fecha, total, id_cliente) VALUES(?, ?, ?)";
     private final static String UPDATE = "UPDATE venta SET fecha = ?, total = ?, id_cliente = ? WHERE id_venta = ?";
     private final static String DELETE = "DELETE FROM venta WHERE id_venta = ?";
@@ -21,20 +19,32 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
     private static final String GET_BY_TOTAL = "SELECT id_venta, fecha, total, id_cliente FROM venta WHERE total = ?";
     private final static String GET_LAST_BY_CLIENTE = "SELECT * FROM venta WHERE id_cliente = ? ORDER BY id_venta DESC LIMIT 1";
 
+    /**
+     * Constructor con parametros
+     */
     public VentaDAO(int id_venta, java.util.Date fecha, Double total, org.fran.gestortienda.model.entity.Cliente cliente) {
         super(id_venta, fecha, total, cliente);
     }
 
+    /**
+     * Constructor vacio
+     */
     public VentaDAO() {
         super();
     }
 
+    /**
+     * Constructor con venta
+     * @param v la venta
+     */
     public VentaDAO(Venta v) {
         super(v.getId_venta(), v.getFecha(), v.getTotal(), v.getCliente());
     }
 
-
-
+    /**
+     * Guarda una venta en la base de datos.
+     * @throws SQLException
+     */
     @Override
     public boolean save() throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
@@ -56,6 +66,11 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         return false;
     }
 
+    /**
+     * Guarda una venta en la base de datos.
+     * @param venta la venta a guardar
+     * @throws SQLException
+     */
     public Venta addVenta(Venta venta) throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
         if (conn != null) {
@@ -79,6 +94,10 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         return null;
     }
 
+    /**
+     * Elimina una venta de la base de datos.
+     * @throws SQLException
+     */
     @Override
     public boolean remove() throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
@@ -91,6 +110,10 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         return false;
     }
 
+    /**
+     * Actualiza una venta en la base de datos.
+     * @throws SQLException
+     */
     @Override
     public boolean update() throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
@@ -112,32 +135,10 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         return false;
     }
 
-
-
-    @Override
-    public boolean add(Venta venta) throws SQLException {
-        VentaDAO ventaDAO = new VentaDAO(venta);
-        return ventaDAO.save();
-    }
-
-    @Override
-    public boolean delete(Venta venta) throws SQLException {
-        if (venta == null || venta.getId_venta() == 0) {
-            return false;
-        }
-        VentaDAO ventaDAO = new VentaDAO(venta);
-        return ventaDAO.remove();
-    }
-
-    @Override
-    public boolean update(Venta venta) throws SQLException {
-        if (venta == null || venta.getId_venta() == 0) {
-            return false;
-        }
-        VentaDAO ventaDAO = new VentaDAO(venta);
-        return ventaDAO.update();
-    }
-
+    /**
+     * Obtiene todas las ventas de la base de datos.
+     * @throws SQLException
+     */
     @Override
     public List<Venta> getAll() throws SQLException {
         List<Venta> ventas = new ArrayList<>();
@@ -159,6 +160,11 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         return ventas;
     }
 
+    /**
+     * Obtiene una venta por su ID.
+     * @param id el ID de la venta
+     * @throws SQLException
+     */
     @Override
     public Venta getById(int id) throws SQLException {
         Venta venta = null;
@@ -181,6 +187,11 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         return venta;
     }
 
+    /**
+     * Busca ventas por ID.
+     * @param id el ID de la venta
+     * @throws SQLException
+     */
     public List<Venta> buscarPorID(int id) throws SQLException {
         List<Venta> ventas = new ArrayList<>();
 
@@ -207,6 +218,11 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
     }
 
 
+    /**
+     * Busca ventas por fecha.
+     * @param fecha la fecha de la venta
+     * @throws SQLException
+     */
     public List<Venta> findByFecha(Date fecha) throws SQLException {
         List<Venta> ventas = new ArrayList<>();
 
@@ -232,6 +248,11 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         return ventas;
     }
 
+    /**
+     * Busca ventas por cliente.
+     * @param idCliente el ID del cliente
+     * @throws SQLException
+     */
     public List<Venta> findByCliente(int idCliente) throws SQLException {
         List<Venta> ventas = new ArrayList<>();
 
@@ -255,6 +276,11 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         return ventas;
     }
 
+    /**
+     * Busca ventas por total.
+     * @param total el total de la venta
+     * @throws SQLException
+     */
     public List<Venta> findByTotal(double total) throws SQLException {
         List<Venta> lista = new ArrayList<>();
         Connection conn = ConnectionFactory.getConnection();
@@ -276,6 +302,11 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
         return lista;
     }
 
+    /**
+     * Busca la última venta por cliente.
+     * @param idCliente el ID del cliente
+     * @throws SQLException
+     */
     public Venta getLastByCliente(int idCliente) throws SQLException {
         Venta venta = null;
         Connection conn = ConnectionFactory.getConnection();
@@ -295,5 +326,44 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
             }
         }
         return venta;
+    }
+
+    /**
+     * Guarda una venta en la base de datos.
+     * @param venta la venta a guardar
+     * @throws SQLException
+     */
+    @Override
+    public boolean add(Venta venta) throws SQLException {
+        VentaDAO ventaDAO = new VentaDAO(venta);
+        return ventaDAO.save();
+    }
+
+    /**
+     * Elimina una venta de la base de datos.
+     * @param venta la venta a eliminar
+     * @throws SQLException
+     */
+    @Override
+    public boolean delete(Venta venta) throws SQLException {
+        if (venta == null || venta.getId_venta() == 0) {
+            return false;
+        }
+        VentaDAO ventaDAO = new VentaDAO(venta);
+        return ventaDAO.remove();
+    }
+
+    /**
+     * Actualiza una venta en la base de datos.
+     * @param venta la venta a actualizar
+     * @throws SQLException
+     */
+    @Override
+    public boolean update(Venta venta) throws SQLException {
+        if (venta == null || venta.getId_venta() == 0) {
+            return false;
+        }
+        VentaDAO ventaDAO = new VentaDAO(venta);
+        return ventaDAO.update();
     }
 }

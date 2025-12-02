@@ -32,22 +32,35 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
             JOIN proveedor pr ON p.id_proveedor = pr.id_proveedor
             WHERE p.id_producto = ?
             """;
-
     private final static String GET_BY_PROVEEDOR_ID = "SELECT * FROM producto WHERE id_proveedor = ?";
 
 
+    /**
+     * Constructor con parametros
+     */
     public ProductoDAO(int id_producto, String nombre, org.fran.gestortienda.model.Categoria categoria, double precio, int stock, org.fran.gestortienda.model.entity.Proveedor proveedor, String imagen) {
         super(id_producto, nombre, categoria, precio, stock, proveedor, imagen);
     }
 
+    /**
+     * Constructor vacio
+     */
     public ProductoDAO() {
         super();
     }
 
+    /**
+     * Constructor con producto
+     * @param p el producto
+     */
     public ProductoDAO(Producto p) {
         super(p.getId_producto(), p.getNombre(), p.getCategoria(), p.getPrecio(), p.getStock(), p.getProveedor(), p.getImagen());
     }
 
+    /**
+     * Metodo que guarda un producto en la base de datos.
+     * @throws SQLException
+     */
     public boolean save() throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
         // Corregido: La condición debe ser conn != null
@@ -67,6 +80,10 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
         }
     }
 
+    /**
+     * Metodo que elimina un producto de la base de datos.
+     * @throws SQLException
+     */
     @Override
     public boolean remove() throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
@@ -81,6 +98,10 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
         }
     }
 
+    /**
+     * Metodo que actualiza un producto en la base de datos.
+     * @throws SQLException
+     */
     @Override
     public boolean update() throws SQLException {
         boolean actualizado = false;
@@ -106,6 +127,10 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
         return actualizado;
     }
 
+    /**
+     * Metodo que obtiene todos los productos de la base de datos.
+     * @throws SQLException
+     */
     @Override
     public List<Producto> getAll() throws SQLException {
         List<Producto> productos = new ArrayList<>();
@@ -141,6 +166,11 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
         return productos;
     }
 
+    /**
+     * Metodo que obtiene un producto por su ID.
+     * @param id el ID del producto
+     * @throws SQLException
+     */
     @Override
     public Producto getById(int id) throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
@@ -182,8 +212,6 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
         return producto;
     }
 
-    // --- REEMPLAZA ESTE MÉTODO EN TU CLASE ProductoDAO.java ---
-
     /**
      * Busca todos los productos suministrados por un proveedor específico.
      *
@@ -218,6 +246,11 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
         return productos;
     }
 
+    /**
+     * Actualiza un producto en la base de datos.
+     * @param producto el producto a actualizar
+     * @throws SQLException
+     */
     @Override
     public boolean update(Producto producto) throws SQLException {
         // Se necesita el ID para actualizar, así que nos aseguramos de que no sea 0
@@ -228,13 +261,22 @@ public class ProductoDAO extends Producto implements CRUD<Producto> {
         return productoDAO.update();
     }
 
-
+    /**
+     * Guarda un producto en la base de datos.
+     * @param producto el producto a guardar
+     * @throws SQLException
+     */
     @Override
     public boolean add(Producto producto) throws SQLException {
         ProductoDAO productoDAO = new ProductoDAO(producto);
         return productoDAO.save();
     }
 
+    /**
+     * Elimina un producto de la base de datos.
+     * @param producto el producto a eliminar
+     * @throws SQLException
+     */
     @Override
     public boolean delete(Producto producto) throws SQLException {
         ProductoDAO productoDAO = new ProductoDAO(producto);

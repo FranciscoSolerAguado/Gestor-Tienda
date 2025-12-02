@@ -17,20 +17,38 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
     private final static String DELETE = "DELETE FROM cliente WHERE id_cliente = ?";
     private final static String GET_ALL = "SELECT id_cliente, nombre, telefono, direccion FROM cliente";
     private final static String GET_BY_ID = "SELECT id_cliente, nombre, telefono, direccion FROM cliente WHERE id_cliente = ?";
+    private final static String GET_BY_NOMBRE = "SELECT id_cliente, nombre, telefono, direccion FROM cliente WHERE nombre LIKE ?";
+    private final static String GET_BY_DIRECCION = "SELECT id_cliente, nombre, telefono, direccion FROM cliente WHERE direccion LIKE ?";
 
+
+    /**
+     * Constructor con parametros
+     */
     public ClienteDAO(int id_cliente, String nombre, String telefono, String correo) {
         super(id_cliente, nombre, telefono, correo);
     }
 
+    /**
+     * Constructor vacio
+     */
     public ClienteDAO() {
         super();
     }
 
+    /**
+     * Constructor con cliente
+     * @param c el cliente
+     */
     public ClienteDAO(Cliente c) {
         super(c.getId_cliente(), c.getNombre(), c.getTelefono(), c.getDireccion());
     }
 
 
+    /**
+     * Guarda un cliente en la base de datos.
+     *
+     * @throws SQLException
+     */
     @Override
     public boolean save() throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
@@ -46,6 +64,11 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
     }
 
 
+    /**
+     * Elimina un cliente de la base de datos.
+     *
+     * @throws SQLException
+     */
     @Override
     public boolean remove() throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
@@ -58,6 +81,11 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
         return false;
     }
 
+    /**
+     * Actualiza un cliente en la base de datos.
+     *
+     * @throws SQLException
+     */
     @Override
     public boolean update() throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
@@ -73,34 +101,12 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
         return false;
     }
 
-    // --- MÉTODOS DE INTERFAZ (Delegan en los de instancia) ---
 
-    @Override
-    public boolean add(Cliente cliente) throws SQLException {
-        ClienteDAO clienteDAO = new ClienteDAO(cliente);
-        return clienteDAO.save();
-    }
-
-    @Override
-    public boolean delete(Cliente cliente) throws SQLException {
-        // Asegurarse de que el cliente tiene un ID válido
-        if (cliente == null || cliente.getId_cliente() == 0) {
-            return false;
-        }
-        ClienteDAO clienteDAO = new ClienteDAO(cliente);
-        return clienteDAO.remove();
-    }
-
-    @Override
-    public boolean update(Cliente cliente) throws SQLException {
-        // Asegurarse de que el cliente tiene un ID válido
-        if (cliente == null || cliente.getId_cliente() == 0) {
-            return false;
-        }
-        ClienteDAO clienteDAO = new ClienteDAO(cliente);
-        return clienteDAO.update();
-    }
-
+    /**
+     * Obtiene todos los clientes de la base de datos.
+     *
+     * @throws SQLException
+     */
     @Override
     public List<Cliente> getAll() throws SQLException {
         List<Cliente> clientes = new ArrayList<>();
@@ -122,6 +128,12 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
         return clientes;
     }
 
+    /**
+     * Obtiene un cliente por su ID.
+     *
+     * @param id el ID del cliente
+     * @throws SQLException
+     */
     @Override
     public Cliente getById(int id) throws SQLException {
         Cliente cliente = null;
@@ -144,13 +156,9 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
         return cliente;
     }
 
-    // --- COPIA Y PEGA ESTOS MÉTODOS DENTRO DE TU CLASE ClienteDAO ---
-
-    private final static String GET_BY_NOMBRE = "SELECT id_cliente, nombre, telefono, direccion FROM cliente WHERE nombre LIKE ?";
-    private final static String GET_BY_DIRECCION = "SELECT id_cliente, nombre, telefono, direccion FROM cliente WHERE direccion LIKE ?";
-
     /**
      * Busca clientes cuyo nombre contenga el texto proporcionado.
+     *
      * @param nombre El texto a buscar en el nombre.
      * @return Una lista de clientes que coinciden.
      * @throws SQLException Si ocurre un error de SQL.
@@ -178,6 +186,7 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
 
     /**
      * Busca clientes cuya dirección contenga el texto proporcionado.
+     *
      * @param direccion El texto a buscar en la dirección.
      * @return Una lista de clientes que coinciden.
      * @throws SQLException Si ocurre un error de SQL.
@@ -201,5 +210,51 @@ public class ClienteDAO extends Cliente implements CRUD<Cliente> {
             }
         }
         return clientes;
+    }
+
+    // --- MÉTODOS DE INTERFAZ (Delegan en los de instancia) ---
+
+    /**
+     * Guarda un cliente en la base de datos.
+     *
+     * @param cliente el cliente a guardar
+     * @throws SQLException
+     */
+    @Override
+    public boolean add(Cliente cliente) throws SQLException {
+        ClienteDAO clienteDAO = new ClienteDAO(cliente);
+        return clienteDAO.save();
+    }
+
+    /**
+     * Elimina un cliente de la base de datos.
+     *
+     * @param cliente el cliente a eliminar
+     * @throws SQLException
+     */
+    @Override
+    public boolean delete(Cliente cliente) throws SQLException {
+        // Asegurarse de que el cliente tiene un ID válido
+        if (cliente == null || cliente.getId_cliente() == 0) {
+            return false;
+        }
+        ClienteDAO clienteDAO = new ClienteDAO(cliente);
+        return clienteDAO.remove();
+    }
+
+    /**
+     * Actualiza un cliente en la base de datos.
+     *
+     * @param cliente el cliente a actualizar
+     * @throws SQLException
+     */
+    @Override
+    public boolean update(Cliente cliente) throws SQLException {
+        // Asegurarse de que el cliente tiene un ID válido
+        if (cliente == null || cliente.getId_cliente() == 0) {
+            return false;
+        }
+        ClienteDAO clienteDAO = new ClienteDAO(cliente);
+        return clienteDAO.update();
     }
 }

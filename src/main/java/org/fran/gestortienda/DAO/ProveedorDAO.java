@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
-
-
     private final static String INSERT = "INSERT INTO proveedor(nombre, telefono, correo) VALUES(?, ?, ?)";
     private final static String UPDATE = "UPDATE proveedor SET nombre = ?, telefono = ?, correo = ? WHERE id_proveedor = ?";
     private final static String DELETE = "DELETE FROM proveedor WHERE id_proveedor = ?";
@@ -23,20 +21,33 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
     private final static String GET_BY_CORREO = "SELECT id_proveedor, nombre, telefono, correo FROM proveedor WHERE correo LIKE ?";
 
 
+    /**
+     * Constructor con parametros
+     */
     public ProveedorDAO(int id_proveedor, String nombre, String telefono, String correo) {
         super(id_proveedor, nombre, telefono, correo);
     }
 
+    /**
+     * Constructor vacio
+     */
     public ProveedorDAO() {
         super();
     }
 
+    /**
+     * Constructor con proveedor
+     * @param p el proveedor
+     */
     public ProveedorDAO(Proveedor p) {
         super(p.getId_proveedor(), p.getNombre(), p.getTelefono(), p.getCorreo());
     }
 
 
-
+    /**
+     * Metodo que guarda un proveedor en la base de datos.
+     * @throws SQLException
+     */
     @Override
     public boolean save() throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
@@ -51,6 +62,10 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
         return false;
     }
 
+    /**
+     * Metodo que elimina un proveedor de la base de datos.
+     * @throws SQLException
+     */
     @Override
     public boolean remove() throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
@@ -63,6 +78,10 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
         return false;
     }
 
+    /**
+     * Metodo que actualiza un proveedor en la base de datos.
+     * @throws SQLException
+     */
     @Override
     public boolean update() throws SQLException {
         Connection conn = ConnectionFactory.getConnection();
@@ -78,12 +97,22 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
         return false;
     }
 
+    /**
+     * Guarda un proveedor en la base de datos.
+     * @param proveedor el proveedor a guardar
+     * @throws SQLException
+     */
     @Override
     public boolean add(Proveedor proveedor) throws SQLException {
         ProveedorDAO proveedorDAO = new ProveedorDAO(proveedor);
         return proveedorDAO.save();
     }
 
+    /**
+     * Elimina un proveedor de la base de datos.
+     * @param proveedor el proveedor a eliminar
+     * @throws SQLException
+     */
     @Override
     public boolean delete(Proveedor proveedor) throws SQLException {
         if (proveedor == null || proveedor.getId_proveedor() == 0) {
@@ -93,6 +122,11 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
         return proveedorDAO.remove();
     }
 
+    /**
+     * Actualiza un proveedor en la base de datos.
+     * @param proveedor el proveedor a actualizar
+     * @throws SQLException
+     */
     @Override
     public boolean update(Proveedor proveedor) throws SQLException {
         if (proveedor == null || proveedor.getId_proveedor() == 0) {
@@ -102,6 +136,10 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
         return proveedorDAO.update();
     }
 
+    /**
+     * Obtiene todos los proveedores de la base de datos.
+     * @throws SQLException
+     */
     @Override
     public List<Proveedor> getAll() throws SQLException {
         List<Proveedor> proveedores = new ArrayList<>();
@@ -123,6 +161,11 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
         return proveedores;
     }
 
+    /**
+     * Obtiene un proveedor por su ID.
+     * @param id el ID del proveedor
+     * @throws SQLException
+     */
     @Override
     public Proveedor getById(int id) throws SQLException {
         Proveedor proveedor = null;
@@ -144,8 +187,11 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
         }
         return proveedor;
     }
+
     /**
      * Busca proveedores cuyo nombre contenga el texto proporcionado.
+     * @param nombre El texto a buscar en el nombre.
+     * @throws SQLException
      */
     public List<Proveedor> findByNombre(String nombre) throws SQLException {
         List<Proveedor> proveedores = new ArrayList<>();
@@ -170,6 +216,8 @@ public class ProveedorDAO extends Proveedor implements CRUD<Proveedor> {
 
     /**
      * Busca proveedores cuyo correo contenga el texto proporcionado.
+     * @param correo El texto a buscar en el correo.
+     * @throws SQLException
      */
     public List<Proveedor> findByCorreo(String correo) throws SQLException {
         List<Proveedor> proveedores = new ArrayList<>();
