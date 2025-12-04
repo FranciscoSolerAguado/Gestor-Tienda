@@ -17,6 +17,7 @@ import org.fran.gestortienda.DAO.ClienteDAO;
 import org.fran.gestortienda.DAO.VentaDAO;
 import org.fran.gestortienda.DAO.Detalle_VentaDAO;
 import org.fran.gestortienda.MainApp;
+import org.fran.gestortienda.model.entity.Cliente;
 import org.fran.gestortienda.model.entity.Venta;
 import org.fran.gestortienda.model.entity.Detalle_Venta;
 import org.fran.gestortienda.utils.LoggerUtil;
@@ -42,6 +43,7 @@ public class VentasController implements Initializable {
     // DAOs para el acceso a datos
     private final VentaDAO ventaDAO = new VentaDAO();
     private final Detalle_VentaDAO detalleDAO = new Detalle_VentaDAO();
+    private final ClienteDAO clienteDAO = new ClienteDAO();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -87,17 +89,19 @@ public class VentasController implements Initializable {
     private VBox crearTarjeta(Venta venta) {
         String nombreCliente = "Sin cliente";
         try {
-            // Intentamos recuperar el nombre del cliente si la venta tiene un ID de cliente válido
+            // Si la venta tiene un objeto Cliente y este tiene un ID, intentamos obtener los datos completos
             if (venta.getCliente() != null && venta.getCliente().getId_cliente() > 0) {
-                ClienteDAO clienteDAO = new ClienteDAO();
-                var cliente = clienteDAO.getById(venta.getCliente().getId_cliente());
-                if (cliente != null) {
-                    venta.setCliente(cliente);
-                    nombreCliente = cliente.getNombre();
+                Cliente clienteCompleto = clienteDAO.getById(venta.getCliente().getId_cliente());
+                if (clienteCompleto != null) {
+                    venta.setCliente(clienteCompleto);
+                    nombreCliente = clienteCompleto.getNombre();
+                } else {
+                    LOGGER.warning("No se encontró el cliente con ID: " + venta.getCliente().getId_cliente());
                 }
             }
-        } catch (Exception e) {
-            nombreCliente = "Error al cargar cliente";
+        } catch (SQLException e) {
+            LOGGER.severe("Error al cargar el cliente para la venta ID " + venta.getId_venta() + ": " + e.getMessage());
+            nombreCliente = "Error al cargar";
         }
 
         // id y checkbox

@@ -2,6 +2,7 @@ package org.fran.gestortienda.DAO;
 
 import org.fran.gestortienda.Connection.ConnectionFactory;
 import org.fran.gestortienda.model.CRUD;
+import org.fran.gestortienda.model.entity.Cliente;
 import org.fran.gestortienda.model.entity.Venta;
 
 import java.sql.*;
@@ -147,11 +148,13 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
             try (PreparedStatement ps = conn.prepareStatement(GET_ALL);
                  ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
+                    Cliente cliente = new Cliente();
+                    cliente.setId_cliente(rs.getInt("id_cliente"));
                     Venta venta = new Venta(
                             rs.getInt("id_venta"),
                             rs.getDate("fecha"),
                             rs.getDouble("total"),
-                            null
+                            cliente
                     );
                     ventas.add(venta);
                 }
@@ -174,11 +177,13 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
                 ps.setInt(1, id);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
+                        Cliente cliente = new Cliente();
+                        cliente.setId_cliente(rs.getInt("id_cliente"));
                         venta = new Venta(
                                 rs.getInt("id_venta"),
                                 rs.getDate("fecha"),
                                 rs.getDouble("total"),
-                                null
+                                cliente
                         );
                     }
                 }
@@ -204,11 +209,13 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
 
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
+                        Cliente cliente = new Cliente();
+                        cliente.setId_cliente(rs.getInt("id_cliente"));
                         ventas.add(new Venta(
                                 rs.getInt("id_venta"),
                                 rs.getDate("fecha"),
                                 rs.getDouble("total"),
-                                null
+                                cliente
                         ));
                     }
                 }
@@ -234,11 +241,13 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
 
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
+                        Cliente cliente = new Cliente();
+                        cliente.setId_cliente(rs.getInt("id_cliente"));
                         ventas.add(new Venta(
                                 rs.getInt("id_venta"),
                                 rs.getDate("fecha"),
                                 rs.getDouble("total"),
-                                null
+                                cliente
                         ));
                     }
                 }
@@ -263,11 +272,13 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
 
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
+                        Cliente cliente = new Cliente();
+                        cliente.setId_cliente(rs.getInt("id_cliente"));
                         ventas.add(new Venta(
                                 rs.getInt("id_venta"),
                                 rs.getDate("fecha"),
                                 rs.getDouble("total"),
-                                null
+                                cliente
                         ));
                     }
                 }
@@ -290,11 +301,13 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
+                Cliente cliente = new Cliente();
+                cliente.setId_cliente(rs.getInt("id_cliente"));
                 lista.add(new Venta(
                         rs.getInt("id_venta"),
                         rs.getDate("fecha"),
                         rs.getDouble("total"),
-                        null
+                        cliente
                 ));
             }
         }
@@ -315,11 +328,13 @@ public class VentaDAO extends Venta implements CRUD<Venta> {
                 ps.setInt(1, idCliente);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
+                        Cliente cliente = new Cliente();
+                        cliente.setId_cliente(rs.getInt("id_cliente"));
                         venta = new Venta(
                                 rs.getInt("id_venta"),
                                 rs.getDate("fecha"),
                                 rs.getDouble("total"),
-                                null
+                                cliente
                         );
                     }
                 }
